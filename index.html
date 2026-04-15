@@ -31,10 +31,24 @@
   .tab:hover{color:var(--text)}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
   .page{display:none}.page.active{display:block}
-  .filter-row{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+
+  /* ─── Month Navigator ─── */
+  .month-nav{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;flex-shrink:0}
+  .mnav-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:8px 14px;font-size:16px;transition:all 0.15s;line-height:1}
+  .mnav-btn:hover{color:var(--accent);background:rgba(200,245,90,0.06)}
+  .mnav-label{font-family:var(--mono);font-size:12px;color:var(--text);padding:0 6px;white-space:nowrap;min-width:110px;text-align:center}
+  .mnav-divider{width:1px;height:20px;background:var(--border2);flex-shrink:0}
+
+  /* quick filter pills */
+  .filter-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   .fbtn{font-family:var(--font);font-size:12px;padding:6px 14px;border:1px solid var(--border2);border-radius:100px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s}
   .fbtn:hover{color:var(--text)}
   .fbtn.active{background:var(--accent);color:#0f0f11;border-color:var(--accent);font-weight:600}
+  .fbtn.today-btn{border-color:rgba(200,245,90,0.3);color:rgba(200,245,90,0.6)}
+  .fbtn.today-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  .top-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+
   .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
   @media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
   .metric{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
@@ -108,6 +122,17 @@
   .modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto}
   .modal h3{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
   .snapshot-area{background:var(--bg);border-radius:12px;padding:20px}
+
+  /* date cell — Thai style */
+  .date-cell{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:11px;white-space:nowrap}
+  .date-cell .day{font-size:13px;color:var(--text);font-weight:500}
+  .date-cell .month-year{color:var(--muted);font-size:10px}
+
+  /* records filter row */
+  .rec-filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+  .rec-filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer}
+  .rec-filter-select:focus{border-color:var(--accent)}
+  .rec-filter-select option{background:#1f1f24}
 </style>
 </head>
 <body>
@@ -125,14 +150,28 @@
 
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
-    <div class="filter-row" style="margin-bottom:0">
-      <button class="fbtn active" onclick="setFilter(this,'all')">ทั้งหมด</button>
-      <button class="fbtn" onclick="setFilter(this,'month')">เดือนนี้</button>
-      <button class="fbtn" onclick="setFilter(this,'recent')">7 วันล่าสุด</button>
+  <div class="top-controls">
+    <!-- Quick filter pills -->
+    <div class="filter-row">
+      <button class="fbtn active" id="pill-all"   onclick="setQuickFilter('all',this)">ทั้งหมด</button>
+      <button class="fbtn"        id="pill-month"  onclick="setQuickFilter('month',this)">เดือนนี้</button>
+      <button class="fbtn"        id="pill-recent" onclick="setQuickFilter('recent',this)">7 วันล่าสุด</button>
+      <!-- Month navigator (shown only when filterKey==='pick') -->
+      <div id="month-nav-wrap" style="display:none;align-items:center;gap:6px;flex-wrap:wrap">
+        <div class="month-nav">
+          <button class="mnav-btn" onclick="shiftMonth(-1)" title="เดือนก่อน">‹</button>
+          <div class="mnav-divider"></div>
+          <span class="mnav-label" id="mnav-label">—</span>
+          <div class="mnav-divider"></div>
+          <button class="mnav-btn" onclick="shiftMonth(1)" title="เดือนถัดไป">›</button>
+        </div>
+        <button class="fbtn today-btn" onclick="goToCurrentMonth()">เดือนนี้ ↩</button>
+      </div>
+      <button class="fbtn" id="pill-pick" onclick="setQuickFilter('pick',this)">📅 เลือกเดือน</button>
     </div>
     <button class="export-btn" onclick="exportSnapshot()">📷 ส่งออกภาพสรุป</button>
   </div>
+
   <div class="metrics">
     <div class="metric"><div class="metric-label">รายได้รวม</div><div class="metric-value accent" id="m-rev">฿0</div><div class="metric-sub" id="m-rev-sub">0 sessions</div></div>
     <div class="metric"><div class="metric-label">เฉลี่ย / session</div><div class="metric-value" id="m-avg">฿0</div><div class="metric-sub">ต่อการจอง</div></div>
@@ -230,9 +269,15 @@
     <h2>รายการทั้งหมด</h2>
     <span class="rec-count" id="rec-count">0 รายการ</span>
   </div>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="ค้นหาชื่อ, ลูกค้า, ประเภท..." oninput="renderRecords()">
+  <!-- Month filter for records page -->
+  <div class="rec-filter-row">
+    <select id="rec-month-filter" class="rec-filter-select" onchange="renderRecords()">
+      <option value="all">ทุกเดือน</option>
+    </select>
+    <div class="search-wrap" style="flex:1;margin-bottom:0">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="ค้นหาชื่อ, ลูกค้า, ประเภท..." oninput="renderRecords()">
+    </div>
   </div>
   <div class="card">
     <div class="table-wrap">
@@ -278,9 +323,44 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const COL = 'sales_dashboard';
 
+// ─── Thai months ───
+const TH_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const TH_MONTHS_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
 // helpers
 function fmt(n){return '฿'+n.toLocaleString();}
-function sortKey(d){const p=d.split('/').map(Number);return p[2]*10000+p[1]*100+p[0];}
+
+/**
+ * Parse a Thai date string "d/m/YYYY" (YYYY may be BE or CE)
+ * Returns {d, m, y} in CE and thYear in BE
+ */
+function parseThDate(str){
+  const p = str.split('/').map(Number);
+  const d = p[0], m = p[1];
+  const rawY = p[2];
+  const y = rawY > 2500 ? rawY - 543 : rawY;
+  const thY = rawY > 2500 ? rawY : rawY + 543;
+  return {d, m, y, thY};
+}
+
+/** Numeric sort key so dates sort correctly */
+function sortKey(dateStr){
+  const {d,m,y} = parseThDate(dateStr);
+  return y*10000 + m*100 + d;
+}
+
+/** Format date for display: วันที่ d เดือน ปีพ.ศ. */
+function formatThaiDate(dateStr){
+  const {d, m, thY} = parseThDate(dateStr);
+  return `${d} ${TH_MONTHS[m-1]} ${thY}`;
+}
+
+/** Short label for chart axis: d/m (2 digit month abbr) */
+function formatShortAxis(dateStr){
+  const {d, m} = parseThDate(dateStr);
+  return `${d}/${m}`;
+}
+
 function syncDot(state,msg){
   document.getElementById('sync-dot').className='sync-dot '+state;
   document.getElementById('sync-msg').textContent=msg;
@@ -303,12 +383,20 @@ function chClass(ch){
   return 'ch-other';
 }
 
-// state
+// ─── State ───
 let DATA=[];
-let filterKey='all';
+let filterKey='all';   // 'all' | 'month' | 'recent' | 'pick'
+let pickedM=0, pickedY=0;  // CE month (1-12) and CE year for 'pick' mode
 let barChart,pieChart,channelChart;
 
-// realtime listener
+// Init picked month to current
+(function(){
+  const now = new Date();
+  pickedM = now.getMonth()+1;
+  pickedY = now.getFullYear();
+})();
+
+// ─── Realtime listener ───
 syncDot('loading','กำลังเชื่อมต่อ...');
 const q=query(collection(db,COL),orderBy('createdAt','asc'));
 onSnapshot(q, snap=>{
@@ -316,31 +404,67 @@ onSnapshot(q, snap=>{
   syncDot('ok','ซิงค์แล้ว · '+new Date().toLocaleTimeString('th-TH'));
   update();
   if(document.getElementById('page-records').classList.contains('active')) renderRecords();
+  populateRecordMonthFilter();
 }, err=>{
   syncDot('err','เชื่อมต่อไม่ได้ — '+err.message);
 });
 
-// filter
+// ─── Month navigator helpers ───
+function updateNavLabel(){
+  const thY = pickedY + 543;
+  document.getElementById('mnav-label').textContent = `${TH_MONTHS_FULL[pickedM-1]} ${thY}`;
+}
+
+window.shiftMonth = function(delta){
+  pickedM += delta;
+  if(pickedM > 12){pickedM=1;pickedY++;}
+  if(pickedM < 1){pickedM=12;pickedY--;}
+  updateNavLabel();
+  update();
+};
+
+window.goToCurrentMonth = function(){
+  const now=new Date();
+  pickedM=now.getMonth()+1; pickedY=now.getFullYear();
+  updateNavLabel(); update();
+};
+
+// ─── Filter ───
 function getFiltered(){
   if(filterKey==='all') return DATA;
   const today=new Date();
   if(filterKey==='recent'){
-    const cut=new Date(today);cut.setDate(today.getDate()-7);
+    const cut=new Date(today); cut.setDate(today.getDate()-7);
     return DATA.filter(r=>{
-      const p=r.date.split('/').map(Number);
-      const yr=p[2]>2500?p[2]-543:p[2];
-      return new Date(yr,p[1]-1,p[0])>=cut;
+      const {d,m,y}=parseThDate(r.date);
+      return new Date(y,m-1,d)>=cut;
     });
   }
-  const m=today.getMonth()+1,thY=today.getFullYear()+543;
-  return DATA.filter(r=>{const p=r.date.split('/').map(Number);return p[1]===m&&p[2]===thY;});
+  if(filterKey==='month'){
+    const curM=today.getMonth()+1, curY=today.getFullYear();
+    return DATA.filter(r=>{const {m,y}=parseThDate(r.date);return m===curM&&y===curY;});
+  }
+  if(filterKey==='pick'){
+    return DATA.filter(r=>{const {m,y}=parseThDate(r.date);return m===pickedM&&y===pickedY;});
+  }
+  return DATA;
 }
-window.setFilter=function(el,key){
+
+window.setQuickFilter = function(key, el){
+  filterKey=key;
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');filterKey=key;update();
+  el.classList.add('active');
+  const navWrap=document.getElementById('month-nav-wrap');
+  if(key==='pick'){
+    navWrap.style.display='flex';
+    updateNavLabel();
+  } else {
+    navWrap.style.display='none';
+  }
+  update();
 };
 
-// dashboard
+// ─── Dashboard ───
 function update(){
   const rows=getFiltered();
   const total=rows.reduce((s,r)=>s+r.amt,0);
@@ -363,6 +487,7 @@ function update(){
 }
 
 function updateBar(rows){
+  // Sort dates properly using sortKey
   const dates=[...new Set(rows.map(r=>r.date))].sort((a,b)=>sortKey(a)-sortKey(b));
   const srcs=['Walk in','House','Land of Us','MRD','Door of Life','รับรอง34'];
   const datasets=srcs.map(src=>({
@@ -372,9 +497,22 @@ function updateBar(rows){
   }));
   if(barChart)barChart.destroy();
   barChart=new Chart(document.getElementById('barChart'),{
-    type:'bar',data:{labels:dates.map(d=>{const p=d.split('/');return p[0]+'/'+p[1];}),datasets},
+    type:'bar',
+    data:{
+      labels:dates.map(d=>formatShortAxis(d)),
+      datasets
+    },
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          title:ctx=>{
+            // show full Thai date in tooltip
+            return formatThaiDate(dates[ctx[0].dataIndex]);
+          },
+          label:c=>c.dataset.label+': '+fmt(c.raw)
+        }}
+      },
       scales:{
         x:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},autoSkip:true,maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
         y:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}
@@ -414,7 +552,10 @@ function updateTxnTable(rows){
   const sorted=[...rows].sort((a,b)=>sortKey(b.date)-sortKey(a.date)).slice(0,20);
   document.getElementById('txn-body').innerHTML=sorted.map(r=>`
     <tr>
-      <td>${r.date.split('/').slice(0,2).join('/')}</td>
+      <td class="date-cell">
+        <div class="day">${parseThDate(r.date).d} ${TH_MONTHS[parseThDate(r.date).m-1]}</div>
+        <div class="month-year">${parseThDate(r.date).thY}</div>
+      </td>
       <td style="color:#9a9aa0;font-size:11px">${r.client}</td>
       <td>${r.name}</td>
       <td style="color:#9a9aa0;font-size:11px">${r.time}</td>
@@ -425,7 +566,32 @@ function updateTxnTable(rows){
     </tr>`).join('');
 }
 
-// save
+// ─── Records month filter dropdown ───
+function populateRecordMonthFilter(){
+  const sel = document.getElementById('rec-month-filter');
+  const current = sel.value;
+
+  // Collect unique month-year combinations from data
+  const monthSet = new Map();
+  DATA.forEach(r=>{
+    const {m, y, thY} = parseThDate(r.date);
+    const key = `${y}-${String(m).padStart(2,'0')}`;
+    if(!monthSet.has(key)){
+      monthSet.set(key, {key, label:`${TH_MONTHS_FULL[m-1]} ${thY}`, y, m});
+    }
+  });
+
+  // Sort descending (newest first)
+  const months = [...monthSet.values()].sort((a,b)=> b.y!==a.y ? b.y-a.y : b.m-a.m);
+
+  sel.innerHTML = `<option value="all">ทุกเดือน</option>` +
+    months.map(mo=>`<option value="${mo.key}">${mo.label}</option>`).join('');
+
+  // Restore selection if still valid
+  if([...sel.options].some(o=>o.value===current)) sel.value=current;
+}
+
+// ─── Save ───
 window.saveRecord=async function(){
   const btn=document.getElementById('save-btn');
   const editId=document.getElementById('f-edit-id').value;
@@ -469,9 +635,8 @@ window.deleteRecord=async function(id){
 window.editRecord=function(id){
   const r=DATA.find(x=>x._id===id);if(!r)return;
   document.getElementById('f-edit-id').value=id;
-  const p=r.date.split('/').map(Number);
-  const yr=p[2]>2500?p[2]-543:p[2];
-  document.getElementById('f-date').value=`${yr}-${String(p[1]).padStart(2,'0')}-${String(p[0]).padStart(2,'0')}`;
+  const {d,m,y}=parseThDate(r.date);
+  document.getElementById('f-date').value=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   document.getElementById('f-client').value=r.client||'';
   document.getElementById('f-name').value=r.name||'';
   document.getElementById('f-time').value=r.time==='—'?'':r.time;
@@ -486,13 +651,30 @@ window.editRecord=function(id){
 
 window.renderRecords=function(){
   const sq=(document.getElementById('search-input').value||'').toLowerCase();
-  const rows=DATA
-    .filter(r=>!sq||[r.client,r.name,r.source,r.date,r.channel||''].join(' ').toLowerCase().includes(sq))
-    .sort((a,b)=>sortKey(b.date)-sortKey(a.date));
+  const monthFilter=document.getElementById('rec-month-filter').value; // 'all' or 'YYYY-MM'
+
+  let rows=DATA.filter(r=>{
+    // month filter
+    if(monthFilter!=='all'){
+      const {m,y}=parseThDate(r.date);
+      const key=`${y}-${String(m).padStart(2,'0')}`;
+      if(key!==monthFilter) return false;
+    }
+    // text search
+    if(sq && ![r.client,r.name,r.source,r.date,r.channel||''].join(' ').toLowerCase().includes(sq)) return false;
+    return true;
+  });
+
+  // Sort newest → oldest (Thai system: day/month/year)
+  rows.sort((a,b)=>sortKey(b.date)-sortKey(a.date));
+
   document.getElementById('rec-count').textContent=rows.length+' รายการ';
   document.getElementById('rec-body').innerHTML=rows.map(r=>`
     <tr>
-      <td>${r.date.split('/').slice(0,2).join('/')}</td>
+      <td class="date-cell">
+        <div class="day">${parseThDate(r.date).d} ${TH_MONTHS[parseThDate(r.date).m-1]}</div>
+        <div class="month-year">${parseThDate(r.date).thY}</div>
+      </td>
       <td style="color:#9a9aa0;font-size:11px">${r.client}</td>
       <td>${r.name}</td>
       <td style="color:#9a9aa0;font-size:11px">${r.time}</td>
@@ -507,6 +689,7 @@ window.renderRecords=function(){
     </tr>`).join('');
 };
 
+// ─── Export snapshot ───
 window.exportSnapshot=function(){
   const rows=getFiltered();
   const total=rows.reduce((s,r)=>s+r.amt,0);
@@ -514,8 +697,17 @@ window.exportSnapshot=function(){
   const totalCars=rows.reduce((s,r)=>s+(r.cars||0),0);
   const bySrc={};rows.forEach(r=>{bySrc[r.source]=(bySrc[r.source]||0)+r.amt;});
   const byCh={};rows.forEach(r=>{const ch=r.channel||'อื่นๆ';byCh[ch]=(byCh[ch]||0)+1;});
-  const today=new Date();
-  const label=filterKey==='month'?`เดือน ${today.getMonth()+1}/${today.getFullYear()+543}`:filterKey==='recent'?'7 วันล่าสุด':'ข้อมูลทั้งหมด';
+  let label;
+  if(filterKey==='month'){
+    const now=new Date();
+    label=`${TH_MONTHS_FULL[now.getMonth()]} ${now.getFullYear()+543}`;
+  } else if(filterKey==='recent'){
+    label='7 วันล่าสุด';
+  } else if(filterKey==='pick'){
+    label=`${TH_MONTHS_FULL[pickedM-1]} ${pickedY+543}`;
+  } else {
+    label='ข้อมูลทั้งหมด';
+  }
   const srcRows=Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;"><span style="color:#9a9aa0">${k}</span><span style="font-family:'IBM Plex Mono',monospace;color:#c8f55a">${fmt(v)}</span></div>`).join('');
   const chRows=Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
@@ -572,7 +764,7 @@ window.showPage=function(id,el){
   document.getElementById('page-'+id).classList.add('active');
   if(el)el.classList.add('active');
   if(id==='dashboard')update();
-  if(id==='records')renderRecords();
+  if(id==='records'){populateRecordMonthFilter();renderRecords();}
   if(id==='add'&&!document.getElementById('f-edit-id').value)resetForm();
 };
 

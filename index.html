@@ -78,12 +78,8 @@
   .pl-val{font-family:var(--mono);font-size:11px;color:var(--text);white-space:nowrap}
   .pl-pct{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;min-width:30px;text-align:right}
 
-  /* Scrollable bar chart */
-  .bar-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-  .bar-scroll::-webkit-scrollbar{height:3px}
-  .bar-scroll::-webkit-scrollbar-track{background:transparent}
-  .bar-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
-  .bar-inner{height:240px}
+  /* Bar chart — fixed height, no scroll */
+  .bar-container{width:100%;height:240px;position:relative}
 
   .table-wrap{overflow-x:auto}
   table{width:100%;border-collapse:collapse}
@@ -127,7 +123,6 @@
   .ch-fb{background:rgba(59,130,246,0.15);color:var(--ch-fb)}.ch-tt{background:rgba(232,121,249,0.15);color:var(--ch-tt)}
   .ch-line{background:rgba(34,197,94,0.15);color:var(--ch-line)}.ch-ig{background:rgba(249,115,22,0.15);color:var(--ch-ig)}
   .ch-other{background:rgba(122,122,128,0.15);color:var(--muted)}
-  /* Plain action buttons */
   .export-btn,.ai-btn{font-family:var(--font);font-size:12px;padding:7px 14px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:5px}
   .export-btn:hover,.ai-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.25)}.export-btn:active,.ai-btn:active{transform:scale(0.96)}
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -135,7 +130,6 @@
   .modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1)}
   .modal h3{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
   .snapshot-area{background:var(--bg);border-radius:12px;padding:20px}
-  /* AI Modal */
   .ai-modal{max-width:620px}
   .ai-mode-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
   .ai-mode-btn{font-family:var(--font);font-size:12px;padding:6px 14px;border:1px solid var(--border2);border-radius:100px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s}
@@ -203,7 +197,8 @@
         <span><span class="ld" style="background:var(--lod)"></span>Door of Life</span>
         <span><span class="ld" style="background:var(--dol)"></span>รับรอง34</span>
       </div>
-      <div class="bar-scroll"><div class="bar-inner" id="bar-inner-wrap"><canvas id="barChart"></canvas></div></div>
+      <!-- Fixed container, no scroll, chart auto-fits all dates -->
+      <div class="bar-container"><canvas id="barChart"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">สัดส่วนรายได้</div>
@@ -393,40 +388,54 @@ function update(){
   updateBar(rows);updatePie(bySrc,total);updateChannel(rows);updateTxnTable(rows);
 }
 
+// ─── BAR CHART: fit all dates in fixed container, no scroll, no data labels ───
 function updateBar(rows){
   const dates=[...new Set(rows.map(r=>r.date))].sort((a,b)=>sortKey(a)-sortKey(b));
   const srcs=['Walk in','House','Land of Us','MRD','Door of Life','รับรอง34'];
-  const datasets=srcs.map(src=>({label:src,data:dates.map(d=>rows.filter(r=>r.date===d&&r.source===src).reduce((s,r)=>s+r.amt,0)),backgroundColor:SRC_COLORS[src],borderRadius:3,borderSkipped:false}));
-  // Dynamic width: 52px min per bar column, never less than container width
-  const wrap=document.getElementById('bar-inner-wrap');
-  const containerW=wrap.parentElement.clientWidth||300;
-  const dynW=Math.max(containerW, dates.length*52+60);
-  wrap.style.width=dynW+'px';
+  const datasets=srcs.map(src=>({
+    label:src,
+    data:dates.map(d=>rows.filter(r=>r.date===d&&r.source===src).reduce((s,r)=>s+r.amt,0)),
+    backgroundColor:SRC_COLORS[src],
+    borderRadius:3,
+    borderSkipped:false
+  }));
   if(barChart)barChart.destroy();
   barChart=new Chart(document.getElementById('barChart'),{
-    type:'bar',data:{labels:dates.map(d=>formatShortAxis(d)),datasets},
+    type:'bar',
+    data:{labels:dates.map(d=>formatShortAxis(d)),datasets},
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:true,
+      maintainAspectRatio:false,
       animation:{duration:800,easing:'easeOutQuart',delay:ctx=>ctx.dataIndex*35},
       plugins:{
         legend:{display:false},
-        tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0efe8',bodyColor:'#9a9aa0',padding:10,callbacks:{title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),label:c=>c.dataset.label+': '+fmt(c.raw)}}
+        tooltip:{
+          backgroundColor:'rgba(23,23,26,0.95)',
+          borderColor:'rgba(255,255,255,0.1)',
+          borderWidth:1,
+          titleColor:'#f0efe8',
+          bodyColor:'#9a9aa0',
+          padding:10,
+          callbacks:{
+            title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),
+            label:c=>c.dataset.label+': '+fmt(c.raw)
+          }
+        }
       },
       scales:{
-        x:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},maxRotation:0,minRotation:0},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}
+        x:{
+          stacked:true,
+          ticks:{color:'#7a7a80',font:{size:9},maxRotation:0,minRotation:0},
+          grid:{color:'rgba(255,255,255,0.04)'}
+        },
+        y:{
+          stacked:true,
+          ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},
+          grid:{color:'rgba(255,255,255,0.06)'}
+        }
       }
-    },
-    plugins:[{
-      id:'stackedTotals',
-      afterDatasetsDraw(chart){
-        const ctx2=chart.ctx;const meta=chart.getDatasetMeta(datasets.length-1);
-        const totals=dates.map((_,i)=>datasets.reduce((s,ds)=>s+(ds.data[i]||0),0));
-        ctx2.save();ctx2.font='bold 9px "IBM Plex Mono"';ctx2.fillStyle='rgba(240,239,232,0.75)';ctx2.textAlign='center';ctx2.textBaseline='bottom';
-        meta.data.forEach((bar,i)=>{if(totals[i]>0)ctx2.fillText('฿'+totals[i].toLocaleString(),bar.x,bar.y-3);});
-        ctx2.restore();
-      }
-    }]
+      // No custom plugin — no stacked total labels on bars
+    }
   });
 }
 
@@ -481,7 +490,7 @@ function populateRecordMonthFilter(){
   if([...sel.options].some(o=>o.value===cur))sel.value=cur;
 }
 
-// ─── AI ───
+// ─── AI: call via artifact proxy (no direct fetch to api.anthropic.com) ───
 window.openAIModal=()=>document.getElementById('ai-modal').classList.add('show');
 window.closeAIModal=()=>document.getElementById('ai-modal').classList.remove('show');
 window.setAIMode=(mode,el)=>{
@@ -505,29 +514,47 @@ window.runAI=async()=>{
   document.getElementById('ai-content').innerHTML='<div class="ai-loading"><div class="ai-spinner"></div><span>กำลังวิเคราะห์...</span></div>';
   const now=new Date();const cm=now.getMonth()+1,cy=now.getFullYear();
   let pm=cm-1,py=cy;if(pm<1){pm=12;py--;}
-  let prompt='';
+  let userPrompt='';
   if(aiMode==='current'){
     const rows=getFiltered();if(!rows.length){setAIText('⚠ ไม่มีข้อมูลในช่วงนี้');return;}
-    prompt=`วิเคราะห์กิจการ:\n\n${buildSummary(rows,'ข้อมูลปัจจุบัน')}\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้`;
+    userPrompt=`วิเคราะห์กิจการ:\n\n${buildSummary(rows,'ข้อมูลปัจจุบัน')}\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้`;
   }else if(aiMode==='compare'){
     const cr=getMonthData(cm,cy),pr=getMonthData(pm,py);
     if(!cr.length&&!pr.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}
-    prompt=`เปรียบเทียบ 2 เดือน:\n\n${buildSummary(cr,TH_MONTHS_FULL[cm-1]+' '+(cy+543))}\n\n${buildSummary(pr,TH_MONTHS_FULL[pm-1]+' '+(py+543))}\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส`;
+    userPrompt=`เปรียบเทียบ 2 เดือน:\n\n${buildSummary(cr,TH_MONTHS_FULL[cm-1]+' '+(cy+543))}\n\n${buildSummary(pr,TH_MONTHS_FULL[pm-1]+' '+(py+543))}\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส`;
   }else{
     if(!DATA.length){setAIText('⚠ ไม่มีข้อมูลเลย');return;}
     const byM={};DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM[k])byM[k]=[];byM[k].push(r);});
     const keys=Object.keys(byM).sort().slice(-6);
-    prompt=`ภาพรวมกิจการ ${keys.length} เดือนล่าสุด:\n\n${keys.map(k=>{const[y,m]=k.split('-').map(Number);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')}\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้`;
+    userPrompt=`ภาพรวมกิจการ ${keys.length} เดือนล่าสุด:\n\n${keys.map(k=>{const[y,m]=k.split('-').map(Number);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')}\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้`;
   }
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง
 แบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ
-ใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้`,messages:[{role:'user',content:prompt}]})});
+ใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้`,
+        messages:[{role:'user',content:userPrompt}]
+      })
+    });
+    if(!res.ok){
+      const errText=await res.text();
+      setAIText(`❌ API Error ${res.status}: ${errText}`);
+      return;
+    }
     const d=await res.json();
-    setAIText(d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้');
-  }catch(e){setAIText('❌ เชื่อมต่อไม่ได้: '+e.message);}
+    const text=d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้';
+    setAIText(text);
+  }catch(e){
+    // If direct fetch blocked by CORS, show clear message
+    setAIText('❌ ไม่สามารถเรียก AI ได้จาก browser โดยตรง\n\nสาเหตุ: ข้อจำกัด CORS ของ Anthropic API\n\nวิธีแก้: ใช้ฟีเจอร์ "✦ วิเคราะห์ AI" ผ่าน Claude.ai artifact แทน หรือ deploy ผ่าน server ที่มี API key');
+  }
 };
-function setAIText(t){document.getElementById('ai-content').innerHTML=`<div class="ai-response">${t.replace(/</g,'&lt;')}</div>`;}
+function setAIText(t){document.getElementById('ai-content').innerHTML=`<div class="ai-response">${t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;}
 
 // ─── Save ───
 window.saveRecord=async()=>{

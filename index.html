@@ -36,7 +36,7 @@
   #sync-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:12px;color:var(--muted)}
   .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background 0.3s}
   .sync-dot.ok{background:#22c55e}.sync-dot.loading{background:#f5a25a;animation:pulse 1s infinite}.sync-dot.err{background:var(--red)}
-  .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--border)}
+  .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--border);flex-wrap:wrap}
   .tab{font-family:var(--font);font-size:13px;padding:10px 16px;background:transparent;border:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.22s;position:relative;overflow:hidden}
   .tab:hover{color:var(--text);background:rgba(255,255,255,0.03)}.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}.tab:active{transform:scale(0.96)}
   .page{display:none}.page.active{display:block;animation:fadeIn 0.3s ease}
@@ -68,8 +68,6 @@
   .legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
   .legend span{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
   .ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-
-  /* Pie/channel legend with revenue */
   .pl-list{display:flex;flex-direction:column;gap:5px;margin-top:10px}
   .pl-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);transition:color 0.15s;animation:slideIn 0.3s both}
   .pl-row:hover{color:var(--text)}
@@ -77,10 +75,7 @@
   .pl-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .pl-val{font-family:var(--mono);font-size:11px;color:var(--text);white-space:nowrap}
   .pl-pct{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;min-width:30px;text-align:right}
-
-  /* Bar chart — fixed height, no scroll */
   .bar-container{width:100%;height:240px;position:relative}
-
   .table-wrap{overflow-x:auto}
   table{width:100%;border-collapse:collapse}
   thead th{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
@@ -143,12 +138,42 @@
   .rec-filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
   .rec-filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;transition:all 0.18s}
   .rec-filter-select:focus{border-color:var(--accent)}.rec-filter-select option{background:#1f1f24}
+
+  /* ─── VEHICLE PAGE ─── */
+  .veh-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .veh-month-nav{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+  .veh-summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+  .veh-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all 0.25s cubic-bezier(0.22,1,0.36,1);animation:fadeInUp 0.4s cubic-bezier(0.22,1,0.36,1) both}
+  .veh-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,0,0,0.35)}
+  .veh-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .veh-num{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--accent)}
+  .veh-rounds{font-family:var(--mono);font-size:12px;color:var(--muted);background:rgba(200,245,90,0.08);border:1px solid rgba(200,245,90,0.18);border-radius:100px;padding:3px 10px}
+  .veh-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+  .veh-stat{text-align:center;background:var(--surface2);border-radius:8px;padding:8px 4px}
+  .veh-stat-val{font-family:var(--mono);font-size:14px;color:var(--text);font-weight:500}
+  .veh-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+  .veh-timeline{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto}
+  .veh-timeline::-webkit-scrollbar{width:3px}.veh-timeline::-webkit-scrollbar-track{background:transparent}.veh-timeline::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+  .veh-row{display:grid;grid-template-columns:60px 1fr auto auto;gap:6px;align-items:center;padding:5px 8px;border-radius:6px;font-size:11px;transition:background 0.15s;animation:slideIn 0.2s both}
+  .veh-row:hover{background:var(--surface2)}
+  .veh-row-date{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .veh-row-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .veh-row-time{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
+  .veh-row-amt{font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap;text-align:right}
+  .veh-empty{color:var(--muted);font-size:12px;text-align:center;padding:32px;border:1px dashed var(--border2);border-radius:10px}
+  .veh-bar{height:4px;background:var(--surface2);border-radius:2px;margin-top:10px;overflow:hidden}
+  .veh-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--walk));border-radius:2px;transition:width 0.8s cubic-bezier(0.22,1,0.36,1)}
+  .veh-no-data{color:var(--muted);font-size:13px;text-align:center;padding:48px;opacity:0.6}
+
+  /* hours badge */
+  .hrs-badge{font-family:var(--mono);font-size:11px;background:rgba(90,245,200,0.1);color:var(--walk);border-radius:6px;padding:2px 8px;white-space:nowrap}
 </style>
 </head>
 <body>
 <div id="sync-bar"><span class="sync-dot loading" id="sync-dot"></span><span id="sync-msg">กำลังเชื่อมต่อ...</span></div>
 <div class="tabs">
   <button class="tab active ripple-btn" onclick="handleTabClick('dashboard',this)">📊 Dashboard</button>
+  <button class="tab ripple-btn" onclick="handleTabClick('vehicles',this)">🚗 รอบรถ</button>
   <button class="tab ripple-btn" onclick="handleTabClick('add',this)">➕ เพิ่มรายการ</button>
   <button class="tab ripple-btn" onclick="handleTabClick('records',this)">📋 รายการทั้งหมด</button>
 </div>
@@ -197,7 +222,6 @@
         <span><span class="ld" style="background:var(--lod)"></span>Door of Life</span>
         <span><span class="ld" style="background:var(--dol)"></span>รับรอง34</span>
       </div>
-      <!-- Fixed container, no scroll, chart auto-fits all dates -->
       <div class="bar-container"><canvas id="barChart"></canvas></div>
     </div>
     <div class="card">
@@ -227,10 +251,33 @@
     <div class="card-title">รายการทั้งหมด</div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>วันที่</th><th>รหัส</th><th>ชื่อ</th><th>เวลา</th><th>คัน</th><th style="text-align:right">ยอด</th><th>ประเภท</th><th>ช่องทาง</th></tr></thead>
+        <thead><tr><th>วันที่</th><th>รหัส</th><th>ชื่อ</th><th>เวลา</th><th>คัน</th><th>เบอร์รถ</th><th style="text-align:right">ยอด</th><th>ประเภท</th><th>ช่องทาง</th></tr></thead>
         <tbody id="txn-body"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- VEHICLES PAGE -->
+<div class="page" id="page-vehicles">
+  <div class="veh-controls">
+    <div>
+      <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">เดือนที่ดู</div>
+      <div class="veh-month-nav">
+        <button class="mnav-btn" onclick="shiftVehMonth(-1)">‹</button>
+        <div class="mnav-divider"></div>
+        <span class="mnav-label" id="veh-mnav-label">—</span>
+        <div class="mnav-divider"></div>
+        <button class="mnav-btn" onclick="shiftVehMonth(1)">›</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="veh-total-label">— รอบ · — คัน</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="veh-hrs-label">— ชม. รวม</div>
+    </div>
+  </div>
+  <div class="veh-summary-grid" id="veh-grid">
+    <div class="veh-empty">ไม่มีข้อมูลรอบรถในเดือนนี้<br><span style="font-size:11px;margin-top:4px;display:block">เพิ่มรายการพร้อมระบุ <strong>เบอร์รถ</strong> และ <strong>เวลา</strong></span></div>
   </div>
 </div>
 
@@ -250,6 +297,11 @@
       <div class="field"><label>จำนวนคัน</label><input type="number" id="f-cars" placeholder="1" min="0" value="1"></div>
       <div class="field"><label>ช่องทางที่มา</label>
         <select id="f-channel"><option value="Facebook">Facebook</option><option value="TikTok">TikTok</option><option value="LINE">LINE</option><option value="Instagram">Instagram</option><option value="อื่นๆ">อื่นๆ / Walk in</option></select></div>
+      <!-- NEW: เบอร์รถ -->
+      <div class="field form-full">
+        <label>🚗 เบอร์รถที่ออก (คั่นด้วย , ถ้าหลายคัน)</label>
+        <input type="text" id="f-veh-ids" placeholder="เช่น C01, C02 หรือ B01">
+      </div>
     </div>
     <button class="submit-btn ripple-btn" id="save-btn" onclick="saveRecord()">บันทึกรายการ</button>
     <button class="cancel-btn" id="cancel-edit-btn" style="display:none" onclick="cancelEdit()">ยกเลิกการแก้ไข</button>
@@ -261,11 +313,11 @@
   <div class="page-header"><h2>รายการทั้งหมด</h2><span class="rec-count" id="rec-count">0 รายการ</span></div>
   <div class="rec-filter-row">
     <select id="rec-month-filter" class="rec-filter-select" onchange="renderRecords()"><option value="all">ทุกเดือน</option></select>
-    <div class="search-wrap" style="flex:1;margin-bottom:0"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ค้นหาชื่อ, ลูกค้า, ประเภท..." oninput="renderRecords()"></div>
+    <div class="search-wrap" style="flex:1;margin-bottom:0"><span class="search-icon">🔍</span><input type="text" id="search-input" placeholder="ค้นหาชื่อ, ลูกค้า, ประเภท, เบอร์รถ..." oninput="renderRecords()"></div>
   </div>
   <div class="card"><div class="table-wrap">
     <table>
-      <thead><tr><th>วันที่</th><th>รหัส</th><th>ชื่อ</th><th>เวลา</th><th>คัน</th><th style="text-align:right">ยอด</th><th>ประเภท</th><th>ช่องทาง</th><th></th></tr></thead>
+      <thead><tr><th>วันที่</th><th>รหัส</th><th>ชื่อ</th><th>เวลา</th><th>คัน</th><th>เบอร์รถ</th><th style="text-align:right">ยอด</th><th>ประเภท</th><th>ช่องทาง</th><th></th></tr></thead>
       <tbody id="rec-body"></tbody>
     </table>
   </div></div>
@@ -315,6 +367,7 @@ const COL='sales_dashboard';
 
 const TH_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const TH_MONTHS_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const VEH_COLORS=['#c8f55a','#5af5c8','#f5a25a','#a78bfa','#f472b6','#60a5fa','#fb923c','#34d399','#f87171','#fbbf24','#38bdf8','#e879f9'];
 
 const fmt=n=>'฿'+n.toLocaleString();
 function parseThDate(str){const p=str.split('/').map(Number);const d=p[0],m=p[1],rawY=p[2];const y=rawY>2500?rawY-543:rawY;const thY=rawY>2500?rawY:rawY+543;return{d,m,y,thY};}
@@ -332,14 +385,16 @@ const srcClass=s=>s==='Walk in'?'b-walk':s==='House'?'b-house':s==='MRD'?'b-mrd'
 const chClass=c=>c==='Facebook'?'ch-fb':c==='TikTok'?'ch-tt':c==='LINE'?'ch-line':c==='Instagram'?'ch-ig':'ch-other';
 
 let DATA=[],filterKey='all',pickedM,pickedY,barChart,pieChart,channelChart,aiMode='current';
+let vehM,vehY;
 let prevM={rev:0,avg:0,clients:0,sessions:0,cars:0};
-(()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();})();
+(()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();vehM=n.getMonth()+1;vehY=n.getFullYear();})();
 
 syncDot('loading','กำลังเชื่อมต่อ...');
 onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
   DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
   syncDot('ok','ซิงค์แล้ว · '+new Date().toLocaleTimeString('th-TH'));
   update();
+  if(document.getElementById('page-vehicles').classList.contains('active'))renderVehicles();
   if(document.getElementById('page-records').classList.contains('active'))renderRecords();
   populateRecordMonthFilter();
 },err=>syncDot('err','เชื่อมต่อไม่ได้ — '+err.message));
@@ -347,6 +402,106 @@ onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
 window.shiftMonth=d=>{pickedM+=d;if(pickedM>12){pickedM=1;pickedY++;}if(pickedM<1){pickedM=12;pickedY--;}updateNavLabel();update();};
 window.goToCurrentMonth=()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();updateNavLabel();update();};
 function updateNavLabel(){document.getElementById('mnav-label').textContent=`${TH_MONTHS_FULL[pickedM-1]} ${pickedY+543}`;}
+
+// ─── Vehicle month nav ───
+window.shiftVehMonth=d=>{vehM+=d;if(vehM>12){vehM=1;vehY++;}if(vehM<1){vehM=12;vehY--;}renderVehicles();};
+function updateVehNavLabel(){document.getElementById('veh-mnav-label').textContent=`${TH_MONTHS_FULL[vehM-1]} ${vehY+543}`;}
+
+// ─── Parse time string "HH:MM-HH:MM" → duration in minutes ───
+function parseTimeMins(timeStr){
+  if(!timeStr||timeStr==='—')return 0;
+  const m=timeStr.match(/(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})/);
+  if(!m)return 0;
+  const start=parseInt(m[1])*60+parseInt(m[2]);
+  let end=parseInt(m[3])*60+parseInt(m[4]);
+  if(end<start)end+=24*60; // overnight
+  return Math.max(0,end-start);
+}
+function minsToHrs(mins){
+  const h=Math.floor(mins/60),mm=mins%60;
+  return mm?`${h}ชม.${mm}น.`:`${h}ชม.`;
+}
+
+// ─── Parse vehicleIds field → array of trimmed IDs ───
+function parseVehIds(str){
+  if(!str||!str.trim())return[];
+  return str.split(',').map(s=>s.trim()).filter(Boolean);
+}
+
+// ─── RENDER VEHICLES PAGE ───
+window.renderVehicles=()=>{
+  updateVehNavLabel();
+  const rows=DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===vehM&&y===vehY;});
+
+  // Build map: vehId → {rounds:[...], totalMins, totalAmt}
+  const vehMap=new Map();
+  rows.forEach(r=>{
+    const ids=parseVehIds(r.vehicleIds);
+    const mins=parseTimeMins(r.time);
+    ids.forEach(vid=>{
+      if(!vehMap.has(vid))vehMap.set(vid,{id:vid,rounds:[],totalMins:0,totalAmt:0});
+      const v=vehMap.get(vid);
+      v.rounds.push(r);
+      v.totalMins+=mins;
+      v.totalAmt+=r.amt;
+    });
+  });
+
+  const vehs=[...vehMap.values()].sort((a,b)=>b.rounds.length-a.rounds.length);
+  const totalRounds=vehs.reduce((s,v)=>s+v.rounds.length,0);
+  const totalMins=vehs.reduce((s,v)=>s+v.totalMins,0);
+
+  document.getElementById('veh-total-label').textContent=`${totalRounds} รอบ · ${vehs.length} คัน`;
+  document.getElementById('veh-hrs-label').textContent=`${minsToHrs(totalMins)} รวม`;
+
+  const maxRounds=vehs.length?vehs[0].rounds.length:1;
+  const grid=document.getElementById('veh-grid');
+
+  if(!vehs.length){
+    grid.innerHTML=`<div class="veh-empty" style="grid-column:1/-1">ไม่มีข้อมูลรอบรถใน ${TH_MONTHS_FULL[vehM-1]} ${vehY+543}<br><span style="font-size:11px;margin-top:4px;display:block">เพิ่มรายการพร้อมระบุ <strong>เบอร์รถ</strong> ในแท็บ ➕ เพิ่มรายการ</span></div>`;
+    return;
+  }
+
+  grid.innerHTML=vehs.map((v,idx)=>{
+    const color=VEH_COLORS[idx%VEH_COLORS.length];
+    const avgMins=v.rounds.length?Math.round(v.totalMins/v.rounds.length):0;
+    const sortedRounds=[...v.rounds].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
+    const timelineRows=sortedRounds.map((r,i)=>{
+      const{d,m}=parseThDate(r.date);
+      const mins=parseTimeMins(r.time);
+      return `<div class="veh-row" style="animation-delay:${i*0.04}s">
+        <span class="veh-row-date">${d}/${m}</span>
+        <span class="veh-row-name" title="${r.name}">${r.name}</span>
+        <span class="veh-row-time">${r.time||'—'}</span>
+        <span class="veh-row-amt">${mins?minsToHrs(mins):fmt(r.amt)}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="veh-card" style="animation-delay:${idx*0.06}s;border-color:${color}22">
+      <div class="veh-card-header">
+        <div class="veh-num" style="color:${color}">${v.id}</div>
+        <div class="veh-rounds">${v.rounds.length} รอบ</div>
+      </div>
+      <div class="veh-stats">
+        <div class="veh-stat">
+          <div class="veh-stat-val" style="color:${color}">${minsToHrs(v.totalMins)||'—'}</div>
+          <div class="veh-stat-label">รวมทั้งหมด</div>
+        </div>
+        <div class="veh-stat">
+          <div class="veh-stat-val">${minsToHrs(avgMins)||'—'}</div>
+          <div class="veh-stat-label">เฉลี่ย/รอบ</div>
+        </div>
+        <div class="veh-stat">
+          <div class="veh-stat-val" style="font-size:11px">${fmt(v.totalAmt)}</div>
+          <div class="veh-stat-label">รายได้รวม</div>
+        </div>
+      </div>
+      <div class="veh-bar"><div class="veh-bar-fill" style="width:${Math.round(v.rounds.length/maxRounds*100)}%;background:linear-gradient(90deg,${color},${color}88)"></div></div>
+      <div style="margin-top:10px;margin-bottom:5px;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Timeline รอบออก</div>
+      <div class="veh-timeline">${timelineRows||'<div style="color:var(--muted);font-size:11px;padding:8px 0">ไม่มีข้อมูล</div>'}</div>
+    </div>`;
+  }).join('');
+};
 
 function getFiltered(){
   if(filterKey==='all')return DATA;
@@ -388,7 +543,6 @@ function update(){
   updateBar(rows);updatePie(bySrc,total);updateChannel(rows);updateTxnTable(rows);
 }
 
-// ─── BAR CHART: fit all dates in fixed container, no scroll, no data labels ───
 function updateBar(rows){
   const dates=[...new Set(rows.map(r=>r.date))].sort((a,b)=>sortKey(a)-sortKey(b));
   const srcs=['Walk in','House','Land of Us','MRD','Door of Life','รับรอง34'];
@@ -404,37 +558,17 @@ function updateBar(rows){
     type:'bar',
     data:{labels:dates.map(d=>formatShortAxis(d)),datasets},
     options:{
-      responsive:true,
-      maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,
       animation:{duration:800,easing:'easeOutQuart',delay:ctx=>ctx.dataIndex*35},
       plugins:{
         legend:{display:false},
-        tooltip:{
-          backgroundColor:'rgba(23,23,26,0.95)',
-          borderColor:'rgba(255,255,255,0.1)',
-          borderWidth:1,
-          titleColor:'#f0efe8',
-          bodyColor:'#9a9aa0',
-          padding:10,
-          callbacks:{
-            title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),
-            label:c=>c.dataset.label+': '+fmt(c.raw)
-          }
-        }
+        tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0efe8',bodyColor:'#9a9aa0',padding:10,
+          callbacks:{title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),label:c=>c.dataset.label+': '+fmt(c.raw)}}
       },
       scales:{
-        x:{
-          stacked:true,
-          ticks:{color:'#7a7a80',font:{size:9},maxRotation:0,minRotation:0},
-          grid:{color:'rgba(255,255,255,0.04)'}
-        },
-        y:{
-          stacked:true,
-          ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},
-          grid:{color:'rgba(255,255,255,0.06)'}
-        }
+        x:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},maxRotation:0,minRotation:0},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}
       }
-      // No custom plugin — no stacked total labels on bars
     }
   });
 }
@@ -468,6 +602,11 @@ function updateChannel(rows){
     </div>`).join('');
 }
 
+function vehBadge(ids){
+  if(!ids||!ids.trim())return'<span style="color:var(--muted);font-size:10px">—</span>';
+  return parseVehIds(ids).map(id=>`<span class="hrs-badge" style="margin-right:2px">${id}</span>`).join('');
+}
+
 function updateTxnTable(rows){
   const sorted=[...rows].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
   document.getElementById('txn-body').innerHTML=sorted.map((r,i)=>`
@@ -476,6 +615,7 @@ function updateTxnTable(rows){
       <td style="color:#9a9aa0;font-size:11px">${r.client}</td><td>${r.name}</td>
       <td style="color:#9a9aa0;font-size:11px">${r.time}</td>
       <td style="font-family:var(--mono);text-align:center">${r.cars||0}</td>
+      <td>${vehBadge(r.vehicleIds)}</td>
       <td class="amt">${r.amt.toLocaleString()}</td>
       <td><span class="badge ${srcClass(r.source)}">${r.source}</span></td>
       <td><span class="ch-badge ${chClass(r.channel||'อื่นๆ')}">${r.channel||'อื่นๆ'}</span></td>
@@ -490,7 +630,7 @@ function populateRecordMonthFilter(){
   if([...sel.options].some(o=>o.value===cur))sel.value=cur;
 }
 
-// ─── AI: call via artifact proxy (no direct fetch to api.anthropic.com) ───
+// ─── AI ───
 window.openAIModal=()=>document.getElementById('ai-modal').classList.add('show');
 window.closeAIModal=()=>document.getElementById('ai-modal').classList.remove('show');
 window.setAIMode=(mode,el)=>{
@@ -504,10 +644,13 @@ function buildSummary(rows,label){
   const total=rows.reduce((s,r)=>s+r.amt,0),sess=rows.length,avg=sess?Math.round(total/sess):0,cars=rows.reduce((s,r)=>s+(r.cars||0),0);
   const bySrc={};rows.forEach(r=>{bySrc[r.source]=(bySrc[r.source]||0)+r.amt;});
   const byCh={};rows.forEach(r=>{const ch=r.channel||'อื่นๆ';byCh[ch]=(byCh[ch]||0)+1;});
+  // vehicle summary
+  const vehMap={};rows.forEach(r=>{const ids=parseVehIds(r.vehicleIds);ids.forEach(id=>{if(!vehMap[id])vehMap[id]=0;vehMap[id]+=parseTimeMins(r.time);});});
+  const vehSummary=Object.entries(vehMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`${k}(${minsToHrs(v)})`).join(', ');
   return`${label}:
 - รายได้: ${fmt(total)} | กรุ๊ป: ${sess} | เฉลี่ย: ${fmt(avg)} | คัน: ${cars}
 - ตามประเภท: ${Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${fmt(v)}(${Math.round(v/total*100)}%)`).join(', ')}
-- ช่องทาง: ${Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${v}กรุ๊ป`).join(', ')}`;
+- ช่องทาง: ${Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${v}กรุ๊ป`).join(', ')}${vehSummary?`\n- รอบรถ: ${vehSummary}`:''}`;
 }
 
 window.runAI=async()=>{
@@ -541,17 +684,12 @@ window.runAI=async()=>{
         messages:[{role:'user',content:userPrompt}]
       })
     });
-    if(!res.ok){
-      const errText=await res.text();
-      setAIText(`❌ API Error ${res.status}: ${errText}`);
-      return;
-    }
+    if(!res.ok){const errText=await res.text();setAIText(`❌ API Error ${res.status}: ${errText}`);return;}
     const d=await res.json();
     const text=d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้';
     setAIText(text);
   }catch(e){
-    // If direct fetch blocked by CORS, show clear message
-    setAIText('❌ ไม่สามารถเรียก AI ได้จาก browser โดยตรง\n\nสาเหตุ: ข้อจำกัด CORS ของ Anthropic API\n\nวิธีแก้: ใช้ฟีเจอร์ "✦ วิเคราะห์ AI" ผ่าน Claude.ai artifact แทน หรือ deploy ผ่าน server ที่มี API key');
+    setAIText('❌ ไม่สามารถเรียก AI ได้จาก browser โดยตรง\n\nสาเหตุ: ข้อจำกัด CORS ของ Anthropic API\n\nวิธีแก้: ใช้ฟีเจอร์ผ่าน Claude.ai artifact แทน หรือ deploy ผ่าน server ที่มี API key');
   }
 };
 function setAIText(t){document.getElementById('ai-content').innerHTML=`<div class="ai-response">${t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;}
@@ -568,14 +706,20 @@ window.saveRecord=async()=>{
   const cars=parseInt(document.getElementById('f-cars').value)||0;
   const source=document.getElementById('f-source').value;
   const channel=document.getElementById('f-channel').value;
+  const vehicleIds=document.getElementById('f-veh-ids').value.trim();
   if(!dv||!name||isNaN(amt)||amt<=0){showToast('⚠ กรุณากรอกข้อมูลให้ครบ');return;}
   addRipple(btn);
   const d=new Date(dv);
   const thDate=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
   btn.disabled=true;btn.textContent='กำลังบันทึก...';
   try{
-    if(editId){await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel});showToast('✓ แก้ไขรายการแล้ว');}
-    else{await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');}
+    if(editId){
+      await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||''});
+      showToast('✓ แก้ไขรายการแล้ว');
+    }else{
+      await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});
+      showToast('✓ บันทึกรายการแล้ว');
+    }
     resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
   }catch(e){showToast('❌ บันทึกไม่สำเร็จ: '+e.message);}
   finally{btn.disabled=false;btn.textContent='บันทึกรายการ';}
@@ -590,9 +734,10 @@ window.editRecord=id=>{
   document.getElementById('f-time').value=r.time==='—'?'':r.time;
   document.getElementById('f-source').value=r.source||'Walk in';
   document.getElementById('f-channel').value=r.channel||'อื่นๆ';
+  document.getElementById('f-veh-ids').value=r.vehicleIds||'';
   document.getElementById('form-title').textContent='แก้ไขรายการ';
   document.getElementById('cancel-edit-btn').style.display='block';
-  showPage('add',document.querySelectorAll('.tab')[1]);
+  showPage('add',document.querySelectorAll('.tab')[2]);
 };
 
 window.renderRecords=()=>{
@@ -600,7 +745,7 @@ window.renderRecords=()=>{
   const mf=document.getElementById('rec-month-filter').value;
   let rows=DATA.filter(r=>{
     if(mf!=='all'){const{m,y}=parseThDate(r.date);if(`${y}-${String(m).padStart(2,'0')}`!==mf)return false;}
-    if(sq&&![r.client,r.name,r.source,r.date,r.channel||''].join(' ').toLowerCase().includes(sq))return false;
+    if(sq&&![r.client,r.name,r.source,r.date,r.channel||'',r.vehicleIds||''].join(' ').toLowerCase().includes(sq))return false;
     return true;
   }).sort((a,b)=>sortKey(b.date)-sortKey(a.date));
   document.getElementById('rec-count').textContent=rows.length+' รายการ';
@@ -610,6 +755,7 @@ window.renderRecords=()=>{
       <td style="color:#9a9aa0;font-size:11px">${r.client}</td><td>${r.name}</td>
       <td style="color:#9a9aa0;font-size:11px">${r.time}</td>
       <td style="font-family:var(--mono);text-align:center">${r.cars||0}</td>
+      <td>${vehBadge(r.vehicleIds)}</td>
       <td class="amt">${r.amt.toLocaleString()}</td>
       <td><span class="badge ${srcClass(r.source)}">${r.source}</span></td>
       <td><span class="ch-badge ${chClass(r.channel||'อื่นๆ')}">${r.channel||'อื่นๆ'}</span></td>
@@ -652,12 +798,9 @@ window.exportSnapshot=()=>{
         <div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">รายได้รวม</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#c8f55a">${fmt(total)}</div></div>
         <div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">กรุ๊ป/Session</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#5af5c8">${sessions}</div></div>
         <div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">เฉลี่ย/session</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px">${fmt(sessions?Math.round(total/sessions):0)}</div></div>
-        <div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">จำนวนคัน</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#a78bfa">${totalCars}</div></div>
-        <div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">เฉลี่ย/คัน</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px">${totalCars?fmt(Math.round(total/totalCars)):'-'}</div></div>
-        <div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">ราย/กรุ๊ป</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px">${fmt(sessions?Math.round(total/sessions):0)}</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:10px">รายได้ตามประเภท (แยกกรุ๊ป)</div>${srcRows}</div>
+        <div><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:10px">รายได้ตามประเภท</div>${srcRows}</div>
         <div><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:10px">ช่องทางที่มา</div>${chRows}</div>
       </div>
       <div style="margin-top:18px;font-size:10px;color:#7a7a80;text-align:right">สร้าง: ${new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}</div>
@@ -671,7 +814,7 @@ window.downloadSnapshot=()=>{
 window.closeSnapshot=()=>document.getElementById('snapshot-modal').classList.remove('show');
 
 function resetForm(){
-  ['f-edit-id','f-client','f-name','f-time','f-amt'].forEach(id=>document.getElementById(id).value='');
+  ['f-edit-id','f-client','f-name','f-time','f-amt','f-veh-ids'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-cars').value='1';document.getElementById('f-source').value='Walk in';document.getElementById('f-channel').value='Facebook';
   document.getElementById('form-title').textContent='เพิ่มรายการใหม่';document.getElementById('cancel-edit-btn').style.display='none';
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
@@ -684,6 +827,7 @@ window.showPage=(id,el)=>{
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');if(el)el.classList.add('active');
   if(id==='dashboard')update();
+  if(id==='vehicles')renderVehicles();
   if(id==='records'){populateRecordMonthFilter();renderRecords();}
   if(id==='add'&&!document.getElementById('f-edit-id').value)resetForm();
 };

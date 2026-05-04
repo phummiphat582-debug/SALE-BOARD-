@@ -411,10 +411,16 @@ function updateVehNavLabel(){document.getElementById('veh-mnav-label').textConte
 // รองรับ: "15:00น.-16:00น.", "7.30-8.00", "17:00-18:00", "07:00น.-08:00น.", "17.30-18.00" ───
 function parseTimeMins(timeStr){
   if(!timeStr||timeStr==='—'||!timeStr.trim())return 0;
-  // strip Thai น. and spaces, normalise dot-separator to colon
-  const s=timeStr.replace(/น\./g,'').replace(/น$/g,'').replace(/\s/g,'');
-  // match HH:MM or HH.MM on each side of - or –
-  const m=s.match(/(\d{1,2})[:\.](\d{2})\s*[-–]\s*(\d{1,2})[:\.](\d{2})/);
+  // ลบ น. ทุกรูปแบบ (มีช่องว่างหรือไม่ก็ได้) แล้วลบ whitespace
+  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
+  // รองรับ HH:MM หรือ H.MM ทั้งสองฝั่งของ - หรือ –
+  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
+  if(!m)return 0;
+  const start=parseInt(m[1])*60+parseInt(m[2]);
+  let end=parseInt(m[3])*60+parseInt(m[4]);
+  if(end<=start)end+=24*60;
+  return Math.max(0,end-start);
+})[:\.](\d{2})\s*[-–]\s*(\d{1,2})[:\.](\d{2})/);
   if(!m)return 0;
   const start=parseInt(m[1])*60+parseInt(m[2]);
   let end=parseInt(m[3])*60+parseInt(m[4]);
@@ -456,7 +462,7 @@ window.renderVehicles=()=>{
   const totalMins=vehs.reduce((s,v)=>s+v.totalMins,0);
 
   document.getElementById('veh-total-label').textContent=`${totalRounds} รอบ · ${vehs.length} คัน`;
-  document.getElementById('veh-hrs-label').textContent=`${minsToHrs(totalMins)} รวม`;
+  document.getElementById('veh-hrs-label').textContent=totalMins?`${minsToHrs(totalMins)} รวม`:'ยังไม่มีข้อมูลเวลา';
 
   const maxRounds=vehs.length?vehs[0].rounds.length:1;
   const grid=document.getElementById('veh-grid');
@@ -477,7 +483,7 @@ window.renderVehicles=()=>{
         <span class="veh-row-date">${d}/${m}</span>
         <span class="veh-row-name" title="${r.name}">${r.name}</span>
         <span class="veh-row-time">${r.time||'—'}</span>
-        <span class="veh-row-amt">${mins?minsToHrs(mins):fmt(r.amt)}</span>
+        <span class="veh-row-amt">${mins?minsToHrs(mins):'—'}</span>
       </div>`;
     }).join('');
 
@@ -488,11 +494,11 @@ window.renderVehicles=()=>{
       </div>
       <div class="veh-stats">
         <div class="veh-stat">
-          <div class="veh-stat-val" style="color:${color}">${minsToHrs(v.totalMins)||'—'}</div>
+          <div class="veh-stat-val" style="color:${color}">${v.totalMins?minsToHrs(v.totalMins):'—'}</div>
           <div class="veh-stat-label">รวมทั้งหมด</div>
         </div>
         <div class="veh-stat">
-          <div class="veh-stat-val">${minsToHrs(avgMins)||'—'}</div>
+          <div class="veh-stat-val">${avgMins?minsToHrs(avgMins):'—'}</div>
           <div class="veh-stat-label">เฉลี่ย/รอบ</div>
         </div>
         <div class="veh-stat">

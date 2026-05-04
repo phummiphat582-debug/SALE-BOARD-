@@ -165,32 +165,12 @@
   .veh-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--walk));border-radius:2px;transition:width 0.8s cubic-bezier(0.22,1,0.36,1)}
   .veh-no-data{color:var(--muted);font-size:13px;text-align:center;padding:48px;opacity:0.6}
 
-  /* TIME PICKER */
-  .time-picker-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .time-picker-group{display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 10px}
-  .time-sel{background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;cursor:pointer;padding:2px 0;appearance:none;-webkit-appearance:none;min-width:32px;text-align:center}
-  .time-sel option{background:#1f1f24}
-  .time-colon{color:var(--muted);font-family:var(--mono);font-weight:600}
-  .time-arrow{color:var(--accent);font-size:18px;flex-shrink:0}
-  .time-preview{font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(200,245,90,0.08);border:1px solid rgba(200,245,90,0.2);border-radius:6px;padding:4px 10px;white-space:nowrap}
-
-  /* VEHICLE CHECKBOX GRID */
-  .veh-checkbox-grid{display:flex;flex-wrap:wrap;gap:8px}
-  .veh-chip{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border2);border-radius:100px;cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);font-family:var(--mono);font-size:13px;color:var(--muted);user-select:none}
-  .veh-chip:hover{border-color:rgba(255,255,255,0.3);color:var(--text);transform:translateY(-1px)}
-  .veh-chip.selected{background:rgba(90,245,200,0.12);border-color:var(--walk);color:var(--walk);font-weight:600;box-shadow:0 0 12px rgba(90,245,200,0.2)}
-  .veh-chip-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);transition:background 0.2s;flex-shrink:0}
-  .veh-chip.selected .veh-chip-dot{background:var(--walk)}
-  .add-veh-btn{font-family:var(--font);font-size:11px;padding:5px 12px;border:1px solid var(--border2);border-radius:100px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s}
-  .add-veh-btn:hover{color:var(--accent);border-color:rgba(200,245,90,0.4)}
-
-  /* VEH LIST IN MODAL */
-  .veh-list-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px;font-family:var(--mono);font-size:13px}
-  .veh-list-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:6px;transition:all 0.18s}
-  .veh-list-del:hover{background:rgba(245,90,90,0.15);color:var(--red)}
-
   /* hours badge */
   .hrs-badge{font-family:var(--mono);font-size:11px;background:rgba(90,245,200,0.1);color:var(--walk);border-radius:6px;padding:2px 8px;white-space:nowrap}
+  /* duration badge in timeline — green when has data, muted when none */
+  .dur-badge{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;white-space:nowrap}
+  .dur-badge.has-dur{background:rgba(200,245,90,0.12);color:var(--accent)}
+  .dur-badge.no-dur{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -316,38 +296,14 @@
         <select id="f-source"><option value="Walk in">Walk in</option><option value="House">House</option><option value="MRD">MRD</option><option value="Land of Us">Land of Us</option><option value="Door of Life">Door of Life</option><option value="รับรอง34">รับรอง34</option></select></div>
       <div class="field form-full"><label>ชื่อ / คอร์ส</label><input type="text" id="f-name" placeholder="เช่น Patsara, ฝึกภาษาไทย"></div>
       <div class="field"><label>รหัสลูกค้า</label><input type="text" id="f-client" placeholder="เช่น V.010"></div>
+      <div class="field"><label>เวลา</label><input type="text" id="f-time" placeholder="17:00-18:00"></div>
       <div class="field"><label>ยอด (฿)</label><input type="number" id="f-amt" placeholder="1200" min="0"></div>
+      <div class="field"><label>จำนวนคัน</label><input type="number" id="f-cars" placeholder="1" min="0" value="1"></div>
       <div class="field"><label>ช่องทางที่มา</label>
         <select id="f-channel"><option value="Facebook">Facebook</option><option value="TikTok">TikTok</option><option value="LINE">LINE</option><option value="Instagram">Instagram</option><option value="อื่นๆ">อื่นๆ / Walk in</option></select></div>
-
-      <!-- TIME PICKER -->
       <div class="field form-full">
-        <label>🕐 เวลา (เลือกเริ่ม → จบ)</label>
-        <div class="time-picker-row">
-          <div class="time-picker-group">
-            <select id="f-time-sh" class="time-sel"></select>
-            <span class="time-colon">:</span>
-            <select id="f-time-sm" class="time-sel"></select>
-          </div>
-          <span class="time-arrow">→</span>
-          <div class="time-picker-group">
-            <select id="f-time-eh" class="time-sel"></select>
-            <span class="time-colon">:</span>
-            <select id="f-time-em" class="time-sel"></select>
-          </div>
-          <div class="time-preview" id="time-preview">—</div>
-        </div>
-      </div>
-
-      <!-- VEHICLE PICKER -->
-      <div class="field form-full">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <label style="margin-bottom:0">🚗 คันที่ออก (เลือกได้หลายคัน)</label>
-          <button class="add-veh-btn ripple-btn" onclick="openAddVehModal()">+ จัดการรถ</button>
-        </div>
-        <div class="veh-checkbox-grid" id="veh-checkbox-grid">
-          <div style="color:var(--muted);font-size:12px">ยังไม่มีรถในระบบ — กด "+ จัดการรถ" เพื่อเพิ่ม</div>
-        </div>
+        <label>🚗 เบอร์รถที่ออก (คั่นด้วย , ถ้าหลายคัน)</label>
+        <input type="text" id="f-veh-ids" placeholder="เช่น C01, C02 หรือ B01">
       </div>
     </div>
     <button class="submit-btn ripple-btn" id="save-btn" onclick="saveRecord()">บันทึกรายการ</button>
@@ -368,19 +324,6 @@
       <tbody id="rec-body"></tbody>
     </table>
   </div></div>
-</div>
-
-<!-- VEHICLE MANAGE MODAL -->
-<div class="modal-overlay" id="veh-modal">
-  <div class="modal" style="max-width:400px">
-    <h3>🚗 จัดการรถในระบบ</h3>
-    <div id="veh-list-area" style="margin-bottom:16px"></div>
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <input type="text" id="new-veh-input" placeholder="เบอร์รถ เช่น C01, B.1000" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')addVehicle()">
-      <button class="submit-btn ripple-btn" style="width:auto;padding:9px 18px;margin-top:0" onclick="addVehicle()">เพิ่ม</button>
-    </div>
-    <button class="cancel-btn" style="display:block;margin-top:0" onclick="closeAddVehModal()">ปิด</button>
-  </div>
 </div>
 
 <!-- SNAPSHOT MODAL -->
@@ -463,133 +406,53 @@ window.shiftMonth=d=>{pickedM+=d;if(pickedM>12){pickedM=1;pickedY++;}if(pickedM<
 window.goToCurrentMonth=()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();updateNavLabel();update();};
 function updateNavLabel(){document.getElementById('mnav-label').textContent=`${TH_MONTHS_FULL[pickedM-1]} ${pickedY+543}`;}
 
-// ─── Vehicle list (stored in localStorage) ───
-function loadVehicles(){try{return JSON.parse(localStorage.getItem('veh_list')||'[]');}catch{return[];}}
-function saveVehicles(list){localStorage.setItem('veh_list',JSON.stringify(list));}
-function renderVehChips(){
-  const list=loadVehicles();
-  const grid=document.getElementById('veh-checkbox-grid');
-  if(!grid)return;
-  if(!list.length){grid.innerHTML='<div style="color:var(--muted);font-size:12px">ยังไม่มีรถในระบบ — กด "+ จัดการรถ" เพื่อเพิ่ม</div>';return;}
-  const selected=getSelectedVehs();
-  grid.innerHTML=list.map(v=>`
-    <div class="veh-chip${selected.includes(v)?' selected':''}" onclick="toggleVehChip(this,'${v}')">
-      <span class="veh-chip-dot"></span>${v}
-    </div>`).join('');
-}
-function getSelectedVehs(){
-  return [...document.querySelectorAll('.veh-chip.selected')].map(el=>el.textContent.trim());
-}
-window.toggleVehChip=(el,id)=>{el.classList.toggle('selected');};
-window.openAddVehModal=()=>{renderVehListModal();document.getElementById('veh-modal').classList.add('show');};
-window.closeAddVehModal=()=>{document.getElementById('veh-modal').classList.remove('show');renderVehChips();};
-window.addVehicle=()=>{
-  const inp=document.getElementById('new-veh-input');
-  const val=inp.value.trim();if(!val)return;
-  const list=loadVehicles();
-  if(list.includes(val)){showToast('มีรถนี้แล้ว');return;}
-  list.push(val);saveVehicles(list);inp.value='';renderVehListModal();showToast('เพิ่มรถ '+val+' แล้ว');
-};
-window.removeVehicle=id=>{
-  const list=loadVehicles().filter(v=>v!==id);saveVehicles(list);renderVehListModal();showToast('ลบรถ '+id+' แล้ว');
-};
-function renderVehListModal(){
-  const list=loadVehicles();
-  document.getElementById('veh-list-area').innerHTML=list.length
-    ?list.map(v=>`<div class="veh-list-item"><span>${v}</span><button class="veh-list-del" onclick="removeVehicle('${v}')">✕</button></div>`).join('')
-    :'<div style="color:var(--muted);font-size:12px;padding:8px 0">ยังไม่มีรถในระบบ</div>';
-}
-
-// ─── Time picker ───
-function initTimePicker(){
-  const hours=[...Array(24)].map((_,i)=>String(i).padStart(2,'0'));
-  const mins=['00','30'];
-  ['f-time-sh','f-time-eh'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    sel.innerHTML=hours.map(h=>`<option>${h}</option>`).join('');
-  });
-  ['f-time-sm','f-time-em'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    sel.innerHTML=mins.map(m=>`<option>${m}</option>`).join('');
-  });
-  // defaults: start=07:00, end=08:00
-  const sh=document.getElementById('f-time-sh');
-  const eh=document.getElementById('f-time-eh');
-  if(sh)sh.value='07';if(eh)eh.value='08';
-  updateTimePreview();
-  ['f-time-sh','f-time-sm','f-time-eh','f-time-em'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.addEventListener('change',updateTimePreview);
-  });
-}
-function updateTimePreview(){
-  const sh=document.getElementById('f-time-sh')?.value||'00';
-  const sm=document.getElementById('f-time-sm')?.value||'00';
-  const eh=document.getElementById('f-time-eh')?.value||'00';
-  const em=document.getElementById('f-time-em')?.value||'00';
-  const start=parseInt(sh)*60+parseInt(sm);
-  let end=parseInt(eh)*60+parseInt(em);
-  if(end<=start)end+=24*60;
-  const mins=end-start;
-  const dur=mins>=60?`${Math.floor(mins/60)}ชม.${mins%60?mins%60+'น.':''}`:`${mins}น.`;
-  const prev=document.getElementById('time-preview');
-  if(prev)prev.textContent=`${sh}:${sm}–${eh}:${em} (${dur})`;
-}
-function getTimeString(){
-  const sh=document.getElementById('f-time-sh')?.value||'00';
-  const sm=document.getElementById('f-time-sm')?.value||'00';
-  const eh=document.getElementById('f-time-eh')?.value||'00';
-  const em=document.getElementById('f-time-em')?.value||'00';
-  return `${sh}:${sm}น.-${eh}:${em}น.`;
-}
-function setTimePicker(timeStr){
-  // parse existing time string back into pickers
-  if(!timeStr||timeStr==='—'){return;}
-  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
-  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
-  if(!m)return;
-  const sh=document.getElementById('f-time-sh');
-  const sm=document.getElementById('f-time-sm');
-  const eh=document.getElementById('f-time-eh');
-  const em=document.getElementById('f-time-em');
-  const pad=n=>String(n).padStart(2,'0');
-  // round minutes to nearest 30
-  const roundMin=n=>(n<15?'00':n<45?'30':'00');
-  const startH=parseInt(m[1]),startM=parseInt(m[2]);
-  const endH=parseInt(m[3]),endM=parseInt(m[4]);
-  if(sh)sh.value=pad(startH);
-  if(sm)sm.value=roundMin(startM);
-  if(eh)eh.value=pad(endM>=45?endH+1:endH);
-  if(em)em.value=roundMin(endM);
-  updateTimePreview();
-}
-
 // ─── Vehicle month nav ───
 window.shiftVehMonth=d=>{vehM+=d;if(vehM>12){vehM=1;vehY++;}if(vehM<1){vehM=12;vehY--;}renderVehicles();};
 function updateVehNavLabel(){document.getElementById('veh-mnav-label').textContent=`${TH_MONTHS_FULL[vehM-1]} ${vehY+543}`;}
 
-// ─── Parse time string → duration in minutes
-// รองรับ: "15:00น.-16:00น.", "7.30-8.00", "17:00-18:00", "07:00น.-08:00น.", "17.30-18.00" ───
+// ──────────────────────────────────────────────────────────────────
+// FIXED parseTimeMins — handles ALL dash/space/encoding variants:
+//   en-dash (–), em-dash (—), Unicode dashes, non-breaking spaces,
+//   Thai น. marker (with or without space/dot), colon OR dot separator
+// ──────────────────────────────────────────────────────────────────
 function parseTimeMins(timeStr){
-  if(!timeStr||timeStr==='—'||!timeStr.trim())return 0;
-  // ลบ น. ทุกรูปแบบ (มีช่องว่างหรือไม่ก็ได้) แล้วลบ whitespace
-  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
-  // รองรับ HH:MM หรือ H.MM ทั้งสองฝั่งของ - หรือ –
-  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
+  if(!timeStr||!timeStr.trim())return 0;
+
+  const s=timeStr
+    // Remove ALL Thai น. occurrences (with optional preceding space & trailing dot)
+    .replace(/\s*น\.?/g,'')
+    // Remove non-breaking & special spaces
+    .replace(/[\u00A0\u202F\u2009\u3000\u200B]/g,'')
+    // Normalise ALL dash/hyphen variants → plain ASCII hyphen
+    .replace(/[–—\u2010\u2011\u2012\u2013\u2014\u2015]/g,'-')
+    // Strip remaining whitespace
+    .replace(/\s/g,'');
+
+  if(!s||s==='-'||s==='—')return 0;
+
+  // Match: H(:|.)MM-H(:|.)MM  (mixed colon/dot separators OK, e.g. 17:00-17.30)
+  const m=s.match(/(\d{1,2})[:\.](\d{2})-(\d{1,2})[:\.](\d{2})/);
   if(!m)return 0;
+
   const start=parseInt(m[1])*60+parseInt(m[2]);
   let end=parseInt(m[3])*60+parseInt(m[4]);
-  if(end<=start)end+=24*60;
+  if(end<=start)end+=24*60; // crosses midnight
   return Math.max(0,end-start);
 }
+
 function minsToHrs(mins){
+  if(!mins)return'—';
   const h=Math.floor(mins/60),mm=mins%60;
   return mm?`${h}ชม.${mm}น.`:`${h}ชม.`;
 }
 
-// ─── Parse vehicleIds field → array of trimmed IDs ───
+// ─── Parse vehicleIds → normalized IDs (trim + uppercase) ───
+// "NO.06", "No.06", " no.06 " → all become "NO.06" (no duplicate cards)
 function parseVehIds(str){
   if(!str||!str.trim())return[];
-  return str.split(',').map(s=>s.trim()).filter(Boolean);
+  return str.split(',')
+    .map(s=>s.trim().replace(/\s+/g,' ').toUpperCase())
+    .filter(Boolean);
 }
 
 // ─── RENDER VEHICLES PAGE ───
@@ -597,7 +460,6 @@ window.renderVehicles=()=>{
   updateVehNavLabel();
   const rows=DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===vehM&&y===vehY;});
 
-  // Build map: vehId → {rounds:[...], totalMins, totalAmt}
   const vehMap=new Map();
   rows.forEach(r=>{
     const ids=parseVehIds(r.vehicleIds);
@@ -605,7 +467,7 @@ window.renderVehicles=()=>{
     ids.forEach(vid=>{
       if(!vehMap.has(vid))vehMap.set(vid,{id:vid,rounds:[],totalMins:0,totalAmt:0});
       const v=vehMap.get(vid);
-      v.rounds.push(r);
+      v.rounds.push({...r,_mins:mins});
       v.totalMins+=mins;
       v.totalAmt+=r.amt;
     });
@@ -632,12 +494,12 @@ window.renderVehicles=()=>{
     const sortedRounds=[...v.rounds].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
     const timelineRows=sortedRounds.map((r,i)=>{
       const{d,m}=parseThDate(r.date);
-      const mins=parseTimeMins(r.time);
+      const durStr=r._mins?`<span class="dur-badge has-dur">${minsToHrs(r._mins)}</span>`:`<span class="dur-badge no-dur">—</span>`;
       return `<div class="veh-row" style="animation-delay:${i*0.04}s">
         <span class="veh-row-date">${d}/${m}</span>
         <span class="veh-row-name" title="${r.name}">${r.name}</span>
-        <span class="veh-row-time">${r.time||'—'}</span>
-        <span class="veh-row-amt">${mins?minsToHrs(mins):'—'}</span>
+        <span class="veh-row-time" style="font-size:9px">${r.time||'—'}</span>
+        ${durStr}
       </div>`;
     }).join('');
 
@@ -808,478 +670,6 @@ function buildSummary(rows,label){
   const total=rows.reduce((s,r)=>s+r.amt,0),sess=rows.length,avg=sess?Math.round(total/sess):0,cars=rows.reduce((s,r)=>s+(r.cars||0),0);
   const bySrc={};rows.forEach(r=>{bySrc[r.source]=(bySrc[r.source]||0)+r.amt;});
   const byCh={};rows.forEach(r=>{const ch=r.channel||'อื่นๆ';byCh[ch]=(byCh[ch]||0)+1;});
-  // vehicle summary
-  const vehMap={};rows.forEach(r=>{const ids=parseVehIds(r.vehicleIds);ids.forEach(id=>{if(!vehMap[id])vehMap[id]=0;vehMap[id]+=parseTimeMins(r.time);});});
-  const vehSummary=Object.entries(vehMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`${k}(${minsToHrs(v)})`).join(', ');
-  return`${label}:
-- รายได้: ${fmt(total)} | กรุ๊ป: ${sess} | เฉลี่ย: ${fmt(avg)} | คัน: ${cars}
-- ตามประเภท: ${Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${fmt(v)}(${Math.round(v/total*100)}%)`).join(', ')}
-- ช่องทาง: ${Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${v}กรุ๊ป`).join(', ')}${vehSummary?`\n- รอบรถ: ${vehSummary}`:''}`;
-}
-
-window.runAI=async()=>{
-  document.getElementById('ai-content').innerHTML='<div class="ai-loading"><div class="ai-spinner"></div><span>กำลังวิเคราะห์...</span></div>';
-  const now=new Date();const cm=now.getMonth()+1,cy=now.getFullYear();
-  let pm=cm-1,py=cy;if(pm<1){pm=12;py--;}
-  let userPrompt='';
-  if(aiMode==='current'){
-    const rows=getFiltered();if(!rows.length){setAIText('⚠ ไม่มีข้อมูลในช่วงนี้');return;}
-    userPrompt=`วิเคราะห์กิจการ:\n\n${buildSummary(rows,'ข้อมูลปัจจุบัน')}\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้`;
-  }else if(aiMode==='compare'){
-    const cr=getMonthData(cm,cy),pr=getMonthData(pm,py);
-    if(!cr.length&&!pr.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}
-    userPrompt=`เปรียบเทียบ 2 เดือน:\n\n${buildSummary(cr,TH_MONTHS_FULL[cm-1]+' '+(cy+543))}\n\n${buildSummary(pr,TH_MONTHS_FULL[pm-1]+' '+(py+543))}\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส`;
-  }else{
-    if(!DATA.length){setAIText('⚠ ไม่มีข้อมูลเลย');return;}
-    const byM={};DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM[k])byM[k]=[];byM[k].push(r);});
-    const keys=Object.keys(byM).sort().slice(-6);
-    userPrompt=`ภาพรวมกิจการ ${keys.length} เดือนล่าสุด:\n\n${keys.map(k=>{const[y,m]=k.split('-').map(Number);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')}\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้`;
-  }
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:`คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง
-แบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ
-ใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้`,
-        messages:[{role:'user',content:userPrompt}]
-      })
-    });
-    if(!res.ok){const errText=await res.text();setAIText(`❌ API Error ${res.status}: ${errText}`);return;}
-    const d=await res.json();
-    const text=d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้';
-    setAIText(text);
-  }catch(e){
-    setAIText('❌ ไม่สามารถเรียก AI ได้จาก browser โดยตรง\n\nสาเหตุ: ข้อจำกัด CORS ของ Anthropic API\n\nวิธีแก้: ใช้ฟีเจอร์ผ่าน Claude.ai artifact แทน หรือ deploy ผ่าน server ที่มี API key');
-  }
-};
-function setAIText(t){document.getElementById('ai-content').innerHTML=`<div class="ai-response">${t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;}
-
-// ─── Save ───
-window.saveRecord=async()=>{
-  const btn=document.getElementById('save-btn');
-  const editId=document.getElementById('f-edit-id').value;
-  const dv=document.getElementById('f-date').value;
-  const client=document.getElementById('f-client').value.trim()||'-';
-  const name=document.getElementById('f-name').value.trim();
-  const time=getTimeString();
-  const amt=parseInt(document.getElementById('f-amt').value);
-  const source=document.getElementById('f-source').value;
-  const channel=document.getElementById('f-channel').value;
-  const selectedVehs=getSelectedVehs();
-  const vehicleIds=selectedVehs.join(', ');
-  const cars=selectedVehs.length||0;
-  if(!dv||!name||isNaN(amt)||amt<=0){showToast('⚠ กรุณากรอกข้อมูลให้ครบ');return;}
-  addRipple(btn);
-  const d=new Date(dv);
-  const thDate=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
-  btn.disabled=true;btn.textContent='กำลังบันทึก...';
-  try{
-    if(editId){
-      await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time,amt,cars,source,channel,vehicleIds});
-      showToast('✓ แก้ไขรายการแล้ว');
-    }else{
-      await addDoc(collection(db,COL),{date:thDate,client,name,time,amt,cars,source,channel,vehicleIds,createdAt:serverTimestamp()});
-      showToast('✓ บันทึกรายการแล้ว');
-    }
-    resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
-  }catch(e){showToast('❌ บันทึกไม่สำเร็จ: '+e.message);}
-  finally{btn.disabled=false;btn.textContent='บันทึกรายการ';}
-};//www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-const firebaseConfig={apiKey:"AIzaSyCowDEvUQpBmq7AwUGiC6IuGOudPhi_0kM",authDomain:"vehicle-maintenance-64890.firebaseapp.com",projectId:"vehicle-maintenance-64890",storageBucket:"vehicle-maintenance-64890.firebasestorage.app",messagingSenderId:"59942066726",appId:"1:59942066726:web:f53cdeae8fb2da80e4a4e7"};
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-const COL='sales_dashboard';
-
-const TH_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-const TH_MONTHS_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-const VEH_COLORS=['#c8f55a','#5af5c8','#f5a25a','#a78bfa','#f472b6','#60a5fa','#fb923c','#34d399','#f87171','#fbbf24','#38bdf8','#e879f9'];
-
-const fmt=n=>'฿'+n.toLocaleString();
-function parseThDate(str){const p=str.split('/').map(Number);const d=p[0],m=p[1],rawY=p[2];const y=rawY>2500?rawY-543:rawY;const thY=rawY>2500?rawY:rawY+543;return{d,m,y,thY};}
-function sortKey(ds){const{d,m,y}=parseThDate(ds);return y*10000+m*100+d;}
-function formatThaiDate(ds){const{d,m,thY}=parseThDate(ds);return`${d} ${TH_MONTHS[m-1]} ${thY}`;}
-function formatShortAxis(ds){const{d,m}=parseThDate(ds);return`${d}/${m}`;}
-function syncDot(s,msg){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-msg').textContent=msg;}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-function addRipple(el){el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');setTimeout(()=>el.classList.remove('rippling'),500);}
-function animateCount(el,from,to,dur=600,pre='',suf=''){const s=performance.now();const u=n=>{const p=Math.min((n-s)/dur,1),e=1-Math.pow(1-p,3);el.textContent=pre+Math.round(from+(to-from)*e).toLocaleString()+suf;if(p<1)requestAnimationFrame(u);};requestAnimationFrame(u);}
-
-const SRC_COLORS={'Walk in':'#5af5c8','House':'#fb923c','Land of Us':'#c8f55a','MRD':'#f5a25a','Door of Life':'#a78bfa','รับรอง34':'#f472b6'};
-const CH_COLORS={'Facebook':'#3b82f6','TikTok':'#e879f9','LINE':'#22c55e','Instagram':'#f97316','อื่นๆ':'#7a7a80'};
-const srcClass=s=>s==='Walk in'?'b-walk':s==='House'?'b-house':s==='MRD'?'b-mrd':s==='Land of Us'?'b-pkg':s==='Door of Life'?'b-lod':s==='รับรอง34'?'b-dol':'b-vip';
-const chClass=c=>c==='Facebook'?'ch-fb':c==='TikTok'?'ch-tt':c==='LINE'?'ch-line':c==='Instagram'?'ch-ig':'ch-other';
-
-let DATA=[],filterKey='all',pickedM,pickedY,barChart,pieChart,channelChart,aiMode='current';
-let vehM,vehY;
-let prevM={rev:0,avg:0,clients:0,sessions:0,cars:0};
-(()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();vehM=n.getMonth()+1;vehY=n.getFullYear();})();
-
-syncDot('loading','กำลังเชื่อมต่อ...');
-onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
-  DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
-  syncDot('ok','ซิงค์แล้ว · '+new Date().toLocaleTimeString('th-TH'));
-  update();
-  if(document.getElementById('page-vehicles').classList.contains('active'))renderVehicles();
-  if(document.getElementById('page-records').classList.contains('active'))renderRecords();
-  populateRecordMonthFilter();
-},err=>syncDot('err','เชื่อมต่อไม่ได้ — '+err.message));
-
-window.shiftMonth=d=>{pickedM+=d;if(pickedM>12){pickedM=1;pickedY++;}if(pickedM<1){pickedM=12;pickedY--;}updateNavLabel();update();};
-window.goToCurrentMonth=()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();updateNavLabel();update();};
-function updateNavLabel(){document.getElementById('mnav-label').textContent=`${TH_MONTHS_FULL[pickedM-1]} ${pickedY+543}`;}
-
-// ─── Vehicle list (stored in localStorage) ───
-function loadVehicles(){try{return JSON.parse(localStorage.getItem('veh_list')||'[]');}catch{return[];}}
-function saveVehicles(list){localStorage.setItem('veh_list',JSON.stringify(list));}
-function renderVehChips(){
-  const list=loadVehicles();
-  const grid=document.getElementById('veh-checkbox-grid');
-  if(!grid)return;
-  if(!list.length){grid.innerHTML='<div style="color:var(--muted);font-size:12px">ยังไม่มีรถในระบบ — กด "+ จัดการรถ" เพื่อเพิ่ม</div>';return;}
-  const selected=getSelectedVehs();
-  grid.innerHTML=list.map(v=>`
-    <div class="veh-chip${selected.includes(v)?' selected':''}" onclick="toggleVehChip(this,'${v}')">
-      <span class="veh-chip-dot"></span>${v}
-    </div>`).join('');
-}
-function getSelectedVehs(){
-  return [...document.querySelectorAll('.veh-chip.selected')].map(el=>el.textContent.trim());
-}
-window.toggleVehChip=(el,id)=>{el.classList.toggle('selected');};
-window.openAddVehModal=()=>{renderVehListModal();document.getElementById('veh-modal').classList.add('show');};
-window.closeAddVehModal=()=>{document.getElementById('veh-modal').classList.remove('show');renderVehChips();};
-window.addVehicle=()=>{
-  const inp=document.getElementById('new-veh-input');
-  const val=inp.value.trim();if(!val)return;
-  const list=loadVehicles();
-  if(list.includes(val)){showToast('มีรถนี้แล้ว');return;}
-  list.push(val);saveVehicles(list);inp.value='';renderVehListModal();showToast('เพิ่มรถ '+val+' แล้ว');
-};
-window.removeVehicle=id=>{
-  const list=loadVehicles().filter(v=>v!==id);saveVehicles(list);renderVehListModal();showToast('ลบรถ '+id+' แล้ว');
-};
-function renderVehListModal(){
-  const list=loadVehicles();
-  document.getElementById('veh-list-area').innerHTML=list.length
-    ?list.map(v=>`<div class="veh-list-item"><span>${v}</span><button class="veh-list-del" onclick="removeVehicle('${v}')">✕</button></div>`).join('')
-    :'<div style="color:var(--muted);font-size:12px;padding:8px 0">ยังไม่มีรถในระบบ</div>';
-}
-
-// ─── Time picker ───
-function initTimePicker(){
-  const hours=[...Array(24)].map((_,i)=>String(i).padStart(2,'0'));
-  const mins=['00','30'];
-  ['f-time-sh','f-time-eh'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    sel.innerHTML=hours.map(h=>`<option>${h}</option>`).join('');
-  });
-  ['f-time-sm','f-time-em'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    sel.innerHTML=mins.map(m=>`<option>${m}</option>`).join('');
-  });
-  // defaults: start=07:00, end=08:00
-  const sh=document.getElementById('f-time-sh');
-  const eh=document.getElementById('f-time-eh');
-  if(sh)sh.value='07';if(eh)eh.value='08';
-  updateTimePreview();
-  ['f-time-sh','f-time-sm','f-time-eh','f-time-em'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.addEventListener('change',updateTimePreview);
-  });
-}
-function updateTimePreview(){
-  const sh=document.getElementById('f-time-sh')?.value||'00';
-  const sm=document.getElementById('f-time-sm')?.value||'00';
-  const eh=document.getElementById('f-time-eh')?.value||'00';
-  const em=document.getElementById('f-time-em')?.value||'00';
-  const start=parseInt(sh)*60+parseInt(sm);
-  let end=parseInt(eh)*60+parseInt(em);
-  if(end<=start)end+=24*60;
-  const mins=end-start;
-  const dur=mins>=60?`${Math.floor(mins/60)}ชม.${mins%60?mins%60+'น.':''}`:`${mins}น.`;
-  const prev=document.getElementById('time-preview');
-  if(prev)prev.textContent=`${sh}:${sm}–${eh}:${em} (${dur})`;
-}
-function getTimeString(){
-  const sh=document.getElementById('f-time-sh')?.value||'00';
-  const sm=document.getElementById('f-time-sm')?.value||'00';
-  const eh=document.getElementById('f-time-eh')?.value||'00';
-  const em=document.getElementById('f-time-em')?.value||'00';
-  return `${sh}:${sm}น.-${eh}:${em}น.`;
-}
-function setTimePicker(timeStr){
-  // parse existing time string back into pickers
-  if(!timeStr||timeStr==='—'){return;}
-  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
-  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
-  if(!m)return;
-  const sh=document.getElementById('f-time-sh');
-  const sm=document.getElementById('f-time-sm');
-  const eh=document.getElementById('f-time-eh');
-  const em=document.getElementById('f-time-em');
-  const pad=n=>String(n).padStart(2,'0');
-  // round minutes to nearest 30
-  const roundMin=n=>(n<15?'00':n<45?'30':'00');
-  const startH=parseInt(m[1]),startM=parseInt(m[2]);
-  const endH=parseInt(m[3]),endM=parseInt(m[4]);
-  if(sh)sh.value=pad(startH);
-  if(sm)sm.value=roundMin(startM);
-  if(eh)eh.value=pad(endM>=45?endH+1:endH);
-  if(em)em.value=roundMin(endM);
-  updateTimePreview();
-}
-
-// ─── Vehicle month nav ───
-window.shiftVehMonth=d=>{vehM+=d;if(vehM>12){vehM=1;vehY++;}if(vehM<1){vehM=12;vehY--;}renderVehicles();};
-function updateVehNavLabel(){document.getElementById('veh-mnav-label').textContent=`${TH_MONTHS_FULL[vehM-1]} ${vehY+543}`;}
-
-// ─── Parse time string → duration in minutes
-// รองรับ: "15:00น.-16:00น.", "7.30-8.00", "17:00-18:00", "07:00น.-08:00น.", "17.30-18.00" ───
-function parseTimeMins(timeStr){
-  if(!timeStr||timeStr==='—'||!timeStr.trim())return 0;
-  // ลบ น. ทุกรูปแบบ (มีช่องว่างหรือไม่ก็ได้) แล้วลบ whitespace
-  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
-  // รองรับ HH:MM หรือ H.MM ทั้งสองฝั่งของ - หรือ –
-  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
-  if(!m)return 0;
-  const start=parseInt(m[1])*60+parseInt(m[2]);
-  let end=parseInt(m[3])*60+parseInt(m[4]);
-  if(end<=start)end+=24*60;
-  return Math.max(0,end-start);
-}
-function minsToHrs(mins){
-  const h=Math.floor(mins/60),mm=mins%60;
-  return mm?`${h}ชม.${mm}น.`:`${h}ชม.`;
-}
-
-// ─── Parse vehicleIds field → array of trimmed IDs ───
-function parseVehIds(str){
-  if(!str||!str.trim())return[];
-  return str.split(',').map(s=>s.trim()).filter(Boolean);
-}
-
-// ─── RENDER VEHICLES PAGE ───
-window.renderVehicles=()=>{
-  updateVehNavLabel();
-  const rows=DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===vehM&&y===vehY;});
-
-  // Build map: vehId → {rounds:[...], totalMins, totalAmt}
-  const vehMap=new Map();
-  rows.forEach(r=>{
-    const ids=parseVehIds(r.vehicleIds);
-    const mins=parseTimeMins(r.time);
-    ids.forEach(vid=>{
-      if(!vehMap.has(vid))vehMap.set(vid,{id:vid,rounds:[],totalMins:0,totalAmt:0});
-      const v=vehMap.get(vid);
-      v.rounds.push(r);
-      v.totalMins+=mins;
-      v.totalAmt+=r.amt;
-    });
-  });
-
-  const vehs=[...vehMap.values()].sort((a,b)=>b.rounds.length-a.rounds.length);
-  const totalRounds=vehs.reduce((s,v)=>s+v.rounds.length,0);
-  const totalMins=vehs.reduce((s,v)=>s+v.totalMins,0);
-
-  document.getElementById('veh-total-label').textContent=`${totalRounds} รอบ · ${vehs.length} คัน`;
-  document.getElementById('veh-hrs-label').textContent=totalMins?`${minsToHrs(totalMins)} รวม`:'ยังไม่มีข้อมูลเวลา';
-
-  const maxRounds=vehs.length?vehs[0].rounds.length:1;
-  const grid=document.getElementById('veh-grid');
-
-  if(!vehs.length){
-    grid.innerHTML=`<div class="veh-empty" style="grid-column:1/-1">ไม่มีข้อมูลรอบรถใน ${TH_MONTHS_FULL[vehM-1]} ${vehY+543}<br><span style="font-size:11px;margin-top:4px;display:block">เพิ่มรายการพร้อมระบุ <strong>เบอร์รถ</strong> ในแท็บ ➕ เพิ่มรายการ</span></div>`;
-    return;
-  }
-
-  grid.innerHTML=vehs.map((v,idx)=>{
-    const color=VEH_COLORS[idx%VEH_COLORS.length];
-    const avgMins=v.rounds.length?Math.round(v.totalMins/v.rounds.length):0;
-    const sortedRounds=[...v.rounds].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
-    const timelineRows=sortedRounds.map((r,i)=>{
-      const{d,m}=parseThDate(r.date);
-      const mins=parseTimeMins(r.time);
-      return `<div class="veh-row" style="animation-delay:${i*0.04}s">
-        <span class="veh-row-date">${d}/${m}</span>
-        <span class="veh-row-name" title="${r.name}">${r.name}</span>
-        <span class="veh-row-time">${r.time||'—'}</span>
-        <span class="veh-row-amt">${mins?minsToHrs(mins):'—'}</span>
-      </div>`;
-    }).join('');
-
-    return `<div class="veh-card" style="animation-delay:${idx*0.06}s;border-color:${color}22">
-      <div class="veh-card-header">
-        <div class="veh-num" style="color:${color}">${v.id}</div>
-        <div class="veh-rounds">${v.rounds.length} รอบ</div>
-      </div>
-      <div class="veh-stats">
-        <div class="veh-stat">
-          <div class="veh-stat-val" style="color:${color}">${v.totalMins?minsToHrs(v.totalMins):'—'}</div>
-          <div class="veh-stat-label">รวมทั้งหมด</div>
-        </div>
-        <div class="veh-stat">
-          <div class="veh-stat-val">${avgMins?minsToHrs(avgMins):'—'}</div>
-          <div class="veh-stat-label">เฉลี่ย/รอบ</div>
-        </div>
-        <div class="veh-stat">
-          <div class="veh-stat-val" style="font-size:11px">${fmt(v.totalAmt)}</div>
-          <div class="veh-stat-label">รายได้รวม</div>
-        </div>
-      </div>
-      <div class="veh-bar"><div class="veh-bar-fill" style="width:${Math.round(v.rounds.length/maxRounds*100)}%;background:linear-gradient(90deg,${color},${color}88)"></div></div>
-      <div style="margin-top:10px;margin-bottom:5px;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Timeline รอบออก</div>
-      <div class="veh-timeline">${timelineRows||'<div style="color:var(--muted);font-size:11px;padding:8px 0">ไม่มีข้อมูล</div>'}</div>
-    </div>`;
-  }).join('');
-};
-
-function getFiltered(){
-  if(filterKey==='all')return DATA;
-  const t=new Date();
-  if(filterKey==='recent'){const c=new Date(t);c.setDate(t.getDate()-7);return DATA.filter(r=>{const{d,m,y}=parseThDate(r.date);return new Date(y,m-1,d)>=c;});}
-  if(filterKey==='month'){const cm=t.getMonth()+1,cy=t.getFullYear();return DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===cm&&y===cy;});}
-  if(filterKey==='pick')return DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===pickedM&&y===pickedY;});
-  return DATA;
-}
-function getMonthData(m,y){return DATA.filter(r=>{const p=parseThDate(r.date);return p.m===m&&p.y===y;});}
-
-window.setQuickFilter=(key,el)=>{
-  filterKey=key;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');addRipple(el);
-  const nw=document.getElementById('month-nav-wrap');
-  if(key==='pick'){nw.style.display='flex';updateNavLabel();}else{nw.style.display='none';}
-  update();
-};
-window.handleTabClick=(id,el)=>{addRipple(el);showPage(id,el);};
-
-function update(){
-  const rows=getFiltered();
-  const total=rows.reduce((s,r)=>s+r.amt,0);
-  const sessions=rows.length;
-  const avg=sessions?Math.round(total/sessions):0;
-  const bySrc={};rows.forEach(r=>{bySrc[r.source]=(bySrc[r.source]||0)+r.amt;});
-  const top=Object.entries(bySrc).sort((a,b)=>b[1]-a[1])[0];
-  const totalCars=rows.reduce((s,r)=>s+(r.cars||0),0);
-  animateCount(document.getElementById('m-rev'),prevM.rev,total,700,'฿');
-  animateCount(document.getElementById('m-avg'),prevM.avg,avg,600,'฿');
-  animateCount(document.getElementById('m-clients'),prevM.clients,sessions,500);
-  animateCount(document.getElementById('m-sessions'),prevM.sessions,sessions,500);
-  animateCount(document.getElementById('m-cars'),prevM.cars,totalCars,600);
-  prevM={rev:total,avg,clients:sessions,sessions,cars:totalCars};
-  document.getElementById('m-rev-sub').textContent=sessions+' sessions';
-  document.getElementById('m-clients-sub').textContent='การจอง = 1 กรุ๊ป';
-  document.getElementById('m-top').textContent=top?top[0]:'—';
-  document.getElementById('m-top-sub').textContent=top?fmt(top[1]):'—';
-  document.getElementById('m-cars-sub').textContent='รวม '+sessions+' session';
-  updateBar(rows);updatePie(bySrc,total);updateChannel(rows);updateTxnTable(rows);
-}
-
-function updateBar(rows){
-  const dates=[...new Set(rows.map(r=>r.date))].sort((a,b)=>sortKey(a)-sortKey(b));
-  const srcs=['Walk in','House','Land of Us','MRD','Door of Life','รับรอง34'];
-  const datasets=srcs.map(src=>({
-    label:src,
-    data:dates.map(d=>rows.filter(r=>r.date===d&&r.source===src).reduce((s,r)=>s+r.amt,0)),
-    backgroundColor:SRC_COLORS[src],
-    borderRadius:3,
-    borderSkipped:false
-  }));
-  if(barChart)barChart.destroy();
-  barChart=new Chart(document.getElementById('barChart'),{
-    type:'bar',
-    data:{labels:dates.map(d=>formatShortAxis(d)),datasets},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      animation:{duration:800,easing:'easeOutQuart',delay:ctx=>ctx.dataIndex*35},
-      plugins:{
-        legend:{display:false},
-        tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0efe8',bodyColor:'#9a9aa0',padding:10,
-          callbacks:{title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),label:c=>c.dataset.label+': '+fmt(c.raw)}}
-      },
-      scales:{
-        x:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},maxRotation:0,minRotation:0},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}
-      }
-    }
-  });
-}
-
-function updatePie(bySrc,totalRev){
-  const labels=Object.keys(bySrc),data=labels.map(k=>bySrc[k]),bg=labels.map(k=>SRC_COLORS[k]||'#555');
-  const total=totalRev||data.reduce((s,v)=>s+v,0);
-  if(pieChart)pieChart.destroy();
-  pieChart=new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:bg,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
-  document.getElementById('pie-legend').innerHTML=labels.map((l,i)=>`
-    <div class="pl-row" style="animation-delay:${i*0.05}s">
-      <span class="pl-dot" style="background:${bg[i]}"></span>
-      <span class="pl-name">${l}</span>
-      <span class="pl-val">${fmt(data[i])}</span>
-      <span class="pl-pct">${Math.round(data[i]/total*100)}%</span>
-    </div>`).join('');
-}
-
-function updateChannel(rows){
-  const byCh={};rows.forEach(r=>{const ch=r.channel||'อื่นๆ';byCh[ch]=(byCh[ch]||0)+1;});
-  const labels=Object.keys(byCh),data=labels.map(k=>byCh[k]),bg=labels.map(k=>CH_COLORS[k]||'#555');
-  const total=data.reduce((s,v)=>s+v,0);
-  if(channelChart)channelChart.destroy();
-  channelChart=new Chart(document.getElementById('channelChart'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:bg,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>c.label+': '+c.raw+' กรุ๊ป'}}}}});
-  document.getElementById('pie-legend2').innerHTML=labels.map((l,i)=>`
-    <div class="pl-row" style="animation-delay:${i*0.05}s">
-      <span class="pl-dot" style="background:${bg[i]}"></span>
-      <span class="pl-name">${l}</span>
-      <span class="pl-val">${data[i]} กรุ๊ป</span>
-      <span class="pl-pct">${Math.round(data[i]/total*100)}%</span>
-    </div>`).join('');
-}
-
-function vehBadge(ids){
-  if(!ids||!ids.trim())return'<span style="color:var(--muted);font-size:10px">—</span>';
-  return parseVehIds(ids).map(id=>`<span class="hrs-badge" style="margin-right:2px">${id}</span>`).join('');
-}
-
-function updateTxnTable(rows){
-  const sorted=[...rows].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
-  document.getElementById('txn-body').innerHTML=sorted.map((r,i)=>`
-    <tr class="row-anim" style="animation-delay:${i*0.018}s">
-      <td class="date-cell"><div class="day">${parseThDate(r.date).d} ${TH_MONTHS[parseThDate(r.date).m-1]}</div><div class="month-year">${parseThDate(r.date).thY}</div></td>
-      <td style="color:#9a9aa0;font-size:11px">${r.client}</td><td>${r.name}</td>
-      <td style="color:#9a9aa0;font-size:11px">${r.time}</td>
-      <td style="font-family:var(--mono);text-align:center">${r.cars||0}</td>
-      <td>${vehBadge(r.vehicleIds)}</td>
-      <td class="amt">${r.amt.toLocaleString()}</td>
-      <td><span class="badge ${srcClass(r.source)}">${r.source}</span></td>
-      <td><span class="ch-badge ${chClass(r.channel||'อื่นๆ')}">${r.channel||'อื่นๆ'}</span></td>
-    </tr>`).join('');
-}
-
-function populateRecordMonthFilter(){
-  const sel=document.getElementById('rec-month-filter');const cur=sel.value;
-  const ms=new Map();DATA.forEach(r=>{const{m,y,thY}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!ms.has(k))ms.set(k,{key:k,label:`${TH_MONTHS_FULL[m-1]} ${thY}`,y,m});});
-  const months=[...ms.values()].sort((a,b)=>b.y!==a.y?b.y-a.y:b.m-a.m);
-  sel.innerHTML=`<option value="all">ทุกเดือน</option>`+months.map(mo=>`<option value="${mo.key}">${mo.label}</option>`).join('');
-  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
-}
-
-// ─── AI ───
-window.openAIModal=()=>document.getElementById('ai-modal').classList.add('show');
-window.closeAIModal=()=>document.getElementById('ai-modal').classList.remove('show');
-window.setAIMode=(mode,el)=>{
-  aiMode=mode;
-  document.querySelectorAll('.ai-mode-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');
-  document.getElementById('ai-content').innerHTML='<div id="ai-placeholder" style="color:var(--muted);font-size:13px;padding:4px 0 12px">เลือกโหมดแล้วกด "วิเคราะห์"</div>';
-};
-
-function buildSummary(rows,label){
-  if(!rows.length)return`${label}: ไม่มีข้อมูล`;
-  const total=rows.reduce((s,r)=>s+r.amt,0),sess=rows.length,avg=sess?Math.round(total/sess):0,cars=rows.reduce((s,r)=>s+(r.cars||0),0);
-  const bySrc={};rows.forEach(r=>{bySrc[r.source]=(bySrc[r.source]||0)+r.amt;});
-  const byCh={};rows.forEach(r=>{const ch=r.channel||'อื่นๆ';byCh[ch]=(byCh[ch]||0)+1;});
-  // vehicle summary
   const vehMap={};rows.forEach(r=>{const ids=parseVehIds(r.vehicleIds);ids.forEach(id=>{if(!vehMap[id])vehMap[id]=0;vehMap[id]+=parseTimeMins(r.time);});});
   const vehSummary=Object.entries(vehMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`${k}(${minsToHrs(v)})`).join(', ');
   return`${label}:
@@ -1365,19 +755,14 @@ window.editRecord=id=>{
   document.getElementById('f-edit-id').value=id;
   const{d,m,y}=parseThDate(r.date);
   document.getElementById('f-date').value=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  ['client','name','amt'].forEach(f=>document.getElementById('f-'+f).value=r[f]||'');
+  ['client','name','amt','cars'].forEach(f=>document.getElementById('f-'+f).value=r[f]||'');
+  document.getElementById('f-time').value=r.time==='—'?'':r.time;
   document.getElementById('f-source').value=r.source||'Walk in';
   document.getElementById('f-channel').value=r.channel||'อื่นๆ';
+  document.getElementById('f-veh-ids').value=r.vehicleIds||'';
   document.getElementById('form-title').textContent='แก้ไขรายการ';
   document.getElementById('cancel-edit-btn').style.display='block';
   showPage('add',document.querySelectorAll('.tab')[2]);
-  setTimeout(()=>{
-    setTimePicker(r.time||'');
-    const ids=parseVehIds(r.vehicleIds||'');
-    document.querySelectorAll('.veh-chip').forEach(chip=>{
-      chip.classList.toggle('selected',ids.includes(chip.textContent.trim()));
-    });
-  },60);
 };
 
 window.renderRecords=()=>{
@@ -1454,13 +839,10 @@ window.downloadSnapshot=()=>{
 window.closeSnapshot=()=>document.getElementById('snapshot-modal').classList.remove('show');
 
 function resetForm(){
-  ['f-edit-id','f-client','f-name','f-amt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const src=document.getElementById('f-source');if(src)src.value='Walk in';
-  const ch=document.getElementById('f-channel');if(ch)ch.value='Facebook';
-  const ft=document.getElementById('form-title');if(ft)ft.textContent='เพิ่มรายการใหม่';
-  const cb=document.getElementById('cancel-edit-btn');if(cb)cb.style.display='none';
-  const fd=document.getElementById('f-date');if(fd)fd.value=new Date().toISOString().split('T')[0];
-  initTimePicker();renderVehChips();
+  ['f-edit-id','f-client','f-name','f-time','f-amt','f-veh-ids'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-cars').value='1';document.getElementById('f-source').value='Walk in';document.getElementById('f-channel').value='Facebook';
+  document.getElementById('form-title').textContent='เพิ่มรายการใหม่';document.getElementById('cancel-edit-btn').style.display='none';
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
 }
 window.resetForm=resetForm;
 window.cancelEdit=()=>{resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);};
@@ -1477,10 +859,7 @@ window.showPage=(id,el)=>{
 document.getElementById('snapshot-modal').addEventListener('click',function(e){if(e.target===this)closeSnapshot();});
 document.getElementById('ai-modal').addEventListener('click',function(e){if(e.target===this)closeAIModal();});
 document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',function(){addRipple(this);}));
-document.getElementById('veh-modal').addEventListener('click',function(e){if(e.target===this)closeAddVehModal();});
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
-initTimePicker();
-renderVehChips();
 </script>
 </body>
 </html>

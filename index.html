@@ -167,6 +167,10 @@
 
   /* hours badge */
   .hrs-badge{font-family:var(--mono);font-size:11px;background:rgba(90,245,200,0.1);color:var(--walk);border-radius:6px;padding:2px 8px;white-space:nowrap}
+  /* duration badge in timeline — green when has data, muted when none */
+  .dur-badge{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;white-space:nowrap}
+  .dur-badge.has-dur{background:rgba(200,245,90,0.12);color:var(--accent)}
+  .dur-badge.no-dur{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -297,7 +301,6 @@
       <div class="field"><label>จำนวนคัน</label><input type="number" id="f-cars" placeholder="1" min="0" value="1"></div>
       <div class="field"><label>ช่องทางที่มา</label>
         <select id="f-channel"><option value="Facebook">Facebook</option><option value="TikTok">TikTok</option><option value="LINE">LINE</option><option value="Instagram">Instagram</option><option value="อื่นๆ">อื่นๆ / Walk in</option></select></div>
-      <!-- NEW: เบอร์รถ -->
       <div class="field form-full">
         <label>🚗 เบอร์รถที่ออก (คั่นด้วย , ถ้าหลายคัน)</label>
         <input type="text" id="f-veh-ids" placeholder="เช่น C01, C02 หรือ B01">
@@ -407,21 +410,38 @@ function updateNavLabel(){document.getElementById('mnav-label').textContent=`${T
 window.shiftVehMonth=d=>{vehM+=d;if(vehM>12){vehM=1;vehY++;}if(vehM<1){vehM=12;vehY--;}renderVehicles();};
 function updateVehNavLabel(){document.getElementById('veh-mnav-label').textContent=`${TH_MONTHS_FULL[vehM-1]} ${vehY+543}`;}
 
-// ─── Parse time string → duration in minutes
-// รองรับ: "15:00น.-16:00น.", "7.30-8.00", "17:00-18:00", "07:00น.-08:00น.", "17.30-18.00" ───
+// ──────────────────────────────────────────────────────────────────
+// FIXED parseTimeMins — handles ALL dash/space/encoding variants:
+//   en-dash (–), em-dash (—), Unicode dashes, non-breaking spaces,
+//   Thai น. marker (with or without space/dot), colon OR dot separator
+// ──────────────────────────────────────────────────────────────────
 function parseTimeMins(timeStr){
-  if(!timeStr||timeStr==='—'||!timeStr.trim())return 0;
-  // ลบ น. ทุกรูปแบบ (มีช่องว่างหรือไม่ก็ได้) แล้วลบ whitespace
-  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
-  // รองรับ HH:MM หรือ H.MM ทั้งสองฝั่งของ - หรือ –
-  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
+  if(!timeStr||!timeStr.trim())return 0;
+
+  const s=timeStr
+    // Remove Thai น. in any form: "น", "น.", " น", " น." etc.
+    .replace(/\s*น\.?/g,'')
+    // Remove non-breaking & special spaces
+    .replace(/[\u00A0\u202F\u2009\u3000\u200B]/g,'')
+    // Normalise ALL dash variants → plain hyphen
+    .replace(/[–—\u2010\u2011\u2012\u2013\u2014\u2015]/g,'-')
+    // Strip remaining whitespace
+    .replace(/\s/g,'');
+
+  if(!s||s==='-'||s==='—')return 0;
+
+  // Match HH:MM-HH:MM or HH.MM-HH.MM (mixed separators OK)
+  const m=s.match(/(\d{1,2})[:\.](\d{2})-(\d{1,2})[:\.](\d{2})/);
   if(!m)return 0;
+
   const start=parseInt(m[1])*60+parseInt(m[2]);
   let end=parseInt(m[3])*60+parseInt(m[4]);
-  if(end<=start)end+=24*60;
+  if(end<=start)end+=24*60; // crosses midnight
   return Math.max(0,end-start);
 }
+
 function minsToHrs(mins){
+  if(!mins)return'—';
   const h=Math.floor(mins/60),mm=mins%60;
   return mm?`${h}ชม.${mm}น.`:`${h}ชม.`;
 }
@@ -437,7 +457,6 @@ window.renderVehicles=()=>{
   updateVehNavLabel();
   const rows=DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===vehM&&y===vehY;});
 
-  // Build map: vehId → {rounds:[...], totalMins, totalAmt}
   const vehMap=new Map();
   rows.forEach(r=>{
     const ids=parseVehIds(r.vehicleIds);
@@ -445,7 +464,7 @@ window.renderVehicles=()=>{
     ids.forEach(vid=>{
       if(!vehMap.has(vid))vehMap.set(vid,{id:vid,rounds:[],totalMins:0,totalAmt:0});
       const v=vehMap.get(vid);
-      v.rounds.push(r);
+      v.rounds.push({...r,_mins:mins});
       v.totalMins+=mins;
       v.totalAmt+=r.amt;
     });
@@ -472,12 +491,12 @@ window.renderVehicles=()=>{
     const sortedRounds=[...v.rounds].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
     const timelineRows=sortedRounds.map((r,i)=>{
       const{d,m}=parseThDate(r.date);
-      const mins=parseTimeMins(r.time);
+      const durStr=r._mins?`<span class="dur-badge has-dur">${minsToHrs(r._mins)}</span>`:`<span class="dur-badge no-dur">—</span>`;
       return `<div class="veh-row" style="animation-delay:${i*0.04}s">
         <span class="veh-row-date">${d}/${m}</span>
         <span class="veh-row-name" title="${r.name}">${r.name}</span>
-        <span class="veh-row-time">${r.time||'—'}</span>
-        <span class="veh-row-amt">${mins?minsToHrs(mins):'—'}</span>
+        <span class="veh-row-time" style="font-size:9px">${r.time||'—'}</span>
+        ${durStr}
       </div>`;
     }).join('');
 
@@ -648,7 +667,6 @@ function buildSummary(rows,label){
   const total=rows.reduce((s,r)=>s+r.amt,0),sess=rows.length,avg=sess?Math.round(total/sess):0,cars=rows.reduce((s,r)=>s+(r.cars||0),0);
   const bySrc={};rows.forEach(r=>{bySrc[r.source]=(bySrc[r.source]||0)+r.amt;});
   const byCh={};rows.forEach(r=>{const ch=r.channel||'อื่นๆ';byCh[ch]=(byCh[ch]||0)+1;});
-  // vehicle summary
   const vehMap={};rows.forEach(r=>{const ids=parseVehIds(r.vehicleIds);ids.forEach(id=>{if(!vehMap[id])vehMap[id]=0;vehMap[id]+=parseTimeMins(r.time);});});
   const vehSummary=Object.entries(vehMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`${k}(${minsToHrs(v)})`).join(', ');
   return`${label}:

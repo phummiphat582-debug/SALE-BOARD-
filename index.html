@@ -420,12 +420,6 @@ function parseTimeMins(timeStr){
   let end=parseInt(m[3])*60+parseInt(m[4]);
   if(end<=start)end+=24*60;
   return Math.max(0,end-start);
-})[:\.](\d{2})\s*[-–]\s*(\d{1,2})[:\.](\d{2})/);
-  if(!m)return 0;
-  const start=parseInt(m[1])*60+parseInt(m[2]);
-  let end=parseInt(m[3])*60+parseInt(m[4]);
-  if(end<=start)end+=24*60; // overnight wrap
-  return Math.max(0,end-start);
 }
 function minsToHrs(mins){
   const h=Math.floor(mins/60),mm=mins%60;

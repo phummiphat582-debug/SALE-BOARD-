@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sales Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js)"></script>
+<script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js)"></script>
+<link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap)" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -167,10 +167,34 @@
 
   /* hours badge */
   .hrs-badge{font-family:var(--mono);font-size:11px;background:rgba(90,245,200,0.1);color:var(--walk);border-radius:6px;padding:2px 8px;white-space:nowrap}
-  /* duration badge in timeline — green when has data, muted when none */
-  .dur-badge{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;white-space:nowrap}
-  .dur-badge.has-dur{background:rgba(200,245,90,0.12);color:var(--accent)}
-  .dur-badge.no-dur{color:var(--muted)}
+
+  /* ─── TIME PICKER ─── */
+  .time-row{display:flex;align-items:center;gap:8px}
+  .time-row select{flex:1}
+  .time-row span{color:var(--muted);font-size:13px}
+
+  /* ─── VEHICLE CHECKBOX GRID ─── */
+  .veh-checkbox-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:8px}
+  .veh-checkbox{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;transition:all 0.2s;user-select:none}
+  .veh-checkbox:hover{border-color:rgba(255,255,255,0.25)}
+  .veh-checkbox.checked{background:rgba(200,245,90,0.12);border-color:var(--accent)}
+  .veh-checkbox input{display:none}
+  .veh-checkbox-icon{width:16px;height:16px;border:2px solid var(--muted);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:10px;color:transparent}
+  .veh-checkbox.checked .veh-checkbox-icon{background:var(--accent);border-color:var(--accent);color:#0f0f11}
+  .veh-checkbox-label{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  /* ─── SETTINGS PAGE ─── */
+  .settings-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+  .settings-title{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .settings-title span{font-size:16px}
+  .veh-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .veh-tag{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:100px;font-family:var(--mono);font-size:12px}
+  .veh-tag-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0;margin-left:4px;transition:color 0.15s}
+  .veh-tag-del:hover{color:var(--red)}
+  .add-veh-row{display:flex;gap:8px;align-items:center}
+  .add-veh-row input{flex:1;max-width:120px}
+  .add-veh-btn{padding:9px 16px;background:var(--accent);color:#0f0f11;border:none;border-radius:8px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.18s}
+  .add-veh-btn:hover{opacity:0.9}.add-veh-btn:active{transform:scale(0.96)}
 </style>
 </head>
 <body>
@@ -180,6 +204,7 @@
   <button class="tab ripple-btn" onclick="handleTabClick('vehicles',this)">🚗 รอบรถ</button>
   <button class="tab ripple-btn" onclick="handleTabClick('add',this)">➕ เพิ่มรายการ</button>
   <button class="tab ripple-btn" onclick="handleTabClick('records',this)">📋 รายการทั้งหมด</button>
+  <button class="tab ripple-btn" onclick="handleTabClick('settings',this)">⚙️ ตั้งค่า</button>
 </div>
 
 <!-- DASHBOARD -->
@@ -296,14 +321,24 @@
         <select id="f-source"><option value="Walk in">Walk in</option><option value="House">House</option><option value="MRD">MRD</option><option value="Land of Us">Land of Us</option><option value="Door of Life">Door of Life</option><option value="รับรอง34">รับรอง34</option></select></div>
       <div class="field form-full"><label>ชื่อ / คอร์ส</label><input type="text" id="f-name" placeholder="เช่น Patsara, ฝึกภาษาไทย"></div>
       <div class="field"><label>รหัสลูกค้า</label><input type="text" id="f-client" placeholder="เช่น V.010"></div>
-      <div class="field"><label>เวลา</label><input type="text" id="f-time" placeholder="17:00-18:00"></div>
       <div class="field"><label>ยอด (฿)</label><input type="number" id="f-amt" placeholder="1200" min="0"></div>
+      <div class="field form-full">
+        <label>⏰ เวลา (เลือกจาก dropdown)</label>
+        <div class="time-row">
+          <select id="f-time-start"></select>
+          <span>ถึง</span>
+          <select id="f-time-end"></select>
+        </div>
+      </div>
       <div class="field"><label>จำนวนคัน</label><input type="number" id="f-cars" placeholder="1" min="0" value="1"></div>
       <div class="field"><label>ช่องทางที่มา</label>
         <select id="f-channel"><option value="Facebook">Facebook</option><option value="TikTok">TikTok</option><option value="LINE">LINE</option><option value="Instagram">Instagram</option><option value="อื่นๆ">อื่นๆ / Walk in</option></select></div>
       <div class="field form-full">
-        <label>🚗 เบอร์รถที่ออก (คั่นด้วย , ถ้าหลายคัน)</label>
-        <input type="text" id="f-veh-ids" placeholder="เช่น C01, C02 หรือ B01">
+        <label>🚗 เลือกรถที่ออก (คลิกเลือกได้หลายคัน)</label>
+        <div class="veh-checkbox-grid" id="veh-checkbox-grid">
+          <!-- Dynamically populated -->
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">💡 เพิ่ม/ลบรถได้ที่แท็บ ⚙️ ตั้งค่า</div>
       </div>
     </div>
     <button class="submit-btn ripple-btn" id="save-btn" onclick="saveRecord()">บันทึกรายการ</button>
@@ -324,6 +359,36 @@
       <tbody id="rec-body"></tbody>
     </table>
   </div></div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div class="page" id="page-settings">
+  <div class="settings-section">
+    <div class="settings-title"><span>🚗</span> จัดการรายชื่อรถ</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">เพิ่ม/ลบเบอร์รถที่ใช้งาน รถเหล่านี้จะแสดงเป็นตัวเลือกในหน้าเพิ่มรายการ</p>
+    <div class="veh-list" id="settings-veh-list">
+      <!-- Dynamically populated -->
+    </div>
+    <div class="add-veh-row">
+      <input type="text" id="new-veh-input" placeholder="เช่น C03, B02" maxlength="10">
+      <button class="add-veh-btn" onclick="addVehicle()">+ เพิ่มรถ</button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title"><span>⏰</span> ตั้งค่าเวลา</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">ช่วงเวลาเปิด-ปิดของกิจการ สำหรับสร้างตัวเลือกใน dropdown</p>
+    <div class="form-grid" style="max-width:300px">
+      <div class="field">
+        <label>เริ่มเปิด</label>
+        <select id="settings-open-time" onchange="saveTimeSettings()"></select>
+      </div>
+      <div class="field">
+        <label>ปิดทำการ</label>
+        <select id="settings-close-time" onchange="saveTimeSettings()"></select>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- SNAPSHOT MODAL -->
@@ -360,17 +425,23 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeApp } from '[gstatic.com](https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js)';
+import { getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp,setDoc,getDoc } from '[gstatic.com](https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js)';
 
 const firebaseConfig={apiKey:"AIzaSyCowDEvUQpBmq7AwUGiC6IuGOudPhi_0kM",authDomain:"vehicle-maintenance-64890.firebaseapp.com",projectId:"vehicle-maintenance-64890",storageBucket:"vehicle-maintenance-64890.firebasestorage.app",messagingSenderId:"59942066726",appId:"1:59942066726:web:f53cdeae8fb2da80e4a4e7"};
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const COL='sales_dashboard';
+const SETTINGS_DOC='app_settings';
 
 const TH_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const TH_MONTHS_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const VEH_COLORS=['#c8f55a','#5af5c8','#f5a25a','#a78bfa','#f472b6','#60a5fa','#fb923c','#34d399','#f87171','#fbbf24','#38bdf8','#e879f9'];
+
+// Default settings
+let VEHICLES = ['C01','C02','B01','B02'];
+let OPEN_TIME = 7;  // 7:00
+let CLOSE_TIME = 20; // 20:00
 
 const fmt=n=>'฿'+n.toLocaleString();
 function parseThDate(str){const p=str.split('/').map(Number);const d=p[0],m=p[1],rawY=p[2];const y=rawY>2500?rawY-543:rawY;const thY=rawY>2500?rawY:rawY+543;return{d,m,y,thY};}
@@ -392,9 +463,145 @@ let vehM,vehY;
 let prevM={rev:0,avg:0,clients:0,sessions:0,cars:0};
 (()=>{const n=new Date();pickedM=n.getMonth()+1;pickedY=n.getFullYear();vehM=n.getMonth()+1;vehY=n.getFullYear();})();
 
+// ─── Load Settings ───
+async function loadSettings(){
+  try{
+    const docRef=doc(db,COL,SETTINGS_DOC);
+    const docSnap=await getDoc(docRef);
+    if(docSnap.exists()){
+      const data=docSnap.data();
+      if(data.vehicles&&Array.isArray(data.vehicles))VEHICLES=data.vehicles;
+      if(typeof data.openTime==='number')OPEN_TIME=data.openTime;
+      if(typeof data.closeTime==='number')CLOSE_TIME=data.closeTime;
+    }
+    renderSettingsPage();
+    populateTimeDropdowns();
+    renderVehCheckboxes();
+  }catch(e){console.error('Load settings error:',e);}
+}
+
+async function saveSettings(){
+  try{
+    const docRef=doc(db,COL,SETTINGS_DOC);
+    await setDoc(docRef,{vehicles:VEHICLES,openTime:OPEN_TIME,closeTime:CLOSE_TIME},{merge:true});
+  }catch(e){showToast('❌ บันทึกการตั้งค่าไม่สำเร็จ');}
+}
+
+// ─── Time Helpers ───
+function formatHour(h){return String(h).padStart(2,'0')+':00';}
+function formatHourHalf(h,m){return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+
+function generateTimeOptions(){
+  const opts=[];
+  for(let h=OPEN_TIME;h<=CLOSE_TIME;h++){
+    opts.push({value:formatHour(h),label:formatHour(h)+'น.'});
+    if(h<CLOSE_TIME){
+      opts.push({value:formatHourHalf(h,30),label:formatHourHalf(h,30)+'น.'});
+    }
+  }
+  return opts;
+}
+
+function populateTimeDropdowns(){
+  const opts=generateTimeOptions();
+  const startSel=document.getElementById('f-time-start');
+  const endSel=document.getElementById('f-time-end');
+  const openSel=document.getElementById('settings-open-time');
+  const closeSel=document.getElementById('settings-close-time');
+  
+  // Form dropdowns
+  startSel.innerHTML='<option value="">-- เลือก --</option>'+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+  endSel.innerHTML='<option value="">-- เลือก --</option>'+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+  
+  // Settings dropdowns (full 24h)
+  const allHours=[];
+  for(let h=0;h<=23;h++)allHours.push({value:h,label:formatHour(h)+'น.'});
+  openSel.innerHTML=allHours.map(o=>`<option value="${o.value}"${o.value===OPEN_TIME?' selected':''}>${o.label}</option>`).join('');
+  closeSel.innerHTML=allHours.map(o=>`<option value="${o.value}"${o.value===CLOSE_TIME?' selected':''}>${o.label}</option>`).join('');
+}
+
+window.saveTimeSettings=()=>{
+  OPEN_TIME=parseInt(document.getElementById('settings-open-time').value);
+  CLOSE_TIME=parseInt(document.getElementById('settings-close-time').value);
+  if(CLOSE_TIME<=OPEN_TIME){
+    showToast('⚠ เวลาปิดต้องมากกว่าเวลาเปิด');
+    CLOSE_TIME=OPEN_TIME+1;
+  }
+  saveSettings();
+  populateTimeDropdowns();
+  showToast('✓ บันทึกเวลาแล้ว');
+};
+
+// ─── Vehicle Checkbox ───
+function renderVehCheckboxes(selected=[]){
+  const grid=document.getElementById('veh-checkbox-grid');
+  grid.innerHTML=VEHICLES.map(v=>{
+    const isChecked=selected.includes(v);
+    return`<label class="veh-checkbox${isChecked?' checked':''}" data-veh="${v}">
+      <input type="checkbox" value="${v}"${isChecked?' checked':''} onchange="toggleVehCheckbox(this)">
+      <span class="veh-checkbox-icon">${isChecked?'✓':''}</span>
+      <span class="veh-checkbox-label">${v}</span>
+    </label>`;
+  }).join('');
+  if(!VEHICLES.length){
+    grid.innerHTML='<div style="color:var(--muted);font-size:12px;padding:12px">ยังไม่มีรถในระบบ ไปเพิ่มที่ ⚙️ ตั้งค่า</div>';
+  }
+}
+
+window.toggleVehCheckbox=function(input){
+  const label=input.closest('.veh-checkbox');
+  const icon=label.querySelector('.veh-checkbox-icon');
+  if(input.checked){
+    label.classList.add('checked');
+    icon.textContent='✓';
+  }else{
+    label.classList.remove('checked');
+    icon.textContent='';
+  }
+};
+
+function getSelectedVehicles(){
+  const checks=document.querySelectorAll('#veh-checkbox-grid input[type="checkbox"]:checked');
+  return Array.from(checks).map(c=>c.value);
+}
+
+// ─── Settings Page ───
+function renderSettingsPage(){
+  const list=document.getElementById('settings-veh-list');
+  list.innerHTML=VEHICLES.map(v=>`<div class="veh-tag">${v}<button class="veh-tag-del" onclick="removeVehicle('${v}')">✕</button></div>`).join('');
+  if(!VEHICLES.length){
+    list.innerHTML='<div style="color:var(--muted);font-size:12px">ยังไม่มีรถในระบบ</div>';
+  }
+}
+
+window.addVehicle=async()=>{
+  const input=document.getElementById('new-veh-input');
+  const val=input.value.trim().toUpperCase();
+  if(!val){showToast('⚠ กรุณาใส่เบอร์รถ');return;}
+  if(VEHICLES.includes(val)){showToast('⚠ มีรถนี้แล้ว');return;}
+  VEHICLES.push(val);
+  VEHICLES.sort();
+  await saveSettings();
+  renderSettingsPage();
+  renderVehCheckboxes();
+  input.value='';
+  showToast('✓ เพิ่มรถ '+val+' แล้ว');
+};
+
+window.removeVehicle=async(v)=>{
+  if(!confirm(`ลบรถ ${v} ออกจากระบบ?`))return;
+  VEHICLES=VEHICLES.filter(x=>x!==v);
+  await saveSettings();
+  renderSettingsPage();
+  renderVehCheckboxes();
+  showToast('ลบรถ '+v+' แล้ว');
+};
+
 syncDot('loading','กำลังเชื่อมต่อ...');
+loadSettings();
+
 onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
-  DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
+  DATA=snap.docs.filter(d=>d.id!==SETTINGS_DOC).map(d=>({...d.data(),_id:d.id}));
   syncDot('ok','ซิงค์แล้ว · '+new Date().toLocaleTimeString('th-TH'));
   update();
   if(document.getElementById('page-vehicles').classList.contains('active'))renderVehicles();
@@ -410,49 +617,26 @@ function updateNavLabel(){document.getElementById('mnav-label').textContent=`${T
 window.shiftVehMonth=d=>{vehM+=d;if(vehM>12){vehM=1;vehY++;}if(vehM<1){vehM=12;vehY--;}renderVehicles();};
 function updateVehNavLabel(){document.getElementById('veh-mnav-label').textContent=`${TH_MONTHS_FULL[vehM-1]} ${vehY+543}`;}
 
-// ──────────────────────────────────────────────────────────────────
-// FIXED parseTimeMins — handles ALL dash/space/encoding variants:
-//   en-dash (–), em-dash (—), Unicode dashes, non-breaking spaces,
-//   Thai น. marker (with or without space/dot), colon OR dot separator
-// ──────────────────────────────────────────────────────────────────
+// ─── Parse time string → duration in minutes ───
 function parseTimeMins(timeStr){
-  if(!timeStr||!timeStr.trim())return 0;
-
-  const s=timeStr
-    // Remove ALL Thai น. occurrences (with optional preceding space & trailing dot)
-    .replace(/\s*น\.?/g,'')
-    // Remove non-breaking & special spaces
-    .replace(/[\u00A0\u202F\u2009\u3000\u200B]/g,'')
-    // Normalise ALL dash/hyphen variants → plain ASCII hyphen
-    .replace(/[–—\u2010\u2011\u2012\u2013\u2014\u2015]/g,'-')
-    // Strip remaining whitespace
-    .replace(/\s/g,'');
-
-  if(!s||s==='-'||s==='—')return 0;
-
-  // Match: H(:|.)MM-H(:|.)MM  (mixed colon/dot separators OK, e.g. 17:00-17.30)
-  const m=s.match(/(\d{1,2})[:\.](\d{2})-(\d{1,2})[:\.](\d{2})/);
+  if(!timeStr||timeStr==='—'||!timeStr.trim())return 0;
+  const s=timeStr.replace(/\s*น\.?/g,'').replace(/\s/g,'');
+  const m=s.match(/(\d{1,2})[:\.](\d{2})[-–](\d{1,2})[:\.](\d{2})/);
   if(!m)return 0;
-
   const start=parseInt(m[1])*60+parseInt(m[2]);
   let end=parseInt(m[3])*60+parseInt(m[4]);
-  if(end<=start)end+=24*60; // crosses midnight
+  if(end<=start)end+=24*60;
   return Math.max(0,end-start);
 }
-
 function minsToHrs(mins){
-  if(!mins)return'—';
   const h=Math.floor(mins/60),mm=mins%60;
   return mm?`${h}ชม.${mm}น.`:`${h}ชม.`;
 }
 
-// ─── Parse vehicleIds → normalized IDs (trim + uppercase) ───
-// "NO.06", "No.06", " no.06 " → all become "NO.06" (no duplicate cards)
+// ─── Parse vehicleIds field → array of trimmed IDs ───
 function parseVehIds(str){
   if(!str||!str.trim())return[];
-  return str.split(',')
-    .map(s=>s.trim().replace(/\s+/g,' ').toUpperCase())
-    .filter(Boolean);
+  return str.split(',').map(s=>s.trim()).filter(Boolean);
 }
 
 // ─── RENDER VEHICLES PAGE ───
@@ -460,6 +644,7 @@ window.renderVehicles=()=>{
   updateVehNavLabel();
   const rows=DATA.filter(r=>{const{m,y}=parseThDate(r.date);return m===vehM&&y===vehY;});
 
+  // Build map: vehId → {rounds:[...], totalMins, totalAmt}
   const vehMap=new Map();
   rows.forEach(r=>{
     const ids=parseVehIds(r.vehicleIds);
@@ -467,7 +652,7 @@ window.renderVehicles=()=>{
     ids.forEach(vid=>{
       if(!vehMap.has(vid))vehMap.set(vid,{id:vid,rounds:[],totalMins:0,totalAmt:0});
       const v=vehMap.get(vid);
-      v.rounds.push({...r,_mins:mins});
+      v.rounds.push(r);
       v.totalMins+=mins;
       v.totalAmt+=r.amt;
     });
@@ -484,7 +669,7 @@ window.renderVehicles=()=>{
   const grid=document.getElementById('veh-grid');
 
   if(!vehs.length){
-    grid.innerHTML=`<div class="veh-empty" style="grid-column:1/-1">ไม่มีข้อมูลรอบรถใน ${TH_MONTHS_FULL[vehM-1]} ${vehY+543}<br><span style="font-size:11px;margin-top:4px;display:block">เพิ่มรายการพร้อมระบุ <strong>เบอร์รถ</strong> ในแท็บ ➕ เพิ่มรายการ</span></div>`;
+    grid.innerHTML=`<div class="veh-empty" style="grid-column:1/-1">ไม่มีข้อมูลรอบรถใน ${TH_MONTHS_FULL[vehM-1]} ${vehY+543}<br><span style="font-size:11px;margin-top:4px;display:block">เพิ่มรายการพร้อมเลือก <strong>เบอร์รถ</strong> ในแท็บ ➕ เพิ่มรายการ</span></div>`;
     return;
   }
 
@@ -494,12 +679,12 @@ window.renderVehicles=()=>{
     const sortedRounds=[...v.rounds].sort((a,b)=>sortKey(b.date)-sortKey(a.date));
     const timelineRows=sortedRounds.map((r,i)=>{
       const{d,m}=parseThDate(r.date);
-      const durStr=r._mins?`<span class="dur-badge has-dur">${minsToHrs(r._mins)}</span>`:`<span class="dur-badge no-dur">—</span>`;
+      const mins=parseTimeMins(r.time);
       return `<div class="veh-row" style="animation-delay:${i*0.04}s">
         <span class="veh-row-date">${d}/${m}</span>
         <span class="veh-row-name" title="${r.name}">${r.name}</span>
-        <span class="veh-row-time" style="font-size:9px">${r.time||'—'}</span>
-        ${durStr}
+        <span class="veh-row-time">${r.time||'—'}</span>
+        <span class="veh-row-amt">${mins?minsToHrs(mins):'—'}</span>
       </div>`;
     }).join('');
 
@@ -697,7 +882,7 @@ window.runAI=async()=>{
     userPrompt=`ภาพรวมกิจการ ${keys.length} เดือนล่าสุด:\n\n${keys.map(k=>{const[y,m]=k.split('-').map(Number);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')}\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้`;
   }
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('[api.anthropic.com](https://api.anthropic.com/v1/messages)',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -726,23 +911,35 @@ window.saveRecord=async()=>{
   const dv=document.getElementById('f-date').value;
   const client=document.getElementById('f-client').value.trim()||'-';
   const name=document.getElementById('f-name').value.trim();
-  const time=document.getElementById('f-time').value.trim();
+  const timeStart=document.getElementById('f-time-start').value;
+  const timeEnd=document.getElementById('f-time-end').value;
   const amt=parseInt(document.getElementById('f-amt').value);
   const cars=parseInt(document.getElementById('f-cars').value)||0;
   const source=document.getElementById('f-source').value;
   const channel=document.getElementById('f-channel').value;
-  const vehicleIds=document.getElementById('f-veh-ids').value.trim();
+  const selectedVehs=getSelectedVehicles();
+  
   if(!dv||!name||isNaN(amt)||amt<=0){showToast('⚠ กรุณากรอกข้อมูลให้ครบ');return;}
+  
+  // Build time string
+  let timeStr='—';
+  if(timeStart&&timeEnd){
+    timeStr=`${timeStart}น.-${timeEnd}น.`;
+  }
+  
+  // Build vehicleIds string
+  const vehicleIds=selectedVehs.join(', ');
+  
   addRipple(btn);
   const d=new Date(dv);
   const thDate=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
   btn.disabled=true;btn.textContent='กำลังบันทึก...';
   try{
     if(editId){
-      await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||''});
+      await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:timeStr,amt,cars,source,channel,vehicleIds});
       showToast('✓ แก้ไขรายการแล้ว');
     }else{
-      await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});
+      await addDoc(collection(db,COL),{date:thDate,client,name,time:timeStr,amt,cars,source,channel,vehicleIds,createdAt:serverTimestamp()});
       showToast('✓ บันทึกรายการแล้ว');
     }
     resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
@@ -756,10 +953,26 @@ window.editRecord=id=>{
   const{d,m,y}=parseThDate(r.date);
   document.getElementById('f-date').value=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   ['client','name','amt','cars'].forEach(f=>document.getElementById('f-'+f).value=r[f]||'');
-  document.getElementById('f-time').value=r.time==='—'?'':r.time;
+  
+  // Parse time back to dropdowns
+  if(r.time&&r.time!=='—'){
+    const timeMatch=r.time.match(/(\d{1,2}:\d{2})น?\.-?(\d{1,2}:\d{2})น?/);
+    if(timeMatch){
+      document.getElementById('f-time-start').value=timeMatch[1];
+      document.getElementById('f-time-end').value=timeMatch[2];
+    }
+  }else{
+    document.getElementById('f-time-start').value='';
+    document.getElementById('f-time-end').value='';
+  }
+  
   document.getElementById('f-source').value=r.source||'Walk in';
   document.getElementById('f-channel').value=r.channel||'อื่นๆ';
-  document.getElementById('f-veh-ids').value=r.vehicleIds||'';
+  
+  // Set vehicle checkboxes
+  const selectedVehs=parseVehIds(r.vehicleIds||'');
+  renderVehCheckboxes(selectedVehs);
+  
   document.getElementById('form-title').textContent='แก้ไขรายการ';
   document.getElementById('cancel-edit-btn').style.display='block';
   showPage('add',document.querySelectorAll('.tab')[2]);
@@ -839,10 +1052,16 @@ window.downloadSnapshot=()=>{
 window.closeSnapshot=()=>document.getElementById('snapshot-modal').classList.remove('show');
 
 function resetForm(){
-  ['f-edit-id','f-client','f-name','f-time','f-amt','f-veh-ids'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-cars').value='1';document.getElementById('f-source').value='Walk in';document.getElementById('f-channel').value='Facebook';
-  document.getElementById('form-title').textContent='เพิ่มรายการใหม่';document.getElementById('cancel-edit-btn').style.display='none';
+  ['f-edit-id','f-client','f-name','f-amt'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-cars').value='1';
+  document.getElementById('f-source').value='Walk in';
+  document.getElementById('f-channel').value='Facebook';
+  document.getElementById('f-time-start').value='';
+  document.getElementById('f-time-end').value='';
+  document.getElementById('form-title').textContent='เพิ่มรายการใหม่';
+  document.getElementById('cancel-edit-btn').style.display='none';
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  renderVehCheckboxes([]);
 }
 window.resetForm=resetForm;
 window.cancelEdit=()=>{resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);};
@@ -855,6 +1074,7 @@ window.showPage=(id,el)=>{
   if(id==='vehicles')renderVehicles();
   if(id==='records'){populateRecordMonthFilter();renderRecords();}
   if(id==='add'&&!document.getElementById('f-edit-id').value)resetForm();
+  if(id==='settings'){renderSettingsPage();populateTimeDropdowns();}
 };
 document.getElementById('snapshot-modal').addEventListener('click',function(e){if(e.target===this)closeSnapshot();});
 document.getElementById('ai-modal').addEventListener('click',function(e){if(e.target===this)closeAIModal();});

@@ -419,18 +419,18 @@ function parseTimeMins(timeStr){
   if(!timeStr||!timeStr.trim())return 0;
 
   const s=timeStr
-    // Remove Thai น. in any form: "น", "น.", " น", " น." etc.
+    // Remove ALL Thai น. occurrences (with optional preceding space & trailing dot)
     .replace(/\s*น\.?/g,'')
     // Remove non-breaking & special spaces
     .replace(/[\u00A0\u202F\u2009\u3000\u200B]/g,'')
-    // Normalise ALL dash variants → plain hyphen
+    // Normalise ALL dash/hyphen variants → plain ASCII hyphen
     .replace(/[–—\u2010\u2011\u2012\u2013\u2014\u2015]/g,'-')
     // Strip remaining whitespace
     .replace(/\s/g,'');
 
   if(!s||s==='-'||s==='—')return 0;
 
-  // Match HH:MM-HH:MM or HH.MM-HH.MM (mixed separators OK)
+  // Match: H(:|.)MM-H(:|.)MM  (mixed colon/dot separators OK, e.g. 17:00-17.30)
   const m=s.match(/(\d{1,2})[:\.](\d{2})-(\d{1,2})[:\.](\d{2})/);
   if(!m)return 0;
 
@@ -446,10 +446,13 @@ function minsToHrs(mins){
   return mm?`${h}ชม.${mm}น.`:`${h}ชม.`;
 }
 
-// ─── Parse vehicleIds field → array of trimmed IDs ───
+// ─── Parse vehicleIds → normalized IDs (trim + uppercase) ───
+// "NO.06", "No.06", " no.06 " → all become "NO.06" (no duplicate cards)
 function parseVehIds(str){
   if(!str||!str.trim())return[];
-  return str.split(',').map(s=>s.trim()).filter(Boolean);
+  return str.split(',')
+    .map(s=>s.trim().replace(/\s+/g,' ').toUpperCase())
+    .filter(Boolean);
 }
 
 // ─── RENDER VEHICLES PAGE ───

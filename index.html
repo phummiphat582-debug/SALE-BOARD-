@@ -230,6 +230,11 @@
   @media(max-width:600px){.fuel-chart-row{grid-template-columns:1fr}}
   .fuel-empty{color:var(--muted);font-size:12px;text-align:center;padding:32px;border:1px dashed var(--border2);border-radius:10px}
   .fuel-note-badge{font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border-radius:6px;padding:2px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ─── AI PROVIDER BUTTONS ─── */
+  .ai-provider-btn{font-family:var(--font);font-size:11px;padding:5px 12px;border:1px solid var(--border2);border-radius:100px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s}
+  .ai-provider-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
+  .ai-provider-btn.active{background:rgba(167,139,250,0.15);color:#a78bfa;border-color:rgba(167,139,250,0.5);font-weight:600}
 </style>
 </head>
 <body>
@@ -509,6 +514,28 @@
 <div class="modal-overlay" id="ai-modal">
   <div class="modal ai-modal">
     <h3>✦ วิเคราะห์ AI</h3>
+
+    <!-- API Key setup -->
+    <div id="ai-key-section" style="margin-bottom:14px">
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <button class="ai-provider-btn active" id="btn-prov-gemini" onclick="setProvider('gemini',this)">✨ Gemini (ฟรี)</button>
+        <button class="ai-provider-btn" id="btn-prov-openrouter" onclick="setProvider('openrouter',this)">🔀 OpenRouter (ฟรี)</button>
+        <button class="ai-provider-btn" id="btn-prov-anthropic" onclick="setProvider('anthropic',this)">⚡ Claude (เสียเงิน)</button>
+      </div>
+      <div id="ai-provider-hint" style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6;background:var(--surface2);border-radius:6px;padding:7px 10px"></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="flex:1;position:relative">
+          <input type="password" id="ai-api-key" placeholder="" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:all 0.2s">
+          <button onclick="toggleKeyVis()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">👁</button>
+        </div>
+        <button onclick="saveApiKey()" style="font-family:var(--font);font-size:12px;padding:8px 14px;background:rgba(200,245,90,0.12);color:var(--accent);border:1px solid rgba(200,245,90,0.3);border-radius:8px;cursor:pointer;white-space:nowrap;transition:all 0.18s" onmouseover="this.style.background='rgba(200,245,90,0.2)'" onmouseout="this.style.background='rgba(200,245,90,0.12)'">บันทึก</button>
+      </div>
+      <div id="ai-key-status" style="font-size:10px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:5px">
+        <span id="ai-key-dot" style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block"></span>
+        <span id="ai-key-msg">ยังไม่ได้ตั้ง API Key</span>
+      </div>
+    </div>
+
     <div class="ai-mode-row">
       <button class="ai-mode-btn active" onclick="setAIMode('current',this)">เดือนปัจจุบัน</button>
       <button class="ai-mode-btn" onclick="setAIMode('compare',this)">เปรียบเทียบเดือนก่อน</button>
@@ -876,8 +903,80 @@ function populateRecordMonthFilter(){
   if([...sel.options].some(o=>o.value===cur))sel.value=cur;
 }
 
+// ─── AI PROVIDER & KEY MANAGEMENT ───
+const PROVIDERS={
+  gemini:{
+    name:'Gemini 2.0 Flash (ฟรี)',
+    placeholder:'AIza...',
+    hint:'✨ ฟรี 1,500 req/วัน · ไม่ต้องบัตรเครดิต\n📋 รับ Key: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/app/apikey</a>',
+    storageKey:'gemini_api_key',
+    validate:k=>k.startsWith('AIza')
+  },
+  openrouter:{
+    name:'OpenRouter (ฟรี tier)',
+    placeholder:'sk-or-v1-...',
+    hint:'🔀 ใช้ฟรีได้ (rate limit ต่ำ) · หรือเติมเงินราคาถูก\n📋 รับ Key: <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--accent)">openrouter.ai/keys</a>',
+    storageKey:'openrouter_api_key',
+    validate:k=>k.startsWith('sk-or-')
+  },
+  anthropic:{
+    name:'Claude Sonnet (เสียเงิน)',
+    placeholder:'sk-ant-api03-...',
+    hint:'⚡ ประสิทธิภาพดีที่สุด แต่เสียเงิน\n📋 รับ Key: <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">console.anthropic.com</a>',
+    storageKey:'anthropic_api_key',
+    validate:k=>k.startsWith('sk-ant-')
+  }
+};
+let currentProvider='gemini';
+
+window.setProvider=(prov,el)=>{
+  currentProvider=prov;
+  document.querySelectorAll('.ai-provider-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const p=PROVIDERS[prov];
+  document.getElementById('ai-api-key').placeholder=p.placeholder;
+  document.getElementById('ai-provider-hint').innerHTML=p.hint.replace(/\n/g,'<br>');
+  const stored=localStorage.getItem(p.storageKey)||'';
+  document.getElementById('ai-api-key').value=stored;
+  setKeyStatus(!!stored);
+};
+
+function loadApiKey(){
+  const p=PROVIDERS[currentProvider];
+  const k=localStorage.getItem(p.storageKey)||'';
+  document.getElementById('ai-api-key').placeholder=p.placeholder;
+  document.getElementById('ai-provider-hint').innerHTML=p.hint.replace(/\n/g,'<br>');
+  if(k){document.getElementById('ai-api-key').value=k;setKeyStatus(true);}
+  else{document.getElementById('ai-api-key').value='';setKeyStatus(false);}
+}
+function setKeyStatus(ok){
+  document.getElementById('ai-key-dot').style.background=ok?'#22c55e':'#7a7a80';
+  document.getElementById('ai-key-msg').innerHTML=ok
+    ?`${PROVIDERS[currentProvider].name} พร้อมใช้งาน · <span style="color:var(--muted);cursor:pointer;text-decoration:underline" onclick="clearApiKey()">ล้าง Key</span>`
+    :'ยังไม่ได้ตั้ง API Key';
+}
+window.saveApiKey=()=>{
+  const k=document.getElementById('ai-api-key').value.trim();
+  const p=PROVIDERS[currentProvider];
+  if(!k||!p.validate(k)){showToast(`⚠ Key ไม่ถูกต้อง (ต้องขึ้นต้นด้วย ${p.placeholder.split('...')[0]}...)`);return;}
+  localStorage.setItem(p.storageKey,k);setKeyStatus(true);showToast('✓ บันทึก API Key แล้ว');
+};
+window.clearApiKey=()=>{
+  localStorage.removeItem(PROVIDERS[currentProvider].storageKey);
+  document.getElementById('ai-api-key').value='';setKeyStatus(false);
+};
+window.toggleKeyVis=()=>{const inp=document.getElementById('ai-api-key');inp.type=inp.type==='password'?'text':'password';};
+
 // ─── AI ───
-window.openAIModal=()=>document.getElementById('ai-modal').classList.add('show');
+window.openAIModal=()=>{
+  // restore last provider selection
+  const lastProv=localStorage.getItem('ai_provider')||'gemini';
+  currentProvider=lastProv;
+  const btn=document.getElementById('btn-prov-'+lastProv);
+  if(btn){document.querySelectorAll('.ai-provider-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  loadApiKey();
+  document.getElementById('ai-modal').classList.add('show');
+};
 window.closeAIModal=()=>document.getElementById('ai-modal').classList.remove('show');
 window.setAIMode=(mode,el)=>{aiMode=mode;document.querySelectorAll('.ai-mode-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('ai-content').innerHTML='<div id="ai-placeholder" style="color:var(--muted);font-size:13px;padding:4px 0 12px">เลือกโหมดแล้วกด "วิเคราะห์"</div>';};
 
@@ -897,18 +996,50 @@ function buildSummary(rows,label){
 }
 
 window.runAI=async()=>{
-  document.getElementById('ai-content').innerHTML='<div class="ai-loading"><div class="ai-spinner"></div><span>กำลังวิเคราะห์...</span></div>';
+  const p=PROVIDERS[currentProvider];
+  const apiKey=localStorage.getItem(p.storageKey)||'';
+  localStorage.setItem('ai_provider',currentProvider);
+  if(!apiKey){
+    setAIText(`⚠ กรุณาใส่ API Key ของ ${p.name} ก่อน\n\n${currentProvider==='gemini'?'📋 ไปที่ aistudio.google.com/app/apikey → Create API Key → Copy แล้ววางด้านบน':currentProvider==='openrouter'?'📋 ไปที่ openrouter.ai/keys → Create Key → Copy แล้ววางด้านบน':'📋 ไปที่ console.anthropic.com/settings/keys → Create Key → Copy แล้ววางด้านบน'}`);
+    return;
+  }
+  document.getElementById('ai-content').innerHTML='<div class="ai-loading"><div class="ai-spinner"></div><span>กำลังวิเคราะห์ด้วย '+p.name+'...</span></div>';
   const now=new Date();const cm=now.getMonth()+1,cy=now.getFullYear();
   let pm=cm-1,py=cy;if(pm<1){pm=12;py--;}
   let userPrompt='';
   if(aiMode==='current'){const rows=getFiltered();if(!rows.length){setAIText('⚠ ไม่มีข้อมูลในช่วงนี้');return;}userPrompt=`วิเคราะห์กิจการ:\n\n${buildSummary(rows,'ข้อมูลปัจจุบัน')}\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้`;}
-  else if(aiMode==='compare'){const cr=getMonthData(cm,cy),pr=getMonthData(pm,py);if(!cr.length&&!pr.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}userPrompt=`เปรียบเทียบ 2 เดือน:\n\n${buildSummary(cr,TH_MONTHS_FULL[cm-1]+' '+(cy+543))}\n\n${buildSummary(pr,TH_MONTHS_FULL[pm-1]+' '+(py+543))}\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส`;}
+  else if(aiMode==='compare'){const cr=getMonthData(cm,cy),pr2=getMonthData(pm,py);if(!cr.length&&!pr2.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}userPrompt=`เปรียบเทียบ 2 เดือน:\n\n${buildSummary(cr,TH_MONTHS_FULL[cm-1]+' '+(cy+543))}\n\n${buildSummary(pr2,TH_MONTHS_FULL[pm-1]+' '+(py+543))}\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส`;}
   else{if(!DATA.length){setAIText('⚠ ไม่มีข้อมูลเลย');return;}const byM={};DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM[k])byM[k]=[];byM[k].push(r);});const keys=Object.keys(byM).sort().slice(-6);userPrompt=`ภาพรวมกิจการ ${keys.length} เดือนล่าสุด:\n\n${keys.map(k=>{const[y,m]=k.split('-').map(Number);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')}\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้`;}
+  const sysPrompt=`คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง\nแบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ\nใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง\nแบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ\nใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้`,messages:[{role:'user',content:userPrompt}]})});
-    if(!res.ok){const errText=await res.text();setAIText(`❌ API Error ${res.status}: ${errText}`);return;}
-    const d=await res.json();setAIText(d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้');
-  }catch(e){setAIText('❌ ไม่สามารถเรียก AI ได้จาก browser โดยตรง\n\nสาเหตุ: ข้อจำกัด CORS ของ Anthropic API\n\nวิธีแก้: ใช้ฟีเจอร์ผ่าน Claude.ai artifact แทน หรือ deploy ผ่าน server ที่มี API key');}
+    let resultText='';
+    if(currentProvider==='gemini'){
+      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        system_instruction:{parts:[{text:sysPrompt}]},
+        contents:[{role:'user',parts:[{text:userPrompt}]}],
+        generationConfig:{maxOutputTokens:1200,temperature:0.7}
+      })});
+      if(!res.ok){const e=await res.json();setAIText(`❌ Gemini Error ${res.status}: ${e.error?.message||JSON.stringify(e)}`);return;}
+      const d=await res.json();
+      resultText=d.candidates?.[0]?.content?.parts?.[0]?.text||'วิเคราะห์ไม่ได้';
+    } else if(currentProvider==='openrouter'){
+      const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,'HTTP-Referer':'https://sales-dashboard.local','X-Title':'Sales Dashboard'},body:JSON.stringify({
+        model:'google/gemini-2.0-flash-exp:free',
+        max_tokens:1200,
+        messages:[{role:'system',content:sysPrompt},{role:'user',content:userPrompt}]
+      })});
+      if(!res.ok){const e=await res.json();setAIText(`❌ OpenRouter Error ${res.status}: ${e.error?.message||JSON.stringify(e)}`);return;}
+      const d=await res.json();
+      resultText=d.choices?.[0]?.message?.content||'วิเคราะห์ไม่ได้';
+    } else {
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:sysPrompt,messages:[{role:'user',content:userPrompt}]})});
+      if(!res.ok){const e=await res.json();setAIText(`❌ Claude Error ${res.status}: ${e.error?.message||JSON.stringify(e)}`);return;}
+      const d=await res.json();
+      resultText=d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้';
+    }
+    setAIText(resultText);
+  }catch(e){setAIText('❌ เกิดข้อผิดพลาด: '+e.message);}
 };
 function setAIText(t){document.getElementById('ai-content').innerHTML=`<div class="ai-response">${t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;}
 

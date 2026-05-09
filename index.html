@@ -1055,6 +1055,30 @@ function populateAIMonthSelects(){
   else if(selB2 && selB2.options.length>1) selB2.selectedIndex=1;
 }
 
+function buildSummary(rows, label) {
+  if (!rows || !rows.length) return `[${label}]: ไม่มีข้อมูล`;
+  const total = rows.reduce((s, r) => s + r.amt, 0);
+  const sessions = rows.length;
+  const avg = sessions ? Math.round(total / sessions) : 0;
+  const totalCars = rows.reduce((s, r) => s + (r.cars || 0), 0);
+  const bySrc = {};
+  rows.forEach(r => { bySrc[r.source] = (bySrc[r.source] || 0) + r.amt; });
+  const bySrcG = {};
+  rows.forEach(r => { bySrcG[r.source] = (bySrcG[r.source] || 0) + 1; });
+  const byCh = {};
+  rows.forEach(r => { const ch = r.channel || 'อื่นๆ'; byCh[ch] = (byCh[ch] || 0) + 1; });
+  const srcLines = Object.entries(bySrc).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `  - ${k}: ฿${v.toLocaleString()} (${bySrcG[k]} กรุ๊ป, ${Math.round(v / total * 100)}%)`).join('\n');
+  const chLines = Object.entries(byCh).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `  - ${k}: ${v} กรุ๊ป (${Math.round(v / sessions * 100)}%)`).join('\n');
+  return `📅 ${label}
+รายได้รวม: ฿${total.toLocaleString()} | ${sessions} กรุ๊ป | เฉลี่ย ฿${avg.toLocaleString()}/กรุ๊ป | ${totalCars} คัน
+แหล่งที่มา (รายได้):
+${srcLines}
+ช่องทาง:
+${chLines}`;
+}
+
 window.runAI=async()=>{
   /* ── guard: API key ── */
   const p=PROVIDERS[currentProvider];
@@ -1124,13 +1148,14 @@ window.runAI=async()=>{
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,
                  'HTTP-Referer':'https://sales-dashboard.local','X-Title':'Sales Dashboard'},
         body:JSON.stringify({
-          model:'meta-llama/llama-3.3-8b-instruct:free',
+          model:'openrouter/free',
           max_tokens:1400,
           messages:[{role:'system',content:sysPrompt},{role:'user',content:userPrompt}]
         })
       });
-      if(!res.ok){const e=await res.json();setAIText('❌ OpenRouter Error '+res.status+': '+(e.error?.message||JSON.stringify(e)));return;}
-      const d=await res.json();
+      const rawText=await res.text();
+      if(!res.ok){let errMsg=rawText;try{const e=JSON.parse(rawText);errMsg=e.error?.message||e.message||rawText;}catch(ex){}setAIText('❌ OpenRouter Error '+res.status+': '+errMsg);return;}
+      let d;try{d=JSON.parse(rawText);}catch(ex){setAIText('❌ ผลลัพธ์ผิดรูปแบบ: '+rawText.slice(0,200));return;}
       resultText=d.choices?.[0]?.message?.content||'วิเคราะห์ไม่ได้';
     } else {
       const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',

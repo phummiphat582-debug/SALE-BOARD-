@@ -1148,7 +1148,7 @@ window.runAI=async()=>{
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,
                  'HTTP-Referer':'https://sales-dashboard.local','X-Title':'Sales Dashboard'},
         body:JSON.stringify({
-          model:'meta-llama/llama-3.3-8b-instruct:free',
+          model:'meta-llama/llama-4-scout:free',
           max_tokens:1400,
           messages:[{role:'system',content:sysPrompt},{role:'user',content:userPrompt}]
         })

@@ -1061,18 +1061,19 @@ function buildSummary(rows, label) {
   const sessions = rows.length;
   const avg = sessions ? Math.round(total / sessions) : 0;
   const totalCars = rows.reduce((s, r) => s + (r.cars || 0), 0);
+  const avgPerCar = totalCars ? Math.round(total / totalCars) : 0;
 
-  // by source - revenue & groups
+  // by source
   const bySrc = {}, bySrcG = {};
   rows.forEach(r => { bySrc[r.source]=(bySrc[r.source]||0)+r.amt; bySrcG[r.source]=(bySrcG[r.source]||0)+1; });
   const srcLines = Object.entries(bySrc).sort((a,b)=>b[1]-a[1])
-    .map(([k,v])=>`  - ${k}: ฿${v.toLocaleString()} (${bySrcG[k]} กรุ๊ป, ${Math.round(v/total*100)}%)`).join('\n');
+    .map(([k,v])=>`  - ${k}: ฿${v.toLocaleString()} | ${bySrcG[k]} กรุ๊ป | ${Math.round(v/total*100)}% | เฉลี่ย ฿${Math.round(v/bySrcG[k]).toLocaleString()}/กรุ๊ป`).join('\n');
 
   // by channel
-  const byCh = {};
-  rows.forEach(r => { const ch=r.channel||'อื่นๆ'; byCh[ch]=(byCh[ch]||0)+1; });
+  const byCh = {}, byChAmt = {};
+  rows.forEach(r => { const ch=r.channel||'อื่นๆ'; byCh[ch]=(byCh[ch]||0)+1; byChAmt[ch]=(byChAmt[ch]||0)+r.amt; });
   const chLines = Object.entries(byCh).sort((a,b)=>b[1]-a[1])
-    .map(([k,v])=>`  - ${k}: ${v} กรุ๊ป (${Math.round(v/sessions*100)}%)`).join('\n');
+    .map(([k,v])=>`  - ${k}: ${v} กรุ๊ป (${Math.round(v/sessions*100)}%) | รายได้ ฿${(byChAmt[k]||0).toLocaleString()} | เฉลี่ย ฿${Math.round((byChAmt[k]||0)/v).toLocaleString()}/กรุ๊ป`).join('\n');
 
   // vehicle stats
   const vehMap = {};
@@ -1084,35 +1085,76 @@ function buildSummary(rows, label) {
       vehMap[vid].totalAmt += r.amt;
     });
   });
-  const vehLines = Object.entries(vehMap).sort((a,b)=>b[1].rounds-a[1].rounds).slice(0,5)
-    .map(([id,v])=>`  - ${id}: ${v.rounds} รอบ, ฿${v.totalAmt.toLocaleString()}`).join('\n');
+  const vehEntries = Object.entries(vehMap).sort((a,b)=>b[1].rounds-a[1].rounds);
+  const vehLines = vehEntries.slice(0,8)
+    .map(([id,v])=>`  - ${id}: ${v.rounds} รอบ | ฿${v.totalAmt.toLocaleString()} | เฉลี่ย ฿${Math.round(v.totalAmt/v.rounds).toLocaleString()}/รอบ`).join('\n');
 
   // peak day analysis
   const byDay = {};
   rows.forEach(r => {
     const {d,m} = parseThDate(r.date);
     const key = `${d}/${m}`;
-    if(!byDay[key]) byDay[key]={sessions:0,amt:0};
-    byDay[key].sessions++;
-    byDay[key].amt+=r.amt;
+    if(!byDay[key]) byDay[key]={sessions:0,amt:0,cars:0};
+    byDay[key].sessions++; byDay[key].amt+=r.amt; byDay[key].cars+=(r.cars||0);
   });
-  const peakDays = Object.entries(byDay).sort((a,b)=>b[1].sessions-a[1].sessions).slice(0,3)
-    .map(([k,v])=>`  - วันที่ ${k}: ${v.sessions} กรุ๊ป, ฿${v.amt.toLocaleString()}`).join('\n');
+  const peakDays = Object.entries(byDay).sort((a,b)=>b[1].amt-a[1].amt).slice(0,5)
+    .map(([k,v])=>`  - วันที่ ${k}: ${v.sessions} กรุ๊ป | ${v.cars} คัน | ฿${v.amt.toLocaleString()}`).join('\n');
 
-  // avg revenue per car
-  const avgPerCar = totalCars ? Math.round(total/totalCars) : 0;
+  // time slot analysis
+  const byTimeSlot = {'เช้า (08-12น)':0,'บ่าย (12-16น)':0,'เย็น (16น+)':0,'ไม่ระบุ':0};
+  rows.forEach(r => {
+    if(!r.time || r.time==='—') { byTimeSlot['ไม่ระบุ']++; return; }
+    const m = r.time.match(/(\d{1,2})[:.]/);
+    if(!m){ byTimeSlot['ไม่ระบุ']++; return; }
+    const h = parseInt(m[1]);
+    if(h<12) byTimeSlot['เช้า (08-12น)']++;
+    else if(h<16) byTimeSlot['บ่าย (12-16น)']++;
+    else byTimeSlot['เย็น (16น+)']++;
+  });
+  const timeLines = Object.entries(byTimeSlot).filter(([,v])=>v>0)
+    .map(([k,v])=>`  - ${k}: ${v} กรุ๊ป (${Math.round(v/sessions*100)}%)`).join('\n');
+
+  // repeat client analysis
+  const clientCount = {};
+  rows.forEach(r => { if(r.client && r.client!=='-') clientCount[r.client]=(clientCount[r.client]||0)+1; });
+  const repeatClients = Object.entries(clientCount).filter(([,v])=>v>1).sort((a,b)=>b[1]-a[1]);
+  const repeatLine = repeatClients.length
+    ? `  ${repeatClients.length} ราย (${repeatClients.slice(0,3).map(([k,v])=>k+' x'+v).join(', ')})`
+    : '  ไม่มีลูกค้าซ้ำที่ระบุได้';
+
+  // cars group size
+  const byGroupSize = {};
+  rows.forEach(r => { const sz=r.cars||0; byGroupSize[sz]=(byGroupSize[sz]||0)+1; });
+  const groupSizeLines = Object.entries(byGroupSize).sort((a,b)=>Number(b[0])-Number(a[0]))
+    .map(([sz,cnt])=>`  - ${sz} คัน: ${cnt} กรุ๊ป (${Math.round(cnt/sessions*100)}%)`).join('\n');
 
   return `📅 ${label}
-รายได้รวม: ฿${total.toLocaleString()} | ${sessions} กรุ๊ป | เฉลี่ย ฿${avg.toLocaleString()}/กรุ๊ป | ${totalCars} คัน (฿${avgPerCar.toLocaleString()}/คัน)
-แหล่งที่มา:
+━━━ ภาพรวมรายได้ ━━━
+รายได้รวม: ฿${total.toLocaleString()} | ${sessions} กรุ๊ป | เฉลี่ย ฿${avg.toLocaleString()}/กรุ๊ป
+คัน: ${totalCars} คันรวม | เฉลี่ย ฿${avgPerCar.toLocaleString()}/คัน | เฉลี่ย ${sessions?Math.round(totalCars/sessions):0} คัน/กรุ๊ป
+
+━━━ แหล่งที่มา (รายได้ + ประสิทธิภาพ) ━━━
 ${srcLines}
-ช่องทางการตลาด:
+
+━━━ ช่องทางการตลาด ━━━
 ${chLines}
-รถยอดนิยม (top 5):
-${vehLines || '  - ไม่มีข้อมูลเบอร์รถ'}
-วันที่ลูกค้าเยอะสุด:
-${peakDays || '  - ไม่มีข้อมูล'}`;
+
+━━━ ประสิทธิภาพรถ (top 8) ━━━
+${vehLines || '  ไม่มีข้อมูลเบอร์รถ'}
+
+━━━ วันที่รายได้สูงสุด (top 5) ━━━
+${peakDays}
+
+━━━ ช่วงเวลาขาย ━━━
+${timeLines}
+
+━━━ ลูกค้าซ้ำ ━━━
+${repeatLine}
+
+━━━ ขนาดกรุ๊ป ━━━
+${groupSizeLines}`;
 }
+
 
 window.runAI=async()=>{
   /* ── guard: API key ── */
@@ -1129,26 +1171,60 @@ window.runAI=async()=>{
   }
 
   /* ── build prompt ── */
-  const sysPrompt=`คุณคือที่ปรึกษาธุรกิจ ATV มืออาชีพ วิเคราะห์ข้อมูลรายได้และประสิทธิภาพการใช้รถ ATV
-ตอบภาษาไทยแบบมืออาชีพ กระชับ ชัดเจน อ้างอิงตัวเลขจริงเสมอ
+  const sysPrompt=`คุณคือที่ปรึกษาธุรกิจทัวร์ ATV ระดับมืออาชีพ ที่มีความเชี่ยวชาญด้านการวิเคราะห์ธุรกิจท่องเที่ยวเชิงผจญภัย
+วิเคราะห์เชิงลึกแบบผู้บริหาร ไม่ใช่แค่สรุปตัวเลข อ้างอิงตัวเลขจริงทุกข้อ ตอบภาษาไทยมืออาชีพ
 
-โครงสร้างการตอบ (ใช้ทุกหัวข้อ):
-💰 รายได้รวม & กำไรโดยประมาณ
-  - สรุปรายได้ กำไรประมาณ 30-40% ของรายได้ (หลังหัก fuel+ค่าเสื่อมรถ)
-📊 ประเภทรายได้หลัก
-  - แหล่งที่มาไหนทำเงินสุด เปอร์เซ็นต์
-🚗 ประสิทธิภาพรถ
-  - รถที่ทำกำไรดีสุด / รถที่ใช้งานหนัก / รถที่ต้องระวัง
-📈 แนวโน้ม & Forecast
-  - เทรนด์รายได้, คาดการณ์เดือนหน้า, High/Low season
-⚠️ จุดเสี่ยง
-  - ช่องทางพึ่งพามาก, รถเสี่ยง, ความผันผวน
-💡 คำแนะนำเพิ่มกำไร & ลดต้นทุน
-  - action ที่ทำได้จริง เรียงลำดับผลกระทบ
-📋 สรุปผู้บริหาร (3-4 บรรทัด)
-  - ภาพรวมสำหรับผู้บริหารอ่านเร็ว
+ต้องวิเคราะห์ครบ 15 หัวข้อนี้เสมอ:
 
-ห้ามเกริ่นนำ ตอบตรงประเด็น ใช้ตัวเลขจากข้อมูลจริงทุกข้อ`;
+1️⃣ รายได้รวมและแนวโน้ม
+   - รายได้เดือนนี้ vs เดือนก่อน (% เปลี่ยนแปลง) พร้อมอธิบายสาเหตุ
+
+2️⃣ กำไรโดยประมาณ
+   - ประมาณกำไร gross 35-45% (หักค่าน้ำมัน ค่าเสื่อมรถ ค่าแรง) พร้อมตัวเลขบาท
+
+3️⃣ ประสิทธิภาพต่อกรุ๊ป
+   - รายได้เฉลี่ย/กรุ๊ป สูง/ต่ำกว่าเดือนก่อนเท่าไร วิเคราะห์สาเหตุ
+
+4️⃣ ประสิทธิภาพต่อรอบรถ
+   - รายได้/รอบ, รอบเฉลี่ย/วัน, รถคันไหน ROI ดีสุด
+
+5️⃣ ช่องทางการตลาดที่คุ้มค่าที่สุด
+   - เปรียบ CPG (cost per group) โดยประมาณ, ช่องทางไหนควรเพิ่มงบ
+
+6️⃣ ช่องทางที่ควรลดงบหรือปรับกลยุทธ์
+   - ช่องทางที่ conversion ต่ำ หรือดึงลูกค้า low-value
+
+7️⃣ ความเสี่ยงของธุรกิจ
+   - ความเสี่ยงระยะสั้น/กลาง เช่น พึ่งช่องทางเดียว, รถชำรุด, ฤดูกาล
+
+8️⃣ รายได้ที่หายไปจากเดือนก่อน
+   - ถ้าลดลง ระบุว่าหายไปเท่าไร จากแหล่งไหน สาเหตุที่น่าจะเป็น
+
+9️⃣ โอกาสขยายรายได้
+   - 3 โอกาสที่ทำได้จริงในระยะ 1-3 เดือน พร้อมผลกระทบโดยประมาณ
+
+🔟 วิเคราะห์ฤดูกาล
+   - เดือนนี้อยู่ใน high/low season? คาดเดือนไหน peak? ควรเตรียมอะไร
+
+1️⃣1️⃣ วิเคราะห์ลูกค้าซ้ำ
+   - กลุ่มลูกค้าใดมีโอกาสกลับมาซ้ำ? ควรทำ loyalty program อะไร
+
+1️⃣2️⃣ ช่วงเวลาที่ขายดีที่สุด
+   - วัน/ช่วงเวลาที่รายได้สูงสุด ควรเพิ่ม capacity หรือ pricing อย่างไร
+
+1️⃣3️⃣ ต้นทุนที่ผิดปกติ
+   - รถที่ใช้รอบเยอะแต่รายได้ต่ำ = ต้นทุนซ่อนอยู่? ควรตรวจสอบอะไร
+
+1️⃣4️⃣ คาดการณ์เดือนถัดไป
+   - Forecast รายได้ low/base/high case พร้อมเหตุผล
+
+1️⃣5️⃣ สิ่งที่เจ้าของควรทำทันที (Priority Actions)
+   - 3-5 action items เรียงตามความเร่งด่วน พร้อม impact โดยประมาณ
+
+📋 สรุปผู้บริหาร (Executive Summary)
+   - 5-6 ประโยคสรุปภาพรวม สำหรับผู้บริหารอ่านใน 30 วินาที
+
+กฎเหล็ก: ห้ามเกริ่นนำ ห้ามพูดว่า "จากข้อมูลที่ให้มา" ตอบตรงหัวข้อ 1 ถึง 15 และ Executive Summary เลย`;
 
   function parseMonthKey(k){const[y,m]=k.split('-').map(Number);return{y,m};}
   function getMonthRows(k){if(!k)return[];const{y,m}=parseMonthKey(k);return DATA.filter(r=>{const q=parseThDate(r.date);return q.m===m&&q.y===y;});}
@@ -1167,7 +1243,7 @@ window.runAI=async()=>{
     const historyContext = ctxKeys.length > 1
       ? '\n\n📚 ข้อมูลย้อนหลัง 6 เดือน (สำหรับเปรียบเทียบ):\n'+ctxKeys.map(k=>{const{y,m}=parseMonthKey(k);return buildSummary(byM_ctx[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')
       : '';
-    userPrompt='วิเคราะห์เดือน: '+monthLabel(keyA)+'\n\n'+buildSummary(rows,monthLabel(keyA))+historyContext+'\n\nวิเคราะห์ตามโครงสร้างที่กำหนดครบทุกหัวข้อ พร้อม Forecast เดือนถัดไปและ High/Low season';
+    userPrompt='วิเคราะห์เดือน: '+monthLabel(keyA)+'\n\n'+buildSummary(rows,monthLabel(keyA))+historyContext+'\n\nวิเคราะห์ครบทั้ง 15 หัวข้อ + Executive Summary ใช้ตัวเลขจริง วิเคราะห์เชิงธุรกิจเชิงลึก ไม่ใช่แค่สรุปตัวเลข';
   } else if(aiMode==='compare'){
     const kb1=document.getElementById('ai-sel-month-b1').value;
     const kb2=document.getElementById('ai-sel-month-b2').value;
@@ -1175,7 +1251,7 @@ window.runAI=async()=>{
     if(kb1===kb2){setAIText('⚠ กรุณาเลือกเดือนที่ต่างกัน');return;}
     const r1=getMonthRows(kb1),r2=getMonthRows(kb2);
     if(!r1.length&&!r2.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}
-    userPrompt='เปรียบเทียบ 2 เดือน:\n\n'+buildSummary(r1,monthLabel(kb1))+'\n\n'+buildSummary(r2,monthLabel(kb2))+'\n\nวิเคราะห์ตามโครงสร้างที่กำหนดครบทุกหัวข้อ: เติบโต/ลด%, รถที่ดีขึ้น/แย่ลง, ช่องทางไหนดีกว่า, คาดการณ์เดือนถัดไป, คำแนะนำเร่งด่วน';
+    userPrompt='เปรียบเทียบ 2 เดือน:\n\n'+buildSummary(r1,monthLabel(kb1))+'\n\n'+buildSummary(r2,monthLabel(kb2))+'\n\nเปรียบเทียบเชิงลึก: % เติบโต/ลดแต่ละหัวข้อ, รถไหนดีขึ้น/แย่ลง, ช่องทางไหน ROI ดีกว่า, รายได้ที่หายไป, Forecast เดือนถัดไป, Priority Actions เร่งด่วน, Executive Summary';
   } else {
     if(!DATA.length){setAIText('⚠ ไม่มีข้อมูลเลย');return;}
     const byM={};
@@ -1183,7 +1259,7 @@ window.runAI=async()=>{
     const keys=Object.keys(byM).sort().slice(-6);
     userPrompt='ภาพรวมกิจการ ATV '+keys.length+' เดือนล่าสุด:\n\n'+
       keys.map(k=>{const{y,m}=parseMonthKey(k);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')+
-      '\n\nวิเคราะห์ตามโครงสร้างที่กำหนดครบทุกหัวข้อ: แนวโน้ม, ฤดูกาล High/Low, รถดีสุด, Forecast 2 เดือนข้างหน้า, กลยุทธ์เพิ่มกำไรและลดต้นทุน, สรุปผู้บริหาร';
+      '\n\nวิเคราะห์ครบ 15 หัวข้อ + Executive Summary: แนวโน้มรายเดือน, ช่องทางที่ ROI ดีสุด, รถที่ทำกำไรดีสุด, วิเคราะห์ฤดูกาล High/Low season, Forecast 2 เดือนถัดไป low/base/high case, Priority Actions 5 ข้อ';
   }
 
   /* ── show loading ── */

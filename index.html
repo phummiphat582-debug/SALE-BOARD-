@@ -1061,22 +1061,57 @@ function buildSummary(rows, label) {
   const sessions = rows.length;
   const avg = sessions ? Math.round(total / sessions) : 0;
   const totalCars = rows.reduce((s, r) => s + (r.cars || 0), 0);
-  const bySrc = {};
-  rows.forEach(r => { bySrc[r.source] = (bySrc[r.source] || 0) + r.amt; });
-  const bySrcG = {};
-  rows.forEach(r => { bySrcG[r.source] = (bySrcG[r.source] || 0) + 1; });
+
+  // by source - revenue & groups
+  const bySrc = {}, bySrcG = {};
+  rows.forEach(r => { bySrc[r.source]=(bySrc[r.source]||0)+r.amt; bySrcG[r.source]=(bySrcG[r.source]||0)+1; });
+  const srcLines = Object.entries(bySrc).sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=>`  - ${k}: ฿${v.toLocaleString()} (${bySrcG[k]} กรุ๊ป, ${Math.round(v/total*100)}%)`).join('\n');
+
+  // by channel
   const byCh = {};
-  rows.forEach(r => { const ch = r.channel || 'อื่นๆ'; byCh[ch] = (byCh[ch] || 0) + 1; });
-  const srcLines = Object.entries(bySrc).sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => `  - ${k}: ฿${v.toLocaleString()} (${bySrcG[k]} กรุ๊ป, ${Math.round(v / total * 100)}%)`).join('\n');
-  const chLines = Object.entries(byCh).sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => `  - ${k}: ${v} กรุ๊ป (${Math.round(v / sessions * 100)}%)`).join('\n');
+  rows.forEach(r => { const ch=r.channel||'อื่นๆ'; byCh[ch]=(byCh[ch]||0)+1; });
+  const chLines = Object.entries(byCh).sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=>`  - ${k}: ${v} กรุ๊ป (${Math.round(v/sessions*100)}%)`).join('\n');
+
+  // vehicle stats
+  const vehMap = {};
+  rows.forEach(r => {
+    if(!r.vehicleIds) return;
+    r.vehicleIds.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean).forEach(vid => {
+      if(!vehMap[vid]) vehMap[vid]={rounds:0, totalAmt:0, totalMins:0};
+      vehMap[vid].rounds++;
+      vehMap[vid].totalAmt += r.amt;
+    });
+  });
+  const vehLines = Object.entries(vehMap).sort((a,b)=>b[1].rounds-a[1].rounds).slice(0,5)
+    .map(([id,v])=>`  - ${id}: ${v.rounds} รอบ, ฿${v.totalAmt.toLocaleString()}`).join('\n');
+
+  // peak day analysis
+  const byDay = {};
+  rows.forEach(r => {
+    const {d,m} = parseThDate(r.date);
+    const key = `${d}/${m}`;
+    if(!byDay[key]) byDay[key]={sessions:0,amt:0};
+    byDay[key].sessions++;
+    byDay[key].amt+=r.amt;
+  });
+  const peakDays = Object.entries(byDay).sort((a,b)=>b[1].sessions-a[1].sessions).slice(0,3)
+    .map(([k,v])=>`  - วันที่ ${k}: ${v.sessions} กรุ๊ป, ฿${v.amt.toLocaleString()}`).join('\n');
+
+  // avg revenue per car
+  const avgPerCar = totalCars ? Math.round(total/totalCars) : 0;
+
   return `📅 ${label}
-รายได้รวม: ฿${total.toLocaleString()} | ${sessions} กรุ๊ป | เฉลี่ย ฿${avg.toLocaleString()}/กรุ๊ป | ${totalCars} คัน
-แหล่งที่มา (รายได้):
+รายได้รวม: ฿${total.toLocaleString()} | ${sessions} กรุ๊ป | เฉลี่ย ฿${avg.toLocaleString()}/กรุ๊ป | ${totalCars} คัน (฿${avgPerCar.toLocaleString()}/คัน)
+แหล่งที่มา:
 ${srcLines}
-ช่องทาง:
-${chLines}`;
+ช่องทางการตลาด:
+${chLines}
+รถยอดนิยม (top 5):
+${vehLines || '  - ไม่มีข้อมูลเบอร์รถ'}
+วันที่ลูกค้าเยอะสุด:
+${peakDays || '  - ไม่มีข้อมูล'}`;
 }
 
 window.runAI=async()=>{
@@ -1094,7 +1129,26 @@ window.runAI=async()=>{
   }
 
   /* ── build prompt ── */
-  const sysPrompt='คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง\nแบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ\nใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้';
+  const sysPrompt=`คุณคือที่ปรึกษาธุรกิจ ATV มืออาชีพ วิเคราะห์ข้อมูลรายได้และประสิทธิภาพการใช้รถ ATV
+ตอบภาษาไทยแบบมืออาชีพ กระชับ ชัดเจน อ้างอิงตัวเลขจริงเสมอ
+
+โครงสร้างการตอบ (ใช้ทุกหัวข้อ):
+💰 รายได้รวม & กำไรโดยประมาณ
+  - สรุปรายได้ กำไรประมาณ 30-40% ของรายได้ (หลังหัก fuel+ค่าเสื่อมรถ)
+📊 ประเภทรายได้หลัก
+  - แหล่งที่มาไหนทำเงินสุด เปอร์เซ็นต์
+🚗 ประสิทธิภาพรถ
+  - รถที่ทำกำไรดีสุด / รถที่ใช้งานหนัก / รถที่ต้องระวัง
+📈 แนวโน้ม & Forecast
+  - เทรนด์รายได้, คาดการณ์เดือนหน้า, High/Low season
+⚠️ จุดเสี่ยง
+  - ช่องทางพึ่งพามาก, รถเสี่ยง, ความผันผวน
+💡 คำแนะนำเพิ่มกำไร & ลดต้นทุน
+  - action ที่ทำได้จริง เรียงลำดับผลกระทบ
+📋 สรุปผู้บริหาร (3-4 บรรทัด)
+  - ภาพรวมสำหรับผู้บริหารอ่านเร็ว
+
+ห้ามเกริ่นนำ ตอบตรงประเด็น ใช้ตัวเลขจากข้อมูลจริงทุกข้อ`;
 
   function parseMonthKey(k){const[y,m]=k.split('-').map(Number);return{y,m};}
   function getMonthRows(k){if(!k)return[];const{y,m}=parseMonthKey(k);return DATA.filter(r=>{const q=parseThDate(r.date);return q.m===m&&q.y===y;});}
@@ -1106,7 +1160,14 @@ window.runAI=async()=>{
     if(!keyA){setAIText('⚠ กรุณาเลือกเดือน');return;}
     const rows=getMonthRows(keyA);
     if(!rows.length){setAIText('⚠ ไม่มีข้อมูลในเดือนที่เลือก');return;}
-    userPrompt='วิเคราะห์กิจการ:\n\n'+buildSummary(rows,monthLabel(keyA))+'\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้';
+    // build 6-month context for single mode too
+    const byM_ctx={};
+    DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM_ctx[k])byM_ctx[k]=[];byM_ctx[k].push(r);});
+    const ctxKeys=Object.keys(byM_ctx).sort().slice(-6);
+    const historyContext = ctxKeys.length > 1
+      ? '\n\n📚 ข้อมูลย้อนหลัง 6 เดือน (สำหรับเปรียบเทียบ):\n'+ctxKeys.map(k=>{const{y,m}=parseMonthKey(k);return buildSummary(byM_ctx[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')
+      : '';
+    userPrompt='วิเคราะห์เดือน: '+monthLabel(keyA)+'\n\n'+buildSummary(rows,monthLabel(keyA))+historyContext+'\n\nวิเคราะห์ตามโครงสร้างที่กำหนดครบทุกหัวข้อ พร้อม Forecast เดือนถัดไปและ High/Low season';
   } else if(aiMode==='compare'){
     const kb1=document.getElementById('ai-sel-month-b1').value;
     const kb2=document.getElementById('ai-sel-month-b2').value;
@@ -1114,15 +1175,15 @@ window.runAI=async()=>{
     if(kb1===kb2){setAIText('⚠ กรุณาเลือกเดือนที่ต่างกัน');return;}
     const r1=getMonthRows(kb1),r2=getMonthRows(kb2);
     if(!r1.length&&!r2.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}
-    userPrompt='เปรียบเทียบ 2 เดือน:\n\n'+buildSummary(r1,monthLabel(kb1))+'\n\n'+buildSummary(r2,monthLabel(kb2))+'\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส';
+    userPrompt='เปรียบเทียบ 2 เดือน:\n\n'+buildSummary(r1,monthLabel(kb1))+'\n\n'+buildSummary(r2,monthLabel(kb2))+'\n\nวิเคราะห์ตามโครงสร้างที่กำหนดครบทุกหัวข้อ: เติบโต/ลด%, รถที่ดีขึ้น/แย่ลง, ช่องทางไหนดีกว่า, คาดการณ์เดือนถัดไป, คำแนะนำเร่งด่วน';
   } else {
     if(!DATA.length){setAIText('⚠ ไม่มีข้อมูลเลย');return;}
     const byM={};
     DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM[k])byM[k]=[];byM[k].push(r);});
     const keys=Object.keys(byM).sort().slice(-6);
-    userPrompt='ภาพรวมกิจการ '+keys.length+' เดือนล่าสุด:\n\n'+
+    userPrompt='ภาพรวมกิจการ ATV '+keys.length+' เดือนล่าสุด:\n\n'+
       keys.map(k=>{const{y,m}=parseMonthKey(k);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')+
-      '\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้';
+      '\n\nวิเคราะห์ตามโครงสร้างที่กำหนดครบทุกหัวข้อ: แนวโน้ม, ฤดูกาล High/Low, รถดีสุด, Forecast 2 เดือนข้างหน้า, กลยุทธ์เพิ่มกำไรและลดต้นทุน, สรุปผู้บริหาร';
   }
 
   /* ── show loading ── */

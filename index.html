@@ -991,11 +991,23 @@ window.toggleKeyVis=()=>{const inp=document.getElementById('ai-api-key');inp.typ
 
 // ─── AI ───
 window.openAIModal=()=>{
+  /* restore provider */
   const lastProv=localStorage.getItem('ai_provider')||'gemini';
   currentProvider=lastProv;
-  const btn=document.getElementById('btn-prov-'+lastProv);
-  if(btn){document.querySelectorAll('.ai-provider-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  document.querySelectorAll('.ai-provider-btn').forEach(b=>b.classList.remove('active'));
+  const pbtn=document.getElementById('btn-prov-'+lastProv);
+  if(pbtn)pbtn.classList.add('active');
   loadApiKey();
+
+  /* reset to single-month tab */
+  aiMode='single';
+  document.querySelectorAll('.ai-mode-btn').forEach(b=>b.classList.remove('active'));
+  const stab=document.getElementById('ai-tab-single');
+  if(stab)stab.classList.add('active');
+  document.getElementById('ai-picker-single').style.display='flex';
+  document.getElementById('ai-picker-compare').style.display='none';
+  document.getElementById('ai-content').innerHTML='<div style="color:var(--muted);font-size:13px;padding:4px 0 12px">เลือกโหมดและเดือน แล้วกด "วิเคราะห์"</div>';
+
   populateAIMonthSelects();
   document.getElementById('ai-modal').classList.add('show');
 };
@@ -1005,15 +1017,13 @@ window.closeAIModal=()=>document.getElementById('ai-modal').classList.remove('sh
 window.setAIMode=(mode,el)=>{
   aiMode=mode;
   document.querySelectorAll('.ai-mode-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('ai-content').innerHTML='<div id="ai-placeholder" style="color:var(--muted);font-size:13px;padding:4px 0 12px">เลือกโหมดและเดือน แล้วกด \"วิเคราะห์\"</div>';
-  // show/hide pickers
-  document.getElementById('ai-picker-single').style.display=mode==='single'?'flex':'none';
-  document.getElementById('ai-picker-compare').style.display=mode==='compare'?'flex':'none';
+  if(el)el.classList.add('active');
+  document.getElementById('ai-content').innerHTML='<div style="color:var(--muted);font-size:13px;padding:4px 0 12px">เลือกโหมดและเดือน แล้วกด "วิเคราะห์"</div>';
+  document.getElementById('ai-picker-single').style.display  = mode==='single'  ? 'flex' : 'none';
+  document.getElementById('ai-picker-compare').style.display = mode==='compare' ? 'flex' : 'none';
 };
 
 function populateAIMonthSelects(){
-  // Build month list from DATA
   const ms=new Map();
   DATA.forEach(r=>{
     const{m,y,thY}=parseThDate(r.date);
@@ -1021,100 +1031,122 @@ function populateAIMonthSelects(){
     if(!ms.has(k))ms.set(k,{key:k,label:`${TH_MONTHS_FULL[m-1]} ${thY}`,y,m});
   });
   const months=[...ms.values()].sort((a,b)=>b.y!==a.y?b.y-a.y:b.m-a.m);
+  if(!months.length)return;
   const opts=months.map(mo=>`<option value="${mo.key}">${mo.label}</option>`).join('');
+
   const now=new Date();
   const curKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  let prevM=now.getMonth(),prevY=now.getFullYear();
-  if(prevM===0){prevM=12;prevY--;}
-  const prevKey=`${prevY}-${String(prevM).padStart(2,'0')}`;
+  let py=now.getFullYear(),pm2=now.getMonth(); /* getMonth=0-based, so this = prev month */
+  if(pm2===0){pm2=12;py--;}else{pm2=now.getMonth();}
+  const prevKey=`${py}-${String(pm2).padStart(2,'0')}`;
 
   ['ai-sel-month-a','ai-sel-month-b1','ai-sel-month-b2'].forEach(id=>{
     const sel=document.getElementById(id);
-    sel.innerHTML=opts||'<option value="">ไม่มีข้อมูล</option>';
+    if(!sel)return;
+    sel.innerHTML=opts;
   });
-  // defaults
-  const selA=document.getElementById('ai-sel-month-a');
+  const selA =document.getElementById('ai-sel-month-a');
   const selB1=document.getElementById('ai-sel-month-b1');
   const selB2=document.getElementById('ai-sel-month-b2');
-  if([...selA.options].some(o=>o.value===curKey))selA.value=curKey;
-  if([...selB1.options].some(o=>o.value===curKey))selB1.value=curKey;
-  if([...selB2.options].some(o=>o.value===prevKey))selB2.value=prevKey;
-  else if(selB2.options.length>1)selB2.selectedIndex=1;
+  const hasKey=(sel,k)=>[...sel.options].some(o=>o.value===k);
+  if(selA  && hasKey(selA, curKey))  selA.value =curKey;
+  if(selB1 && hasKey(selB1,curKey))  selB1.value=curKey;
+  if(selB2 && hasKey(selB2,prevKey)) selB2.value=prevKey;
+  else if(selB2 && selB2.options.length>1) selB2.selectedIndex=1;
 }
 
 window.runAI=async()=>{
+  /* ── guard: API key ── */
   const p=PROVIDERS[currentProvider];
-  const apiKey=localStorage.getItem(p.storageKey)||'';
+  const apiKey=(localStorage.getItem(p.storageKey)||'').trim();
   localStorage.setItem('ai_provider',currentProvider);
+
   if(!apiKey){
-    setAIText(`⚠ กรุณาใส่ API Key ของ ${p.name} ก่อน\n\n${currentProvider==='gemini'?'📋 aistudio.google.com/app/apikey → Create API Key':currentProvider==='openrouter'?'📋 openrouter.ai/keys → Create Key':'📋 console.anthropic.com/settings/keys → Create Key'}`);
+    setAIText('⚠ กรุณาใส่ API Key ก่อนกด วิเคราะห์\n\n'+(
+      currentProvider==='gemini'    ?'📋 รับ Key ฟรี: aistudio.google.com/app/apikey':
+      currentProvider==='openrouter'?'📋 รับ Key: openrouter.ai/keys':
+                                     '📋 รับ Key: console.anthropic.com/settings/keys'));
     return;
   }
 
-  // ── Build prompt from selected mode & months ──
-  const sysPrompt=`คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง\nแบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ\nใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้`;
-  let userPrompt='';
+  /* ── build prompt ── */
+  const sysPrompt='คุณเป็นที่ปรึกษาธุรกิจ วิเคราะห์กิจการบริการ ตอบภาษาไทย กระชับ ชัดเจน มีประโยชน์จริง\nแบ่งหัวข้อด้วย emoji เช่น 💪 จุดแข็ง ⚠️ ความเสี่ยง 📈 โอกาส 💡 คำแนะนำ\nใช้ bullet - ตรงไปตรงมา ไม่ต้องอารัมภบท ให้ข้อมูลเชิงตัวเลขเมื่อเป็นไปได้';
 
   function parseMonthKey(k){const[y,m]=k.split('-').map(Number);return{y,m};}
-  function getMonthRows(k){if(!k)return[];const{y,m}=parseMonthKey(k);return DATA.filter(r=>{const p=parseThDate(r.date);return p.m===m&&p.y===y;});}
-  function monthLabel(k){const{y,m}=parseMonthKey(k);return`${TH_MONTHS_FULL[m-1]} ${y+543}`;}
+  function getMonthRows(k){if(!k)return[];const{y,m}=parseMonthKey(k);return DATA.filter(r=>{const q=parseThDate(r.date);return q.m===m&&q.y===y;});}
+  function monthLabel(k){const{y,m}=parseMonthKey(k);return TH_MONTHS_FULL[m-1]+' '+(y+543);}
 
+  let userPrompt='';
   if(aiMode==='single'){
     const keyA=document.getElementById('ai-sel-month-a').value;
+    if(!keyA){setAIText('⚠ กรุณาเลือกเดือน');return;}
     const rows=getMonthRows(keyA);
     if(!rows.length){setAIText('⚠ ไม่มีข้อมูลในเดือนที่เลือก');return;}
-    userPrompt=`วิเคราะห์กิจการ:\n\n${buildSummary(rows,monthLabel(keyA))}\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้`;
+    userPrompt='วิเคราะห์กิจการ:\n\n'+buildSummary(rows,monthLabel(keyA))+'\n\nวิเคราะห์: จุดแข็ง, ความเสี่ยง, ช่องทางควรพัฒนา, คำแนะนำเพิ่มรายได้';
   } else if(aiMode==='compare'){
-    const keyB1=document.getElementById('ai-sel-month-b1').value;
-    const keyB2=document.getElementById('ai-sel-month-b2').value;
-    if(keyB1===keyB2){setAIText('⚠ กรุณาเลือกเดือนที่ต่างกัน');return;}
-    const r1=getMonthRows(keyB1),r2=getMonthRows(keyB2);
+    const kb1=document.getElementById('ai-sel-month-b1').value;
+    const kb2=document.getElementById('ai-sel-month-b2').value;
+    if(!kb1||!kb2){setAIText('⚠ กรุณาเลือกเดือนทั้งสอง');return;}
+    if(kb1===kb2){setAIText('⚠ กรุณาเลือกเดือนที่ต่างกัน');return;}
+    const r1=getMonthRows(kb1),r2=getMonthRows(kb2);
     if(!r1.length&&!r2.length){setAIText('⚠ ไม่มีข้อมูลทั้งสองเดือน');return;}
-    userPrompt=`เปรียบเทียบ 2 เดือน:\n\n${buildSummary(r1,monthLabel(keyB1))}\n\n${buildSummary(r2,monthLabel(keyB2))}\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส`;
+    userPrompt='เปรียบเทียบ 2 เดือน:\n\n'+buildSummary(r1,monthLabel(kb1))+'\n\n'+buildSummary(r2,monthLabel(kb2))+'\n\nวิเคราะห์: เติบโต/ลด %, สาเหตุที่เป็นไปได้, สิ่งที่ต้องปรับ, โอกาส';
   } else {
     if(!DATA.length){setAIText('⚠ ไม่มีข้อมูลเลย');return;}
-    const byM={};DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM[k])byM[k]=[];byM[k].push(r);});
+    const byM={};
+    DATA.forEach(r=>{const{m,y}=parseThDate(r.date);const k=`${y}-${String(m).padStart(2,'0')}`;if(!byM[k])byM[k]=[];byM[k].push(r);});
     const keys=Object.keys(byM).sort().slice(-6);
-    userPrompt=`ภาพรวมกิจการ ${keys.length} เดือนล่าสุด:\n\n${keys.map(k=>{const{y,m}=parseMonthKey(k);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')}\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้`;
+    userPrompt='ภาพรวมกิจการ '+keys.length+' เดือนล่าสุด:\n\n'+
+      keys.map(k=>{const{y,m}=parseMonthKey(k);return buildSummary(byM[k],TH_MONTHS_FULL[m-1]+' '+(y+543));}).join('\n\n')+
+      '\n\nสรุปแนวโน้ม, ฤดูกาล, ช่องทางดีที่สุด, กลยุทธ์เพิ่มรายได้';
   }
 
+  /* ── show loading ── */
   document.getElementById('ai-content').innerHTML='<div class="ai-loading"><div class="ai-spinner"></div><span>กำลังวิเคราะห์ด้วย '+p.name+'...</span></div>';
 
+  /* ── call API ── */
   try{
     let resultText='';
     if(currentProvider==='gemini'){
-      const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        system_instruction:{parts:[{text:sysPrompt}]},
-        contents:[{role:'user',parts:[{text:userPrompt}]}],
-        generationConfig:{maxOutputTokens:1400,temperature:0.7}
-      })});
-      if(!res.ok){const e=await res.json();setAIText(`❌ Gemini Error ${res.status}: ${e.error?.message||JSON.stringify(e)}`);return;}
+      const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey;
+      const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          system_instruction:{parts:[{text:sysPrompt}]},
+          contents:[{role:'user',parts:[{text:userPrompt}]}],
+          generationConfig:{maxOutputTokens:1400,temperature:0.7}
+        })
+      });
+      if(!res.ok){const e=await res.json();setAIText('❌ Gemini Error '+res.status+': '+(e.error?.message||JSON.stringify(e)));return;}
       const d=await res.json();
       resultText=d.candidates?.[0]?.content?.parts?.[0]?.text||'วิเคราะห์ไม่ได้';
     } else if(currentProvider==='openrouter'){
       const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,'HTTP-Referer':'https://sales-dashboard.local','X-Title':'Sales Dashboard'},
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,
+                 'HTTP-Referer':'https://sales-dashboard.local','X-Title':'Sales Dashboard'},
         body:JSON.stringify({
           model:'meta-llama/llama-3.3-8b-instruct:free',
           max_tokens:1400,
           messages:[{role:'system',content:sysPrompt},{role:'user',content:userPrompt}]
         })
       });
-      if(!res.ok){const e=await res.json();setAIText(`❌ OpenRouter Error ${res.status}: ${e.error?.message||JSON.stringify(e)}`);return;}
+      if(!res.ok){const e=await res.json();setAIText('❌ OpenRouter Error '+res.status+': '+(e.error?.message||JSON.stringify(e)));return;}
       const d=await res.json();
       resultText=d.choices?.[0]?.message?.content||'วิเคราะห์ไม่ได้';
     } else {
       const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1400,system:sysPrompt,messages:[{role:'user',content:userPrompt}]})
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,
+                 'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1400,system:sysPrompt,
+                             messages:[{role:'user',content:userPrompt}]})
       });
-      if(!res.ok){const e=await res.json();setAIText(`❌ Claude Error ${res.status}: ${e.error?.message||JSON.stringify(e)}`);return;}
+      if(!res.ok){const e=await res.json();setAIText('❌ Claude Error '+res.status+': '+(e.error?.message||JSON.stringify(e)));return;}
       const d=await res.json();
       resultText=d.content?.map(c=>c.text||'').join('')||'วิเคราะห์ไม่ได้';
     }
     setAIText(resultText);
-  }catch(e){setAIText('❌ เกิดข้อผิดพลาด: '+e.message);}
+  }catch(e){
+    setAIText('❌ เกิดข้อผิดพลาด: '+e.message);
+  }
 };
 function setAIText(t){document.getElementById('ai-content').innerHTML=`<div class="ai-response">${t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;}
 

@@ -344,28 +344,16 @@
     box-shadow:0 12px 30px rgba(239,35,35,.26);font-weight:700;
   }
   .app-topbar{
-    display:grid;grid-template-columns:minmax(220px,1fr) minmax(260px,360px) auto;align-items:center;gap:22px;margin-bottom:24px;
+    display:grid;grid-template-columns:48px minmax(260px,520px);align-items:center;gap:18px;margin-bottom:24px;
   }
   .menu-tile{
     width:48px;height:48px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(145deg,#151518,#070708);
     display:grid;place-items:center;color:#fff;font-size:24px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
   }
-  .top-greeting{display:flex;align-items:center;gap:18px}
-  .top-copy strong{display:block;font-size:22px;color:#fff;margin-bottom:3px}
-  .top-copy span{font-size:12px;color:var(--muted)}
   .top-search{
     height:44px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(180deg,#121214,#09090a);
     color:var(--muted);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:12px;
   }
-  .top-actions{display:flex;align-items:center;gap:12px;justify-content:flex-end}
-  .top-icon,.profile-chip{
-    border:1px solid var(--border);background:linear-gradient(145deg,#151518,#070708);color:#fff;border-radius:12px;
-    min-width:42px;height:42px;display:grid;place-items:center;position:relative;
-  }
-  .top-icon::after{content:attr(data-badge);position:absolute;right:-4px;top:-6px;background:#ef2323;color:#fff;border-radius:999px;font-size:10px;padding:2px 6px}
-  .top-icon[data-badge='']::after{display:none}
-  .profile-chip{grid-template-columns:32px auto;gap:8px;padding:0 12px;width:auto}
-  .profile-avatar{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#ef2323,#161616 62%);border:1px solid rgba(239,35,35,.55)}
   .atv-stage{
     height:96px;margin:0 0 20px;border-color:rgba(239,35,35,.24);background:linear-gradient(135deg,#111113,#050506);
     box-shadow:0 24px 48px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.05);
@@ -426,25 +414,49 @@
   .field select option{background:#111113;color:#fff}
   table th{color:#9f9fa5} table td{color:#f2f2f2}
   .toast{background:#121214;color:#fff;border-color:rgba(239,35,35,.35);box-shadow:0 20px 44px rgba(0,0,0,.55)}
+  #page-add .form-wrap{
+    max-width:860px;margin:0 auto;padding:24px;border-radius:16px;
+  }
+  #page-add .form-wrap h2{
+    margin-bottom:22px;color:#f5f4ef;font-weight:800;letter-spacing:.08em;
+  }
+  #page-add .form-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;align-items:start;margin-bottom:16px;
+  }
+  #page-add .field{min-width:0}
+  #page-add .field label{
+    height:18px;margin-bottom:7px;color:#aaa;line-height:18px;
+  }
+  #page-add .field input,#page-add .field select{
+    height:42px;padding:0 13px;border-radius:9px;background:#0b0b0d;border-color:rgba(255,255,255,.14);
+  }
+  #page-add .field input:focus,#page-add .field select:focus{
+    border-color:#ef2323;box-shadow:0 0 0 3px rgba(239,35,35,.16);
+  }
+  #page-add .submit-btn{
+    height:46px;margin-top:2px;border-radius:9px;font-size:15px;
+  }
+  #page-add .cancel-btn{
+    height:42px;border-radius:9px;
+  }
   @media(max-width:980px){
     body{padding:18px}
     .tabs{position:static;width:auto;flex-direction:row;overflow:auto;padding:12px;margin-bottom:14px;border:1px solid rgba(239,35,35,.24);border-radius:14px}
     .tabs::before,.tabs::after,.sidebar-logo{display:none}
     .tab{border-radius:10px;padding:10px 14px;white-space:nowrap}
-    .app-topbar{grid-template-columns:1fr;gap:12px}
+    .app-topbar{grid-template-columns:48px 1fr;gap:12px}
     .metrics{grid-template-columns:repeat(2,1fr)}.metric:nth-child(5){grid-column:span 2}
     .hero-kicker{font-size:34px}.hero-kicker span{font-size:46px}.hero-orbit{display:none}
+  }
+  @media(max-width:620px){
+    #page-add .form-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
 <div class="app-topbar">
-  <div class="top-greeting">
-    <div class="menu-tile">☰</div>
-    <div class="top-copy"><strong>สวัสดีครับ, Shark!</strong><span>พร้อมลุยไปกับทุกการจอง ATV</span></div>
-  </div>
+  <div class="menu-tile">☰</div>
   <div class="top-search">⌕ ค้นหาชื่อ, ลูกค้า, เบอร์รถ...</div>
-  <div class="top-actions"><div class="top-icon" data-badge="3">♧</div><div class="top-icon" data-badge="2">✉</div><div class="profile-chip"><span class="profile-avatar"></span><span>Admin</span></div></div>
 </div>
 <div class="atv-stage" aria-hidden="true"><div class="atv-caption">SC Adventure Sales Dashboard</div><div class="atv-track"></div><div class="atv-wrap"><div class="atv"><span class="atv-dust"></span><span class="atv-body"></span><span class="atv-seat"></span><span class="atv-front"></span><span class="atv-light"></span><span class="atv-handle"></span><span class="atv-rider-body"></span><span class="atv-rider-head"></span><span class="atv-rider-arm"></span><span class="atv-wheel back"></span><span class="atv-wheel front"></span></div></div></div>
 <div id="sync-bar"><span class="sync-dot loading" id="sync-dot"></span><span id="sync-msg">กำลังเชื่อมต่อ...</span></div>
@@ -689,7 +701,7 @@
       <div class="field"><label>เวลา</label><input type="text" id="f-time" placeholder="17:00-18:00"></div>
       <div class="field"><label>ยอด (฿)</label><input type="number" id="f-amt" placeholder="1200" min="0"></div>
       <div class="field"><label>จำนวนคัน</label><input type="number" id="f-cars" placeholder="1" min="0" value="1"></div>
-      <div class="field"><label>ช่องทางที่มา</label>
+      <div class="field form-full"><label>ช่องทางที่มา</label>
         <select id="f-channel"><option value="Facebook">Facebook</option><option value="TikTok">TikTok</option><option value="LINE">LINE</option><option value="Instagram">Instagram</option><option value="อื่นๆ">อื่นๆ / Walk in</option></select></div>
       <div class="field form-full">
         <label>🚗 เบอร์รถที่ออก (คั่นด้วย , ถ้าหลายคัน)</label>

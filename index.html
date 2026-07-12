@@ -12,10 +12,10 @@
   :root{
     --bg:#0f0f11;--surface:#17171a;--surface2:#1f1f24;
     --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
-    --text:#f0efe8;--muted:#7a7a80;
-    --accent:#c8f55a;--walk:#5af5c8;--pkg:#c8f55a;--mrd:#f5a25a;
-    --lod:#a78bfa;--dol:#f472b6;--vip:#60a5fa;--house:#fb923c;
-    --red:#f55a5a;--ch-fb:#3b82f6;--ch-tt:#e879f9;--ch-line:#22c55e;--ch-ig:#f97316;
+    --text:#f0efe8;--muted:#8c7771;
+    --accent:#ef2323;--walk:#5b78ff;--pkg:#ef2323;--mrd:#bd7b19;
+    --lod:#ef2323;--dol:#a83b55;--vip:#346b8c;--house:#b9542f;
+    --red:#f55a5a;--ch-fb:#376fa7;--ch-tt:#9b5967;--ch-line:#3c8c61;--ch-ig:#bf5b3e;
     --fuel:#facc15;
     --font:'Sarabun',sans-serif;--mono:'IBM Plex Mono',monospace;
   }
@@ -36,7 +36,7 @@
   .ripple-btn.rippling::after{animation:ripple 0.5s linear}
   #sync-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:12px;color:var(--muted)}
   .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background 0.3s}
-  .sync-dot.ok{background:#22c55e}.sync-dot.loading{background:#f5a25a;animation:pulse 1s infinite}.sync-dot.err{background:var(--red)}
+  .sync-dot.ok{background:#3c8c61}.sync-dot.loading{background:#bd7b19;animation:pulse 1s infinite}.sync-dot.err{background:var(--red)}
   .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--border);flex-wrap:wrap}
   .tab{font-family:var(--font);font-size:13px;padding:10px 16px;background:transparent;border:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.22s;position:relative;overflow:hidden}
   .tab:hover{color:var(--text);background:rgba(255,255,255,0.03)}.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}.tab:active{transform:scale(0.96)}
@@ -132,10 +132,10 @@
   .ai-mode-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
   .ai-mode-btn{font-family:var(--font);font-size:12px;padding:6px 14px;border:1px solid var(--border2);border-radius:100px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s}
   .ai-mode-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
-  .ai-mode-btn.active{background:rgba(167,139,250,0.12);color:#a78bfa;border-color:rgba(167,139,250,0.5)}
+  .ai-mode-btn.active{background:rgba(167,139,250,0.12);color:#ef2323;border-color:rgba(167,139,250,0.5)}
   .ai-response{background:var(--surface2);border-radius:10px;padding:16px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;min-height:80px;max-height:52vh;overflow-y:auto}
   .ai-loading{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:16px;background:var(--surface2);border-radius:10px}
-  .ai-spinner{width:15px;height:15px;border:2px solid var(--border2);border-top-color:#a78bfa;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+  .ai-spinner{width:15px;height:15px;border:2px solid var(--border2);border-top-color:#ef2323;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
   .date-cell{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:11px;white-space:nowrap}
   .date-cell .day{font-size:13px;color:var(--text);font-weight:500}.date-cell .month-year{color:var(--muted);font-size:10px}
   .rec-filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
@@ -234,12 +234,222 @@
   /* ─── AI PROVIDER BUTTONS ─── */
   .ai-provider-btn{font-family:var(--font);font-size:11px;padding:5px 12px;border:1px solid var(--border2);border-radius:100px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s}
   .ai-provider-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3)}
-  .ai-provider-btn.active{background:rgba(167,139,250,0.15);color:#a78bfa;border-color:rgba(167,139,250,0.5);font-weight:600}
+  .ai-provider-btn.active{background:rgba(167,139,250,0.15);color:#ef2323;border-color:rgba(167,139,250,0.5);font-weight:600}
+
+  /* Previous compact ATV theme base */
+  :root{
+    --bg:#0b0b0c;--surface:#151516;--surface2:#202023;
+    --border:rgba(255,216,58,0.10);--border2:rgba(255,216,58,0.22);
+    --text:#f7f3df;--muted:#9d9785;
+    --accent:#ef2323;--walk:#ef2323;--pkg:#c51e1e;--mrd:#ff8f3d;
+    --lod:#8f8f99;--dol:#f06b8b;--vip:#5b78ff;--house:#ffb24d;
+    --red:#ff5f5f;--ch-fb:#4da3ff;--ch-tt:#f06b8b;--ch-line:#4ed17b;--ch-ig:#ff944d;
+    --fuel:#ef2323;
+  }
+  body{background:radial-gradient(circle at 12% 0%,rgba(255,216,58,0.13),transparent 30%),radial-gradient(circle at 88% 8%,rgba(74,176,217,0.08),transparent 28%),linear-gradient(180deg,#080809 0%,#111113 100%);color:var(--text)}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background-image:linear-gradient(rgba(255,216,58,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,216,58,0.025) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 78%)}
+  .tabs,.month-nav,.metric,.card,.form-card,.fuel-form-card,.fuel-list-card,.modal-box{box-shadow:0 16px 34px rgba(0,0,0,0.34),inset 0 1px 0 rgba(255,255,255,0.05)}
+  .tab.active,.metric-value.accent,.pl-val,.veh-row-amt,.amt{color:var(--accent)}
+  .tab.active{border-bottom-color:var(--accent)}
+  .fbtn.active,.submit-btn{background:linear-gradient(180deg,#ffe25a,#e7b900);color:#121212;border-color:transparent;box-shadow:0 10px 28px rgba(255,216,58,0.22)}
+  .ripple-btn::after{background:rgba(255,216,58,0.18)}
+  .field input,.field select,.search-wrap input,.rec-filter-select{box-shadow:inset 0 1px 0 rgba(255,255,255,0.05)}
+  .field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,216,58,0.13)}
+  .field select option{background:#151516;color:#f7f3df}
+  .ai-btn,.export-btn,.fuel-add-btn{background:rgba(255,216,58,0.10)!important;color:var(--accent)!important;border-color:rgba(255,216,58,0.26)!important}
+  .ai-btn:hover,.export-btn:hover,.fuel-add-btn:hover{background:rgba(255,216,58,0.16)!important;border-color:var(--accent)!important}
+  .toast{background:#171717;color:var(--accent);border:1px solid rgba(255,216,58,0.25);box-shadow:0 18px 40px rgba(0,0,0,0.45)}
+  @keyframes atvRide{0%{transform:translateX(-18vw)}100%{transform:translateX(108vw)}}
+  @keyframes atvBounce{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
+  @keyframes mascotWave{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(20deg)}}
+  @keyframes wheelSpin{to{transform:rotate(360deg)}}
+  @keyframes dustPop{0%{opacity:.5;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(-42px,-10px) scale(1.45)}}
+  .atv-stage{position:relative;height:78px;margin:0 0 18px;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,#181819 0%,#0f0f10 100%);box-shadow:0 16px 34px rgba(0,0,0,0.36),inset 0 1px 0 rgba(255,255,255,.06)}
+  .atv-stage::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 18% 20%,rgba(255,216,58,.18),transparent 24%),linear-gradient(90deg,transparent,rgba(255,216,58,.05),transparent);pointer-events:none}
+  .atv-track{position:absolute;left:0;right:0;bottom:12px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,216,58,.38),transparent)}
+  .atv-wrap{position:absolute;left:0;bottom:15px;width:142px;height:48px;animation:atvRide 10s linear infinite}
+  .atv{position:absolute;inset:0;animation:atvBounce .58s ease-in-out infinite}
+  .atv-body{position:absolute;left:34px;bottom:16px;width:78px;height:22px;background:#ef2323;border-radius:18px 22px 10px 10px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22),0 0 22px rgba(255,216,58,.12)}
+  .atv-seat{position:absolute;left:64px;bottom:34px;width:34px;height:10px;background:#111113;border:1px solid rgba(255,216,58,.3);border-radius:10px 12px 4px 4px}
+  .atv-front{position:absolute;left:100px;bottom:22px;width:28px;height:14px;background:#c51e1e;border-radius:5px 16px 8px 4px;transform:rotate(-8deg)}
+  .atv-light{position:absolute;left:121px;bottom:25px;width:8px;height:8px;background:#fff3a6;border-radius:50%;box-shadow:10px 0 28px rgba(255,216,58,.75)}
+  .atv-handle{position:absolute;left:106px;bottom:38px;width:20px;height:14px;border-top:3px solid #ef2323;border-right:3px solid #ef2323;border-radius:0 10px 0 0;transform:rotate(14deg)}
+  .atv-rider-head{position:absolute;left:68px;bottom:43px;width:18px;height:18px;background:#ef2323;border-radius:50% 50% 45% 45%;box-shadow:inset 0 -3px 0 rgba(0,0,0,.13)}
+  .atv-rider-head::before{content:'';position:absolute;left:2px;top:6px;width:14px;height:7px;background:#d7d7d7;border:2px solid #2d2d32;border-radius:8px;box-shadow:inset 0 0 0 2px #f7f7f7}
+  .atv-rider-head::after{content:'';position:absolute;left:7px;top:9px;width:4px;height:4px;background:#242428;border-radius:50%}
+  .atv-rider-body{position:absolute;left:64px;bottom:29px;width:25px;height:18px;background:#5b78ff;border:2px solid #ef2323;border-radius:12px 12px 5px 5px;transform:rotate(8deg);box-shadow:inset 0 -5px 0 rgba(0,0,0,.16)}
+  .atv-rider-arm{position:absolute;left:86px;bottom:37px;width:16px;height:4px;background:#ef2323;border-radius:999px;transform-origin:left center;animation:mascotWave .75s ease-in-out infinite}
+  .atv-wheel{position:absolute;bottom:2px;width:28px;height:28px;border:7px solid #080809;border-radius:50%;background:#2a2a2d;animation:wheelSpin .55s linear infinite;box-shadow:inset 0 0 0 2px rgba(255,216,58,.22)}
+  .atv-wheel::after{content:'';position:absolute;inset:5px;border-radius:50%;background:#ef2323}
+  .atv-wheel.front{left:98px}.atv-wheel.back{left:24px}
+  .atv-dust,.atv-dust::before,.atv-dust::after{position:absolute;content:'';width:12px;height:6px;border-radius:50%;background:rgba(255,216,58,.24);animation:dustPop 1.1s ease-out infinite}
+  .atv-dust{left:8px;bottom:14px}.atv-dust::before{left:-16px;bottom:8px;animation-delay:.22s}.atv-dust::after{left:-28px;bottom:-2px;animation-delay:.46s}
+  .atv-caption{position:absolute;right:14px;top:12px;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  @media(max-width:640px){.atv-stage{height:62px}.atv-caption{display:none}.atv-wrap{animation-duration:7s}}
+
+  /* SC Adventure dashboard skin */
+  :root{
+    --bg:#050506;--surface:#101012;--surface2:#171719;
+    --border:rgba(255,255,255,0.08);--border2:rgba(239,35,35,0.35);
+    --text:#f5f4ef;--muted:#88878a;
+    --accent:#ef2323;--walk:#ef2323;--pkg:#c51e1e;--mrd:#ff7a2f;
+    --lod:#8f8f99;--dol:#d63f5f;--vip:#5b78ff;--house:#ff9f31;
+    --red:#ef2323;--ch-fb:#5b78ff;--ch-tt:#d63f5f;--ch-line:#35c95f;--ch-ig:#ff7a2f;
+    --fuel:#ffb331;
+  }
+  body{
+    padding:28px 26px 28px 256px;
+    background:
+      radial-gradient(circle at 12% 0%,rgba(239,35,35,.18),transparent 24%),
+      radial-gradient(circle at 78% 6%,rgba(255,122,47,.08),transparent 22%),
+      linear-gradient(135deg,#050506 0%,#0d0d0f 54%,#050506 100%);
+  }
+  body::before{
+    content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:42px 42px;
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.82),transparent 82%);
+  }
+  body::after{
+    content:'';position:fixed;left:220px;top:0;width:2px;height:100vh;z-index:-1;
+    background:linear-gradient(180deg,transparent,#ef2323 12%,rgba(239,35,35,.35) 62%,transparent);
+  }
+  .tabs{
+    position:fixed;left:16px;top:16px;bottom:16px;width:204px;z-index:5;
+    display:flex;flex-direction:column;gap:10px;margin:0;padding:132px 0 92px;
+    border:1px solid rgba(239,35,35,.24);border-radius:0 22px 22px 0;border-left:none;
+    background:linear-gradient(180deg,rgba(12,12,14,.98),rgba(5,5,6,.96));
+    box-shadow:22px 0 44px rgba(0,0,0,.45),inset -1px 0 0 rgba(255,255,255,.04);
+  }
+  .tabs::before{
+    content:none;
+  }
+  .sidebar-logo{
+    position:absolute;left:18px;top:18px;width:168px;height:96px;object-fit:contain;
+    filter:drop-shadow(0 0 18px rgba(239,35,35,.25));
+    pointer-events:none;
+  }
+  .tabs::after{
+    content:'READY TO RIDE?\A เส้นทาง ATV';white-space:pre;position:absolute;left:14px;right:14px;bottom:14px;
+    min-height:74px;padding:14px 16px;border:1px solid rgba(239,35,35,.34);border-radius:10px;
+    color:#fff;font-size:11px;line-height:1.65;background:linear-gradient(135deg,rgba(239,35,35,.30),rgba(15,15,17,.86));
+  }
+  .tab{
+    width:100%;margin:0;padding:14px 18px 14px 28px;border:1px solid transparent;border-left:none;border-radius:0 18px 18px 0;
+    display:flex;align-items:center;gap:12px;color:#c8c8c8;text-align:left;font-size:14px;background:transparent;
+  }
+  .tab:hover{background:rgba(255,255,255,.045);color:#fff}
+  .tab.active{
+    color:#fff;background:linear-gradient(90deg,#ef2323,rgba(111,10,10,.72));border-color:rgba(239,35,35,.65);
+    box-shadow:0 12px 30px rgba(239,35,35,.26);font-weight:700;
+  }
+  .app-topbar{
+    display:grid;grid-template-columns:minmax(220px,1fr) minmax(260px,360px) auto;align-items:center;gap:22px;margin-bottom:24px;
+  }
+  .menu-tile{
+    width:48px;height:48px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(145deg,#151518,#070708);
+    display:grid;place-items:center;color:#fff;font-size:24px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .top-greeting{display:flex;align-items:center;gap:18px}
+  .top-copy strong{display:block;font-size:22px;color:#fff;margin-bottom:3px}
+  .top-copy span{font-size:12px;color:var(--muted)}
+  .top-search{
+    height:44px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(180deg,#121214,#09090a);
+    color:var(--muted);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:12px;
+  }
+  .top-actions{display:flex;align-items:center;gap:12px;justify-content:flex-end}
+  .top-icon,.profile-chip{
+    border:1px solid var(--border);background:linear-gradient(145deg,#151518,#070708);color:#fff;border-radius:12px;
+    min-width:42px;height:42px;display:grid;place-items:center;position:relative;
+  }
+  .top-icon::after{content:attr(data-badge);position:absolute;right:-4px;top:-6px;background:#ef2323;color:#fff;border-radius:999px;font-size:10px;padding:2px 6px}
+  .top-icon[data-badge='']::after{display:none}
+  .profile-chip{grid-template-columns:32px auto;gap:8px;padding:0 12px;width:auto}
+  .profile-avatar{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#ef2323,#161616 62%);border:1px solid rgba(239,35,35,.55)}
+  .atv-stage{
+    height:96px;margin:0 0 20px;border-color:rgba(239,35,35,.24);background:linear-gradient(135deg,#111113,#050506);
+    box-shadow:0 24px 48px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .atv-stage::before{background:radial-gradient(circle at 22% 18%,rgba(239,35,35,.22),transparent 28%),linear-gradient(90deg,transparent,rgba(239,35,35,.08),transparent)}
+  .atv-track{background:linear-gradient(90deg,transparent,rgba(239,35,35,.52),transparent)}
+  .atv-body{background:#1b1b1e;box-shadow:inset 0 -7px 0 rgba(239,35,35,.30),0 0 22px rgba(239,35,35,.18)}
+  .atv-front{background:#ef2323}.atv-light{background:#ffdf87;box-shadow:12px 0 30px rgba(255,216,128,.72)}
+  .atv-handle{border-top-color:#ef2323;border-right-color:#ef2323}
+  .atv-rider-head{background:#19191b;box-shadow:inset 0 -3px 0 rgba(239,35,35,.35)}
+  .atv-rider-body{background:#1c1c1f;border-color:#ef2323}
+  .atv-rider-arm{background:#ef2323}
+  .atv-wheel::after{background:#ef2323}.atv-dust,.atv-dust::before,.atv-dust::after{background:rgba(239,35,35,.28)}
+  .atv-caption{color:#fff}
+  .adventure-hero{
+    min-height:300px;margin-bottom:18px;border:1px solid rgba(255,255,255,.09);border-radius:16px;overflow:hidden;position:relative;
+    background:
+      linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.46) 46%,rgba(0,0,0,.10) 100%),
+      radial-gradient(circle at 72% 40%,rgba(239,35,35,.42),transparent 24%),
+      linear-gradient(135deg,#171719,#080809 65%,#1a0a0a);
+    box-shadow:0 26px 58px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .adventure-hero::before{
+    content:'';position:absolute;right:5%;bottom:18px;width:360px;height:160px;border-radius:50%;
+    background:radial-gradient(ellipse at center,rgba(239,35,35,.32),transparent 62%);filter:blur(2px);
+  }
+  .adventure-hero::after{
+    content:'ATV';position:absolute;right:8%;bottom:24px;color:rgba(255,255,255,.08);font-family:var(--mono);font-size:136px;font-weight:800;letter-spacing:-.08em;
+  }
+  .hero-copy{position:relative;z-index:1;padding:56px 44px;max-width:610px}
+  .hero-kicker{font-weight:900;font-size:46px;line-height:.92;color:#fff;font-style:italic;letter-spacing:.02em;text-transform:uppercase}
+  .hero-kicker span{display:block;color:#ef2323;font-size:62px;text-shadow:0 12px 32px rgba(239,35,35,.36)}
+  .hero-copy p{margin:18px 0 24px;color:#fff;font-size:16px;font-weight:700}
+  .hero-cta{display:inline-flex;align-items:center;gap:16px;border:none;border-radius:8px;background:linear-gradient(180deg,#ef2323,#9b1111);color:#fff;padding:14px 26px;font-family:var(--font);font-weight:800;cursor:pointer;box-shadow:0 16px 32px rgba(239,35,35,.28)}
+  .hero-orbit{position:absolute;right:80px;bottom:50px;z-index:2;width:210px;height:92px}
+  .hero-orbit .atv-wrap{animation:atvBounce .65s ease-in-out infinite;left:18px;bottom:12px;transform:scale(1.22)}
+  .top-controls{align-items:flex-start;background:linear-gradient(145deg,#111113,#080809);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:18px}
+  .metric,.card,.fuel-metric,.fuel-form-card,.fuel-list-card,.form-wrap{
+    background:linear-gradient(145deg,rgba(20,20,22,.96),rgba(9,9,10,.96));border-color:rgba(255,255,255,.09);border-radius:14px;
+    box-shadow:0 20px 42px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.045);
+  }
+  .metric{min-height:116px;border-radius:12px;position:relative;overflow:hidden}
+  .metric::before{content:'';position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,#ef2323,transparent)}
+  .metric-label,.card-title{color:#f5f4ef;font-weight:800;font-size:13px;letter-spacing:0;text-transform:none}
+  .metric-value{font-size:28px;color:#fff}.metric-value.accent{color:#fff}
+  .metric-sub{color:#31df61}
+  .metrics{grid-template-columns:repeat(4,1fr)}
+  .metric:nth-child(5){grid-column:span 4}
+  .charts-row{grid-template-columns:1.55fr 1fr;gap:16px}
+  .charts-row3{gap:16px}
+  .fbtn,.mnav-btn,.ai-btn,.export-btn,.submit-btn,.fuel-add-btn{
+    border-radius:8px;border-color:rgba(255,255,255,.10);background:rgba(255,255,255,.035);color:#f5f4ef;
+  }
+  .fbtn.active,.submit-btn{background:linear-gradient(180deg,#ef2323,#9b1111);color:#fff;box-shadow:0 12px 28px rgba(239,35,35,.25)}
+  .ai-btn,.export-btn,.fuel-add-btn{background:rgba(239,35,35,.12)!important;color:#fff!important;border-color:rgba(239,35,35,.32)!important}
+  .ripple-btn::after{background:rgba(239,35,35,.22)}
+  .field input,.field select,.search-wrap input,.rec-filter-select{background:#0d0d0f;color:#fff;border-color:rgba(255,255,255,.10)}
+  .field select option{background:#111113;color:#fff}
+  table th{color:#9f9fa5} table td{color:#f2f2f2}
+  .toast{background:#121214;color:#fff;border-color:rgba(239,35,35,.35);box-shadow:0 20px 44px rgba(0,0,0,.55)}
+  @media(max-width:980px){
+    body{padding:18px}
+    .tabs{position:static;width:auto;flex-direction:row;overflow:auto;padding:12px;margin-bottom:14px;border:1px solid rgba(239,35,35,.24);border-radius:14px}
+    .tabs::before,.tabs::after,.sidebar-logo{display:none}
+    .tab{border-radius:10px;padding:10px 14px;white-space:nowrap}
+    .app-topbar{grid-template-columns:1fr;gap:12px}
+    .metrics{grid-template-columns:repeat(2,1fr)}.metric:nth-child(5){grid-column:span 2}
+    .hero-kicker{font-size:34px}.hero-kicker span{font-size:46px}.hero-orbit{display:none}
+  }
 </style>
 </head>
 <body>
+<div class="app-topbar">
+  <div class="top-greeting">
+    <div class="menu-tile">☰</div>
+    <div class="top-copy"><strong>สวัสดีครับ, Shark!</strong><span>พร้อมลุยไปกับทุกการจอง ATV</span></div>
+  </div>
+  <div class="top-search">⌕ ค้นหาชื่อ, ลูกค้า, เบอร์รถ...</div>
+  <div class="top-actions"><div class="top-icon" data-badge="3">♧</div><div class="top-icon" data-badge="2">✉</div><div class="profile-chip"><span class="profile-avatar"></span><span>Admin</span></div></div>
+</div>
+<div class="atv-stage" aria-hidden="true"><div class="atv-caption">SC Adventure Sales Dashboard</div><div class="atv-track"></div><div class="atv-wrap"><div class="atv"><span class="atv-dust"></span><span class="atv-body"></span><span class="atv-seat"></span><span class="atv-front"></span><span class="atv-light"></span><span class="atv-handle"></span><span class="atv-rider-body"></span><span class="atv-rider-head"></span><span class="atv-rider-arm"></span><span class="atv-wheel back"></span><span class="atv-wheel front"></span></div></div></div>
 <div id="sync-bar"><span class="sync-dot loading" id="sync-dot"></span><span id="sync-msg">กำลังเชื่อมต่อ...</span></div>
 <div class="tabs">
+  <img class="sidebar-logo" src="scenery-adventure-logo.png" alt="Scenery The Adventure">
   <button class="tab active ripple-btn" onclick="handleTabClick('dashboard',this)">📊 Dashboard</button>
   <button class="tab ripple-btn" onclick="handleTabClick('vehicles',this)">🚗 รอบรถ</button>
   <button class="tab ripple-btn" onclick="handleTabClick('fuel',this)">⛽ น้ำมัน</button>
@@ -249,6 +459,14 @@
 
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
+  <section class="adventure-hero">
+    <div class="hero-copy">
+      <div class="hero-kicker">LIVE THE <span>ADVENTURE</span></div>
+      <p>ทุกเส้นทางคือข้อมูลจริงจาก Sales Dashboard</p>
+      <button class="hero-cta ripple-btn" onclick="handleTabClick('add',document.querySelectorAll('.tab')[3])">เพิ่มการจองใหม่ <span>›</span></button>
+    </div>
+    <div class="hero-orbit" aria-hidden="true"><div class="atv-wrap"><div class="atv"><span class="atv-dust"></span><span class="atv-body"></span><span class="atv-seat"></span><span class="atv-front"></span><span class="atv-light"></span><span class="atv-handle"></span><span class="atv-rider-body"></span><span class="atv-rider-head"></span><span class="atv-rider-arm"></span><span class="atv-wheel back"></span><span class="atv-wheel front"></span></div></div></div>
+  </section>
   <div class="top-controls">
     <div class="filter-row">
       <button class="fbtn active ripple-btn" id="pill-all" onclick="setQuickFilter('all',this)">ทั้งหมด</button>
@@ -587,7 +805,7 @@ const FUEL_COL='fuel_records';
 
 const TH_MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const TH_MONTHS_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-const VEH_COLORS=['#c8f55a','#5af5c8','#f5a25a','#a78bfa','#f472b6','#60a5fa','#fb923c','#34d399','#f87171','#fbbf24','#38bdf8','#e879f9'];
+const VEH_COLORS=['#ef2323','#9b1111','#ff7a2f','#8f8f99','#d63f5f','#5b78ff','#ff9f31','#35c95f','#f5f4ef','#b91c1c','#6f1010','#ffb331'];
 
 const fmt=n=>'฿'+n.toLocaleString();
 function parseThDate(str){const p=str.split('/').map(Number);const d=p[0],m=p[1],rawY=p[2];const y=rawY>2500?rawY-543:rawY;const thY=rawY>2500?rawY:rawY+543;return{d,m,y,thY};}
@@ -595,12 +813,14 @@ function sortKey(ds){const{d,m,y}=parseThDate(ds);return y*10000+m*100+d;}
 function formatThaiDate(ds){const{d,m,thY}=parseThDate(ds);return`${d} ${TH_MONTHS[m-1]} ${thY}`;}
 function formatShortAxis(ds){const{d,m}=parseThDate(ds);return`${d}/${m}`;}
 function syncDot(s,msg){document.getElementById('sync-dot').className='sync-dot '+s;document.getElementById('sync-msg').textContent=msg;}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+const UIAudio=(()=>{let ctx;const ensure=()=>{if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx;};const tone=(freq=520,dur=0.08,type='sine',gain=0.045,delay=0)=>{try{const c=ensure(),now=c.currentTime+delay,osc=c.createOscillator(),vol=c.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,now);vol.gain.setValueAtTime(0.0001,now);vol.gain.exponentialRampToValueAtTime(gain,now+0.012);vol.gain.exponentialRampToValueAtTime(0.0001,now+dur);osc.connect(vol);vol.connect(c.destination);osc.start(now);osc.stop(now+dur+0.02);}catch(e){}};return{click(){tone(380,0.045,'triangle',0.026);tone(620,0.052,'sine',0.018,0.035);},success(){tone(520,0.07,'sine',0.04);tone(760,0.10,'sine',0.045,0.07);},warn(){tone(210,0.10,'sawtooth',0.026);tone(150,0.08,'triangle',0.018,0.08);},engine(){tone(92,0.12,'sawtooth',0.025);tone(138,0.12,'square',0.012,0.025);}};})();
+function playUISound(kind='click'){if(UIAudio[kind])UIAudio[kind]();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');playUISound(String(msg).includes('❌')||String(msg).includes('⚠')?'warn':'success');setTimeout(()=>t.classList.remove('show'),2400);}
 function addRipple(el){el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');setTimeout(()=>el.classList.remove('rippling'),500);}
 function animateCount(el,from,to,dur=600,pre='',suf=''){const s=performance.now();const u=n=>{const p=Math.min((n-s)/dur,1),e=1-Math.pow(1-p,3);el.textContent=pre+Math.round(from+(to-from)*e).toLocaleString()+suf;if(p<1)requestAnimationFrame(u);};requestAnimationFrame(u);}
 
-const SRC_COLORS={'Walk in':'#5af5c8','House':'#fb923c','Land of Us':'#c8f55a','MRD':'#f5a25a','Door of Life':'#a78bfa','รับรอง34':'#f472b6'};
-const CH_COLORS={'Facebook':'#3b82f6','TikTok':'#e879f9','LINE':'#22c55e','Instagram':'#f97316','อื่นๆ':'#7a7a80'};
+const SRC_COLORS={'Walk in':'#ef2323','House':'#ff9f31','Land of Us':'#c51e1e','MRD':'#ff7a2f','Door of Life':'#8f8f99','รับรอง34':'#d63f5f'};
+const CH_COLORS={'Facebook':'#5b78ff','TikTok':'#d63f5f','LINE':'#35c95f','Instagram':'#ff7a2f','อื่นๆ':'#88878a'};
 const srcClass=s=>s==='Walk in'?'b-walk':s==='House'?'b-house':s==='MRD'?'b-mrd':s==='Land of Us'?'b-pkg':s==='Door of Life'?'b-lod':s==='รับรอง34'?'b-dol':'b-vip';
 const chClass=c=>c==='Facebook'?'ch-fb':c==='TikTok'?'ch-tt':c==='LINE'?'ch-line':c==='Instagram'?'ch-ig':'ch-other';
 
@@ -729,7 +949,7 @@ window.renderFuel=()=>{
   const dates=Object.keys(byDate).sort((a,b)=>sortKey(a)-sortKey(b));
   if(fuelBarChart)fuelBarChart.destroy();
   if(dates.length){
-    fuelBarChart=new Chart(document.getElementById('fuelBarChart'),{type:'bar',data:{labels:dates.map(d=>formatShortAxis(d)),datasets:[{label:'ค่าน้ำมัน',data:dates.map(d=>byDate[d]),backgroundColor:'rgba(250,204,21,0.6)',borderColor:'rgba(250,204,21,0.9)',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{color:'#7a7a80',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}}}});
+    fuelBarChart=new Chart(document.getElementById('fuelBarChart'),{type:'bar',data:{labels:dates.map(d=>formatShortAxis(d)),datasets:[{label:'ค่าน้ำมัน',data:dates.map(d=>byDate[d]),backgroundColor:'rgba(250,204,21,0.6)',borderColor:'rgba(250,204,21,0.9)',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{color:'#8c7771',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#8c7771',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}}}});
   }
 
   // Pie by vehicle
@@ -793,12 +1013,13 @@ function getFiltered(){
 function getMonthData(m,y){return DATA.filter(r=>{const p=parseThDate(r.date);return p.m===m&&p.y===y;});}
 
 window.setQuickFilter=(key,el)=>{
+  playUISound('click');
   filterKey=key;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');addRipple(el);
   const nw=document.getElementById('month-nav-wrap');
   if(key==='pick'){nw.style.display='flex';updateNavLabel();}else{nw.style.display='none';}
   update();
 };
-window.handleTabClick=(id,el)=>{addRipple(el);showPage(id,el);};
+window.handleTabClick=(id,el)=>{playUISound(id==='add'?'engine':'click');addRipple(el);showPage(id,el);};
 
 function update(){
   const rows=getFiltered();
@@ -877,7 +1098,7 @@ function updateBar(rows){
   const srcs=['Walk in','House','Land of Us','MRD','Door of Life','รับรอง34'];
   const datasets=srcs.map(src=>({label:src,data:dates.map(d=>rows.filter(r=>r.date===d&&r.source===src).reduce((s,r)=>s+r.amt,0)),backgroundColor:SRC_COLORS[src],borderRadius:3,borderSkipped:false}));
   if(barChart)barChart.destroy();
-  barChart=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:dates.map(d=>formatShortAxis(d)),datasets},options:{responsive:true,maintainAspectRatio:false,animation:{duration:800,easing:'easeOutQuart',delay:ctx=>ctx.dataIndex*35},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0efe8',bodyColor:'#9a9aa0',padding:10,callbacks:{title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{x:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},maxRotation:0,minRotation:0},grid:{color:'rgba(255,255,255,0.04)'}},y:{stacked:true,ticks:{color:'#7a7a80',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}}}});
+  barChart=new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:dates.map(d=>formatShortAxis(d)),datasets},options:{responsive:true,maintainAspectRatio:false,animation:{duration:800,easing:'easeOutQuart',delay:ctx=>ctx.dataIndex*35},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(23,23,26,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0efe8',bodyColor:'#9a9aa0',padding:10,callbacks:{title:ctx=>formatThaiDate(dates[ctx[0].dataIndex]),label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{x:{stacked:true,ticks:{color:'#8c7771',font:{size:9},maxRotation:0,minRotation:0},grid:{color:'rgba(255,255,255,0.04)'}},y:{stacked:true,ticks:{color:'#8c7771',font:{size:9},callback:v=>'฿'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.06)'}}}}});
 }
 
 function updatePie(bySrc,totalRev){
@@ -972,7 +1193,7 @@ function loadApiKey(){
   else{document.getElementById('ai-api-key').value='';setKeyStatus(false);}
 }
 function setKeyStatus(ok){
-  document.getElementById('ai-key-dot').style.background=ok?'#22c55e':'#7a7a80';
+  document.getElementById('ai-key-dot').style.background=ok?'#3c8c61':'#8c7771';
   document.getElementById('ai-key-msg').innerHTML=ok
     ?`${PROVIDERS[currentProvider].name} พร้อมใช้งาน · <span style="color:var(--muted);cursor:pointer;text-decoration:underline" onclick="clearApiKey()">ล้าง Key</span>`
     :'ยังไม่ได้ตั้ง API Key';
@@ -1384,9 +1605,9 @@ window.exportSnapshot=()=>{
   if(filterKey==='month'){const n=new Date();label=`${TH_MONTHS_FULL[n.getMonth()]} ${n.getFullYear()+543}`;}
   else if(filterKey==='recent')label='7 วันล่าสุด';
   else if(filterKey==='pick')label=`${TH_MONTHS_FULL[pickedM-1]} ${pickedY+543}`;
-  const srcRows=Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#9a9aa0;font-size:12px">${k}</span><div style="text-align:right"><div style="font-family:'IBM Plex Mono',monospace;color:#c8f55a;font-size:13px">${fmt(v)}</div><div style="color:#7a7a80;font-size:10px">${bySrcG[k]||0} กรุ๊ป · ${Math.round(v/total*100)}%</div></div></div>`).join('');
-  const chRows=Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px"><span style="color:#9a9aa0">${k}</span><span style="font-family:'IBM Plex Mono',monospace;color:#f0efe8">${v} กรุ๊ป <span style="color:#7a7a80;font-size:10px">(${Math.round(v/sessions*100)}%)</span></span></div>`).join('');
-  document.getElementById('snapshot-area').innerHTML=`<div style="background:#0f0f11;padding:24px;border-radius:12px;font-family:'Sarabun',sans-serif;color:#f0efe8"><div style="font-size:10px;color:#7a7a80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">รายงานสรุป</div><div style="font-size:22px;font-weight:600;color:#c8f55a;margin-bottom:20px">${label}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px"><div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">รายได้รวม</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#c8f55a">${fmt(total)}</div></div><div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">กรุ๊ป/Session</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#5af5c8">${sessions}</div></div><div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:6px">เฉลี่ย/session</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px">${fmt(sessions?Math.round(total/sessions):0)}</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:10px">รายได้ตามประเภท + กรุ๊ป</div>${srcRows}</div><div><div style="font-size:9px;color:#7a7a80;text-transform:uppercase;margin-bottom:10px">ช่องทางที่มา</div>${chRows}</div></div><div style="margin-top:18px;font-size:10px;color:#7a7a80;text-align:right">สร้าง: ${new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}</div></div>`;
+  const srcRows=Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#9a9aa0;font-size:12px">${k}</span><div style="text-align:right"><div style="font-family:'IBM Plex Mono',monospace;color:#ef2323;font-size:13px">${fmt(v)}</div><div style="color:#8c7771;font-size:10px">${bySrcG[k]||0} กรุ๊ป · ${Math.round(v/total*100)}%</div></div></div>`).join('');
+  const chRows=Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px"><span style="color:#9a9aa0">${k}</span><span style="font-family:'IBM Plex Mono',monospace;color:#f0efe8">${v} กรุ๊ป <span style="color:#8c7771;font-size:10px">(${Math.round(v/sessions*100)}%)</span></span></div>`).join('');
+  document.getElementById('snapshot-area').innerHTML=`<div style="background:#0f0f11;padding:24px;border-radius:12px;font-family:'Sarabun',sans-serif;color:#f0efe8"><div style="font-size:10px;color:#8c7771;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">รายงานสรุป</div><div style="font-size:22px;font-weight:600;color:#ef2323;margin-bottom:20px">${label}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px"><div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#8c7771;text-transform:uppercase;margin-bottom:6px">รายได้รวม</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#ef2323">${fmt(total)}</div></div><div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#8c7771;text-transform:uppercase;margin-bottom:6px">กรุ๊ป/Session</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;color:#5b78ff">${sessions}</div></div><div style="background:#17171a;border-radius:10px;padding:12px"><div style="font-size:9px;color:#8c7771;text-transform:uppercase;margin-bottom:6px">เฉลี่ย/session</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px">${fmt(sessions?Math.round(total/sessions):0)}</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><div style="font-size:9px;color:#8c7771;text-transform:uppercase;margin-bottom:10px">รายได้ตามประเภท + กรุ๊ป</div>${srcRows}</div><div><div style="font-size:9px;color:#8c7771;text-transform:uppercase;margin-bottom:10px">ช่องทางที่มา</div>${chRows}</div></div><div style="margin-top:18px;font-size:10px;color:#8c7771;text-align:right">สร้าง: ${new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}</div></div>`;
   document.getElementById('snapshot-modal').classList.add('show');
 };
 window.downloadSnapshot=()=>{const el=document.getElementById('snapshot-area').firstElementChild;if(!el){showToast('ไม่มีข้อมูล');return;}html2canvas(el,{backgroundColor:'#0f0f11',scale:2}).then(c=>{const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='sales-summary.png';a.click();showToast('✓ ดาวน์โหลดแล้ว');}).catch(()=>showToast('ส่งออกไม่ได้'));};
@@ -1414,6 +1635,7 @@ window.showPage=(id,el)=>{
 
 document.getElementById('snapshot-modal').addEventListener('click',function(e){if(e.target===this)closeSnapshot();});
 document.getElementById('ai-modal').addEventListener('click',function(e){if(e.target===this)closeAIModal();});
+document.addEventListener('pointerdown',e=>{if(e.target.closest('button,[role="button"],input,select'))playUISound('click');},{capture:true});
 document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',function(){addRipple(this);}));
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
 document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];

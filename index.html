@@ -557,7 +557,7 @@
   }
   .tabs::before{
     content:'SC Adventure\A Real Magic Dashboard';white-space:pre;position:absolute;left:24px;top:24px;right:24px;
-    color:#f40009;font-size:22px;line-height:1.14;font-weight:800;letter-spacing:0;max-width:250px;overflow:hidden;
+    color:#f40009;font-size:20px;line-height:1.14;font-weight:800;letter-spacing:0;max-width:220px;white-space:pre-wrap;overflow-wrap:anywhere;overflow:hidden;
   }
   .tabs::after{display:none}
   .sidebar-logo{display:none}
@@ -608,12 +608,12 @@
     box-shadow:0 18px 46px rgba(213,43,30,.08),inset 0 1px 0 rgba(255,255,255,.75);
     backdrop-filter:blur(20px);
   }
-  .metric{min-height:132px;padding:22px}
+  .metric{min-height:132px;min-width:0;padding:22px;overflow:hidden}
   .metric::before{background:linear-gradient(90deg,#d52b1e,rgba(213,43,30,0))}
   .metric-label,.fuel-metric-label,.card-title,.fuel-form-title,.fuel-list-title{
     color:#5c403b;font-size:13px;letter-spacing:0;font-weight:700;text-transform:none;
   }
-  .metric-value,.fuel-metric-value{font-size:36px;color:#1a1c1c}
+  .metric-value,.fuel-metric-value{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(22px,1.7vw,30px);color:#1a1c1c}
   .metric-value.accent,.fuel-metric-value,.pl-val,.veh-row-amt,.amt,.fuel-amt-cell{color:#d52b1e}
   .metric-sub,.fuel-metric-sub{color:#906f6a}
   .charts-row{grid-template-columns:2fr 1fr;gap:16px}

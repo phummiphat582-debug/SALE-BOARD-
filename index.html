@@ -1063,11 +1063,14 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,setDoc,onSnapshot,query,orderBy,serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getMessaging,getToken,onMessage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 
 const firebaseConfig={apiKey:"AIzaSyCowDEvUQpBmq7AwUGiC6IuGOudPhi_0kM",authDomain:"vehicle-maintenance-64890.firebaseapp.com",projectId:"vehicle-maintenance-64890",storageBucket:"vehicle-maintenance-64890.firebasestorage.app",messagingSenderId:"59942066726",appId:"1:59942066726:web:f53cdeae8fb2da80e4a4e7"};
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
+const messaging=getMessaging(app);
+const FCM_VAPID_KEY='BI3YKp6Hvon3ynO1wKRcqrBpLN1kG1muJd8C9nsy5I0HWVOXMWc5Wo19X4ZmJfKjfcyMBkPNlFM0i4Ri5f3IJls';
 const COL='sales_dashboard';
 const FUEL_COL='fuel_records';
 
@@ -1102,6 +1105,22 @@ async function sendBrowserNotification(title,body){
     new Notification(title,{body,tag:'sale-board-data'});
   }catch(e){}
 }
+let fcmReady=false;
+async function registerFCMNotifications(reg){
+  if(fcmReady||!reg||!('Notification' in window)||Notification.permission!=='granted')return;
+  try{
+    const token=await getToken(messaging,{vapidKey:FCM_VAPID_KEY,serviceWorkerRegistration:reg});
+    if(!token)return;
+    const tokenId=btoa(token).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    await setDoc(doc(db,'notification_tokens',tokenId),{token,updatedAt:serverTimestamp(),platform:'web',userAgent:navigator.userAgent});
+    onMessage(messaging,payload=>{
+      const title=payload.notification?.title||payload.data?.title||'Sales Dashboard';
+      const body=payload.notification?.body||payload.data?.body||'มีข้อมูลใหม่';
+      sendBrowserNotification(title,body);
+    });
+    fcmReady=true;
+  }catch(e){console.warn('FCM registration failed',e);}
+}
 function hideNotificationPrompt(){document.getElementById('notification-prompt')?.classList.remove('show');}
 function showNotificationPrompt(){
   const prompt=document.getElementById('notification-prompt');
@@ -1129,6 +1148,7 @@ async function enableNotificationsFromPrompt(){
   }
   const enabled=await requestBrowserNotifications();
   hideNotificationPrompt();
+  if(enabled&&'serviceWorker' in navigator)navigator.serviceWorker.ready.then(registerFCMNotifications);
   showToast(enabled?'เปิดการแจ้งเตือนแล้ว':'ยังไม่ได้อนุญาตการแจ้งเตือน');
 }
 function addRipple(el){el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');setTimeout(()=>el.classList.remove('rippling'),500);}
@@ -1982,7 +2002,9 @@ document.addEventListener('pointerdown',e=>{if(e.target.closest('button,[role="b
 document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',function(){addRipple(this);}));
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
 document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').then(reg=>{
+  if('Notification' in window&&Notification.permission==='granted')registerFCMNotifications(reg);
+}).catch(()=>{});
 setTimeout(showNotificationPrompt,700);
 </script>
 </body>

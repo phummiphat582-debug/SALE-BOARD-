@@ -1059,6 +1059,17 @@ function syncDot(s,msg){document.getElementById('sync-dot').className='sync-dot 
 const UIAudio=(()=>{let ctx;const ensure=()=>{if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx;};const tone=(freq=520,dur=0.08,type='sine',gain=0.045,delay=0)=>{try{const c=ensure(),now=c.currentTime+delay,osc=c.createOscillator(),vol=c.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,now);vol.gain.setValueAtTime(0.0001,now);vol.gain.exponentialRampToValueAtTime(gain,now+0.012);vol.gain.exponentialRampToValueAtTime(0.0001,now+dur);osc.connect(vol);vol.connect(c.destination);osc.start(now);osc.stop(now+dur+0.02);}catch(e){}};return{click(){tone(380,0.045,'triangle',0.026);tone(620,0.052,'sine',0.018,0.035);},success(){tone(520,0.07,'sine',0.04);tone(760,0.10,'sine',0.045,0.07);},warn(){tone(210,0.10,'sawtooth',0.026);tone(150,0.08,'triangle',0.018,0.08);},engine(){tone(92,0.12,'sawtooth',0.025);tone(138,0.12,'square',0.012,0.025);}};})();
 function playUISound(kind='click'){if(UIAudio[kind])UIAudio[kind]();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');playUISound(String(msg).includes('❌')||String(msg).includes('⚠')?'warn':'success');setTimeout(()=>t.classList.remove('show'),2400);}
+async function requestBrowserNotifications(){
+  if(!('Notification' in window))return false;
+  try{
+    if(Notification.permission==='default')await Notification.requestPermission();
+    return Notification.permission==='granted';
+  }catch(e){return false;}
+}
+function sendBrowserNotification(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{new Notification(title,{body,tag:'sale-board-data'});}catch(e){}
+}
 function addRipple(el){el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');setTimeout(()=>el.classList.remove('rippling'),500);}
 function animateCount(el,from,to,dur=600,pre='',suf=''){const s=performance.now();const u=n=>{const p=Math.min((n-s)/dur,1),e=1-Math.pow(1-p,3);el.textContent=pre+Math.round(from+(to-from)*e).toLocaleString()+suf;if(p<1)requestAnimationFrame(u);};requestAnimationFrame(u);}
 
@@ -1233,8 +1244,10 @@ window.saveFuel=async()=>{
   addRipple(btn);btn.disabled=true;btn.textContent='กำลังบันทึก...';
   const d=new Date(dv);const thDate=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
   try{
+    await requestBrowserNotifications();
     await addDoc(collection(db,FUEL_COL),{date:thDate,vehicleId:vehicleId||'',liters,pricePerLiter,total,note,createdAt:serverTimestamp()});
     showToast('⛽ บันทึกน้ำมันแล้ว');
+    sendBrowserNotification('เพิ่มข้อมูลน้ำมันแล้ว',`${vehicleId||'ไม่ระบุรถ'} · ฿${total.toLocaleString()}`);
     ['fuel-f-veh','fuel-f-liters','fuel-f-ppl','fuel-f-total','fuel-f-note'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
     renderFuel();
@@ -1790,7 +1803,7 @@ window.saveRecord=async()=>{
   btn.disabled=true;btn.textContent='กำลังบันทึก...';
   try{
     if(editId){await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||''});showToast('✓ แก้ไขรายการแล้ว');}
-    else{await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');}
+    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');sendBrowserNotification('เพิ่มข้อมูลการขายแล้ว',`${name} · ฿${amt.toLocaleString()}`);}
     resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
   }catch(e){showToast('❌ บันทึกไม่สำเร็จ: '+e.message);}
   finally{btn.disabled=false;btn.textContent='บันทึกรายการ';}

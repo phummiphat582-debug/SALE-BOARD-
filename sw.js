@@ -24,7 +24,7 @@ firebaseMessaging.onBackgroundMessage(payload => {
   });
 });
 
-const CACHE_NAME = "dashboard-cache-v4";
+const CACHE_NAME = "dashboard-cache-v5";
 const urlsToCache = [
   "./",
   "./index.html"
@@ -51,6 +51,20 @@ self.addEventListener("notificationclick", event => {
   event.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
     const existing = list.find(client => "focus" in client);
     return existing ? existing.focus() : clients.openWindow("./index.html");
+  }));
+});
+
+self.addEventListener("push", event => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || "Sales Dashboard";
+  const body = data.body || "มีข้อมูลใหม่";
+  event.waitUntil(self.registration.showNotification(title, {
+    body,
+    icon: "icon-192.png",
+    badge: "icon-192.png",
+    tag: "sale-board-data",
+    renotify: true,
+    data: { url: "./index.html" }
   }));
 });
 

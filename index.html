@@ -1071,6 +1071,8 @@ const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const messaging=getMessaging(app);
 const FCM_VAPID_KEY='BI3YKp6Hvon3ynO1wKRcqrBpLN1kG1muJd8C9nsy5I0HWVOXMWc5Wo19X4ZmJfKjfcyMBkPNlFM0i4Ri5f3IJls';
+const PUSH_WORKER_URL='https://sale-board-push.phummiphat582.workers.dev';
+const PUSH_PUBLIC_KEY='BNabZxf5nD_XQ7A_cnAPaWLF8uz0sKkJb3L_kUSRIiCXz0Gnq_OnVzCvvr-GZhdcZo3vzrhCyfp0BjjQKUbSyAc';
 const COL='sales_dashboard';
 const FUEL_COL='fuel_records';
 
@@ -1121,6 +1123,17 @@ async function registerFCMNotifications(reg){
     fcmReady=true;
   }catch(e){console.warn('FCM registration failed',e);}
 }
+function pushKeyBytes(key){const pad='='.repeat((4-key.length%4)%4);const raw=atob((key+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
+async function registerWebPush(reg){
+  if(!reg||!window.isSecureContext||!('PushManager' in window)||!('Notification' in window)||Notification.permission!=='granted')return;
+  try{
+    const subscription=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes(PUSH_PUBLIC_KEY)});
+    await fetch(`${PUSH_WORKER_URL}/subscribe`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(subscription.toJSON())});
+  }catch(e){console.warn('Web Push registration failed',e);}
+}
+async function broadcastPushNotification(title,body){
+  try{await fetch(`${PUSH_WORKER_URL}/notify`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title,body})});}catch(e){console.warn('Web Push send failed',e);}
+}
 function hideNotificationPrompt(){document.getElementById('notification-prompt')?.classList.remove('show');}
 function showNotificationPrompt(){
   const prompt=document.getElementById('notification-prompt');
@@ -1148,7 +1161,7 @@ async function enableNotificationsFromPrompt(){
   }
   const enabled=await requestBrowserNotifications();
   hideNotificationPrompt();
-  if(enabled&&'serviceWorker' in navigator)navigator.serviceWorker.ready.then(registerFCMNotifications);
+  if(enabled&&'serviceWorker' in navigator)navigator.serviceWorker.ready.then(reg=>{registerFCMNotifications(reg);registerWebPush(reg);});
   showToast(enabled?'เปิดการแจ้งเตือนแล้ว':'ยังไม่ได้อนุญาตการแจ้งเตือน');
 }
 function addRipple(el){el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');setTimeout(()=>el.classList.remove('rippling'),500);}
@@ -1170,7 +1183,6 @@ syncDot('loading','กำลังเชื่อมต่อ...');
 onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
   if(salesSnapshotReady)snap.docChanges().filter(change=>change.type==='added').forEach(change=>{
     const r=change.doc.data();
-    sendBrowserNotification('มีรายการขายใหม่',`${r.name||'รายการใหม่'} · ฿${Number(r.amt||0).toLocaleString()}`);
   });
   salesSnapshotReady=true;
   DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
@@ -1185,7 +1197,6 @@ onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
 onSnapshot(query(collection(db,FUEL_COL),orderBy('createdAt','asc')),snap=>{
   if(fuelSnapshotReady)snap.docChanges().filter(change=>change.type==='added').forEach(change=>{
     const r=change.doc.data();
-    sendBrowserNotification('มีรายการน้ำมันใหม่',`${r.vehicleId||'ไม่ระบุรถ'} · ฿${Number(r.total||0).toLocaleString()}`);
   });
   fuelSnapshotReady=true;
   FUEL_DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
@@ -1339,6 +1350,7 @@ window.saveFuel=async()=>{
     await requestBrowserNotifications();
     await addDoc(collection(db,FUEL_COL),{date:thDate,vehicleId:vehicleId||'',liters,pricePerLiter,total,note,createdAt:serverTimestamp()});
     showToast('⛽ บันทึกน้ำมันแล้ว');
+    await broadcastPushNotification('มีรายการน้ำมันใหม่',`${vehicleId||'ไม่ระบุรถ'} · ฿${total.toLocaleString()}`);
     ['fuel-f-veh','fuel-f-liters','fuel-f-ppl','fuel-f-total','fuel-f-note'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
     renderFuel();
@@ -1894,7 +1906,7 @@ window.saveRecord=async()=>{
   btn.disabled=true;btn.textContent='กำลังบันทึก...';
   try{
     if(editId){await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||''});showToast('✓ แก้ไขรายการแล้ว');}
-    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');}
+    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');await broadcastPushNotification('มีรายการขายใหม่',`${name} · ฿${amt.toLocaleString()}`);}
     resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
   }catch(e){showToast('❌ บันทึกไม่สำเร็จ: '+e.message);}
   finally{btn.disabled=false;btn.textContent='บันทึกรายการ';}
@@ -2003,7 +2015,7 @@ document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',f
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
 document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').then(reg=>{
-  if('Notification' in window&&Notification.permission==='granted')registerFCMNotifications(reg);
+  if('Notification' in window&&Notification.permission==='granted'){registerFCMNotifications(reg);registerWebPush(reg);}
 }).catch(()=>{});
 setTimeout(showNotificationPrompt,700);
 </script>

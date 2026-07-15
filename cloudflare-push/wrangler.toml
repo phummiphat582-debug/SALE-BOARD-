@@ -1,0 +1,8 @@
+name = "sale-board-push"
+main = "src/index.js"
+compatibility_date = "2026-07-15"
+compatibility_flags = ["nodejs_compat"]
+
+[[kv_namespaces]]
+binding = "PUSH_SUBSCRIPTIONS"
+id = "5c421385755443959095cf1aedefb15a"

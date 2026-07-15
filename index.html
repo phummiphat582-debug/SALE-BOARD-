@@ -1091,16 +1091,42 @@ async function requestBrowserNotifications(){
     return Notification.permission==='granted';
   }catch(e){return false;}
 }
-function sendBrowserNotification(title,body){
+async function sendBrowserNotification(title,body){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
-  try{new Notification(title,{body,tag:'sale-board-data'});}catch(e){}
+  try{
+    if('serviceWorker' in navigator){
+      const reg=await navigator.serviceWorker.ready;
+      await reg.showNotification(title,{body,icon:'icon-192.png',badge:'icon-192.png',tag:'sale-board-data',renotify:true});
+      return;
+    }
+    new Notification(title,{body,tag:'sale-board-data'});
+  }catch(e){}
 }
 function hideNotificationPrompt(){document.getElementById('notification-prompt')?.classList.remove('show');}
 function showNotificationPrompt(){
   const prompt=document.getElementById('notification-prompt');
-  if(prompt&&'Notification' in window&&Notification.permission==='default')prompt.classList.add('show');
+  if(!prompt)return;
+  const copy=prompt.querySelector('p');
+  const enable=document.getElementById('notification-enable-btn');
+  if('Notification' in window&&Notification.permission==='granted')return;
+  if('Notification' in window&&Notification.permission==='denied'){
+    if(copy)copy.textContent='สิทธิ์ถูกปิดอยู่ กรุณาเปิด Notifications จากการตั้งค่าเบราว์เซอร์';
+    if(enable)enable.textContent='ดูวิธีเปิดสิทธิ์';
+  }else if(!('Notification' in window)||!window.isSecureContext){
+    if(copy)copy.textContent='ต้องเปิดผ่าน HTTPS หรือแอปที่ติดตั้งบนหน้าจอหลักจึงจะรับแจ้งเตือนได้';
+    if(enable)enable.textContent='ตรวจสอบการแจ้งเตือน';
+  }
+  prompt.classList.add('show');
 }
 async function enableNotificationsFromPrompt(){
+  if(!('Notification' in window)||!window.isSecureContext){
+    showToast('กรุณาเปิดแอปผ่าน HTTPS หรือเพิ่มไว้ที่หน้าจอหลัก');
+    return;
+  }
+  if(Notification.permission==='denied'){
+    showToast('กรุณาเปิด Notifications จากการตั้งค่าเบราว์เซอร์');
+    return;
+  }
   const enabled=await requestBrowserNotifications();
   hideNotificationPrompt();
   showToast(enabled?'เปิดการแจ้งเตือนแล้ว':'ยังไม่ได้อนุญาตการแจ้งเตือน');
@@ -1114,6 +1140,7 @@ const srcClass=s=>s==='Walk in'?'b-walk':s==='House'?'b-house':s==='MRD'?'b-mrd'
 const chClass=c=>c==='Facebook'?'ch-fb':c==='TikTok'?'ch-tt':c==='LINE'?'ch-line':c==='Instagram'?'ch-ig':'ch-other';
 
 let DATA=[],FUEL_DATA=[],filterKey='all',pickedM,pickedY,barChart,pieChart,channelChart,fuelBarChart,fuelVehPieChart,aiMode='single';
+let salesSnapshotReady=false,fuelSnapshotReady=false;
 let vehM,vehY,fuelM,fuelY;
 let prevM={rev:0,avg:0,clients:0,sessions:0,cars:0};
 let fuelEditId='';
@@ -1121,6 +1148,11 @@ let fuelEditId='';
 
 syncDot('loading','กำลังเชื่อมต่อ...');
 onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
+  if(salesSnapshotReady)snap.docChanges().filter(change=>change.type==='added').forEach(change=>{
+    const r=change.doc.data();
+    sendBrowserNotification('มีรายการขายใหม่',`${r.name||'รายการใหม่'} · ฿${Number(r.amt||0).toLocaleString()}`);
+  });
+  salesSnapshotReady=true;
   DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
   syncDot('ok','ซิงค์แล้ว · '+new Date().toLocaleTimeString('th-TH'));
   update();
@@ -1131,6 +1163,11 @@ onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
 
 // Fuel collection listener
 onSnapshot(query(collection(db,FUEL_COL),orderBy('createdAt','asc')),snap=>{
+  if(fuelSnapshotReady)snap.docChanges().filter(change=>change.type==='added').forEach(change=>{
+    const r=change.doc.data();
+    sendBrowserNotification('มีรายการน้ำมันใหม่',`${r.vehicleId||'ไม่ระบุรถ'} · ฿${Number(r.total||0).toLocaleString()}`);
+  });
+  fuelSnapshotReady=true;
   FUEL_DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
   if(document.getElementById('page-fuel').classList.contains('active'))renderFuel();
 },()=>{});
@@ -1282,7 +1319,6 @@ window.saveFuel=async()=>{
     await requestBrowserNotifications();
     await addDoc(collection(db,FUEL_COL),{date:thDate,vehicleId:vehicleId||'',liters,pricePerLiter,total,note,createdAt:serverTimestamp()});
     showToast('⛽ บันทึกน้ำมันแล้ว');
-    sendBrowserNotification('เพิ่มข้อมูลน้ำมันแล้ว',`${vehicleId||'ไม่ระบุรถ'} · ฿${total.toLocaleString()}`);
     ['fuel-f-veh','fuel-f-liters','fuel-f-ppl','fuel-f-total','fuel-f-note'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
     renderFuel();
@@ -1838,7 +1874,7 @@ window.saveRecord=async()=>{
   btn.disabled=true;btn.textContent='กำลังบันทึก...';
   try{
     if(editId){await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||''});showToast('✓ แก้ไขรายการแล้ว');}
-    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');sendBrowserNotification('เพิ่มข้อมูลการขายแล้ว',`${name} · ฿${amt.toLocaleString()}`);}
+    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');}
     resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
   }catch(e){showToast('❌ บันทึกไม่สำเร็จ: '+e.message);}
   finally{btn.disabled=false;btn.textContent='บันทึกรายการ';}
@@ -1946,6 +1982,7 @@ document.addEventListener('pointerdown',e=>{if(e.target.closest('button,[role="b
 document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',function(){addRipple(this);}));
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
 document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 setTimeout(showNotificationPrompt,700);
 </script>
 </body>

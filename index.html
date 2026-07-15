@@ -6,7 +6,8 @@
 <title>Sales Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -490,6 +491,196 @@
   }
   @media(max-width:620px){
     #page-add .form-grid{grid-template-columns:1fr}
+  }
+
+  /* Liquid Magic UI redesign */
+  :root{
+    --bg:#f9f9f9;--surface:rgba(255,255,255,.76);--surface2:#f3f3f4;
+    --border:rgba(213,43,30,.08);--border2:rgba(144,111,106,.25);
+    --text:#1a1c1c;--muted:#5c403b;
+    --accent:#d52b1e;--walk:#d52b1e;--pkg:#f40009;--mrd:#f9a825;
+    --lod:#2e7d32;--dol:#1565c0;--vip:#0073c0;--house:#bc0005;
+    --red:#ba1a1a;--ch-fb:#1565c0;--ch-tt:#121212;--ch-line:#2e7d32;--ch-ig:#d52b1e;
+    --fuel:#d52b1e;
+    --font:'Hanken Grotesk','Sarabun',sans-serif;
+  }
+  html{background:#f9f9f9;overflow-x:hidden}
+  body{
+    min-height:100vh;padding:96px 40px 44px 320px;color:var(--text);overflow-x:hidden;
+    background:
+      radial-gradient(circle at 82% 8%,rgba(213,43,30,.10),transparent 28%),
+      radial-gradient(circle at 20% 0%,rgba(0,115,192,.06),transparent 24%),
+      linear-gradient(180deg,#fff 0%,#f9f9f9 52%,#f3f3f4 100%);
+  }
+  body::before{
+    content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.9;
+    background-image:url("data:image/svg+xml,%3Csvg width='220' height='92' viewBox='0 0 220 92' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-20 58C25 18 66 18 110 58s85 40 130 0' fill='none' stroke='rgba(213,43,30,.08)' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size:220px 92px;background-repeat:repeat;
+  }
+  body::after{display:none}
+  .material-symbols-outlined{font-size:22px;line-height:1;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
+  .app-topbar{
+    position:fixed;top:0;right:0;left:288px;z-index:30;height:72px;margin:0;
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    padding:14px 40px;background:rgba(255,255,255,.82);backdrop-filter:blur(22px);
+    border-bottom:1px solid rgba(229,189,183,.45);box-shadow:0 8px 32px rgba(213,43,30,.06);
+  }
+  .menu-tile{
+    width:auto;height:auto;border:0;background:transparent;box-shadow:none;border-radius:0;
+    color:#f40009;font-size:0;font-weight:800;display:flex;align-items:center;gap:10px;
+  }
+  .menu-tile::before{content:'SC Adventure';font-size:32px;line-height:1;color:#f40009;letter-spacing:0;font-weight:800}
+  .top-search{
+    width:min(420px,46vw);height:44px;border-radius:999px;border:1px solid rgba(229,189,183,.70);
+    background:#f3f3f4;color:var(--muted);padding:0 8px 0 16px;box-shadow:none;
+  }
+  .top-search span{font-size:0}
+  .top-search span::before{content:'search';font-family:'Material Symbols Outlined';font-size:22px;color:var(--muted)}
+  .top-search input{color:#1a1c1c;font-family:var(--font)}
+  .top-search input::placeholder{color:#7b6662}
+  .top-search button{
+    height:32px;border-radius:999px;border:0;background:#d52b1e;color:#fff;
+    padding:0 16px;box-shadow:0 8px 18px rgba(213,43,30,.20);
+  }
+  .atv-stage{display:none}
+  #sync-bar{
+    margin:0 0 20px;padding:10px 16px;width:max-content;max-width:100%;
+    border:1px solid rgba(229,189,183,.45);border-radius:999px;background:rgba(255,255,255,.68);
+    backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(213,43,30,.05);
+  }
+  .sync-dot.ok{background:#2e7d32}.sync-dot.loading{background:#d52b1e}.sync-dot.err{background:#ba1a1a}
+  .tabs{
+    position:fixed;left:0;top:0;bottom:0;z-index:40;width:288px;margin:0;
+    display:flex;flex-direction:column;gap:4px;padding:122px 12px 24px;
+    border:0;border-right:1px solid rgba(229,189,183,.55);border-radius:0;
+    background:#fff;box-shadow:14px 0 38px rgba(213,43,30,.06);
+  }
+  .tabs::before{
+    content:'SC Adventure\A Real Magic Dashboard';white-space:pre;position:absolute;left:24px;top:24px;right:24px;
+    color:#f40009;font-size:30px;line-height:1.05;font-weight:800;letter-spacing:0;
+  }
+  .tabs::after{display:none}
+  .sidebar-logo{display:none}
+  .tab{
+    width:100%;margin:0;border:0;border-radius:999px;padding:13px 16px;
+    display:flex;align-items:center;gap:12px;background:transparent;color:#5c403b;
+    font-size:15px;font-weight:600;text-align:left;
+  }
+  .tab:hover{background:rgba(213,43,30,.06);color:#d52b1e}
+  .tab.active{
+    color:#fff;background:#d52b1e;border:0;box-shadow:0 12px 28px rgba(213,43,30,.20);
+  }
+  .adventure-hero{
+    min-height:300px;margin-bottom:22px;border:1px solid rgba(213,43,30,.06);border-radius:24px;
+    background:
+      linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.88) 46%,rgba(255,255,255,.28) 100%),
+      radial-gradient(circle at 76% 40%,rgba(244,0,9,.26),transparent 28%),
+      linear-gradient(135deg,#fff,#f9f9f9);
+    box-shadow:0 24px 60px rgba(213,43,30,.10),inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  .adventure-hero::before{
+    content:'';position:absolute;inset:auto -5% -24% 50%;height:170px;border-radius:50%;
+    background:radial-gradient(ellipse at center,rgba(213,43,30,.20),transparent 62%);filter:blur(4px);
+  }
+  .adventure-hero::after{
+    content:'SC';right:7%;bottom:10px;color:rgba(213,43,30,.08);
+    font-family:var(--font);font-size:150px;font-weight:800;letter-spacing:0;
+  }
+  .hero-copy{padding:52px 44px;max-width:650px}
+  .hero-kicker{color:#f40009;font-size:48px;line-height:.96;font-style:normal;letter-spacing:0;font-weight:800}
+  .hero-kicker span{display:block;color:#d52b1e;font-size:58px;text-shadow:none}
+  .hero-copy p{margin:18px 0 24px;color:#5c403b;font-size:18px;font-weight:500}
+  .hero-cta{
+    border-radius:999px;background:#d52b1e;color:#fff;padding:14px 28px;
+    box-shadow:0 12px 28px rgba(213,43,30,.24);
+  }
+  .hero-cta:hover{background:#f40009;transform:translateY(-1px)}
+  .hero-orbit{display:none}
+  .top-controls,.veh-controls,.fuel-controls{
+    background:rgba(255,255,255,.72);border:1px solid rgba(213,43,30,.08);border-radius:18px;
+    padding:14px 16px;box-shadow:0 12px 34px rgba(213,43,30,.06);backdrop-filter:blur(18px);
+  }
+  .metrics,.fuel-metrics{gap:16px}
+  .metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .metric:nth-child(5){grid-column:auto}
+  .metric,.card,.fuel-metric,.fuel-form-card,.fuel-list-card,.form-wrap,.src-breakdown-card,.veh-card,.modal{
+    background:rgba(255,255,255,.74);border:1px solid rgba(213,43,30,.08);border-radius:18px;
+    box-shadow:0 18px 46px rgba(213,43,30,.08),inset 0 1px 0 rgba(255,255,255,.75);
+    backdrop-filter:blur(20px);
+  }
+  .metric{min-height:132px;padding:22px}
+  .metric::before{background:linear-gradient(90deg,#d52b1e,rgba(213,43,30,0))}
+  .metric-label,.fuel-metric-label,.card-title,.fuel-form-title,.fuel-list-title{
+    color:#5c403b;font-size:13px;letter-spacing:0;font-weight:700;text-transform:none;
+  }
+  .metric-value,.fuel-metric-value{font-size:36px;color:#1a1c1c}
+  .metric-value.accent,.fuel-metric-value,.pl-val,.veh-row-amt,.amt,.fuel-amt-cell{color:#d52b1e}
+  .metric-sub,.fuel-metric-sub{color:#906f6a}
+  .charts-row{grid-template-columns:2fr 1fr;gap:16px}
+  .charts-row2,.charts-row3,.fuel-chart-row{gap:16px}
+  .fbtn,.mnav-btn,.ai-btn,.export-btn,.submit-btn,.fuel-add-btn,.cancel-btn,.ai-mode-btn,.ai-provider-btn{
+    border-radius:999px;border-color:rgba(229,189,183,.75);background:#fff;color:#5c403b;
+  }
+  .fbtn:hover,.mnav-btn:hover,.ai-btn:hover,.export-btn:hover,.cancel-btn:hover{color:#d52b1e;border-color:rgba(213,43,30,.35);background:rgba(213,43,30,.05)}
+  .fbtn.active,.submit-btn,.fuel-add-btn{
+    background:#d52b1e!important;color:#fff!important;border-color:#d52b1e!important;
+    box-shadow:0 10px 24px rgba(213,43,30,.22);
+  }
+  .month-nav,.veh-month-nav{
+    border-radius:999px;background:#fff;border-color:rgba(229,189,183,.7);box-shadow:none;
+  }
+  .mnav-label{color:#1a1c1c}
+  .field input,.field select,.search-wrap input,.rec-filter-select,#ai-api-key{
+    background:#fff!important;color:#1a1c1c!important;border-color:rgba(229,189,183,.8)!important;border-radius:12px;
+    box-shadow:none!important;
+  }
+  .field input:focus,.field select:focus,.search-wrap input:focus,.rec-filter-select:focus,#ai-api-key:focus{
+    border-color:#d52b1e!important;box-shadow:0 0 0 3px rgba(213,43,30,.12)!important;
+  }
+  .field select option,.rec-filter-select option{background:#fff;color:#1a1c1c}
+  table{min-width:760px}
+  thead th,.fuel-table th,.veh-round-table th{color:#5c403b;border-bottom-color:rgba(229,189,183,.55)}
+  tbody td,.fuel-table td,.veh-round-table td{color:#1a1c1c;border-bottom-color:rgba(229,189,183,.45)}
+  tbody tr:hover td,.fuel-table tr:hover td,.veh-round-table tr:hover td{background:rgba(213,43,30,.04)}
+  .badge,.ch-badge,.fuel-veh-badge,.hrs-badge,.dur-badge{border-radius:999px}
+  .modal-overlay{background:rgba(18,18,18,.34);backdrop-filter:blur(14px)}
+  .ai-response,.ai-loading,.snapshot-area{background:#f3f3f4;color:#1a1c1c}
+  .toast{background:#fff;color:#d52b1e;border-color:rgba(213,43,30,.25);box-shadow:0 18px 46px rgba(213,43,30,.16)}
+  #page-add .form-wrap{max-width:880px;padding:28px;border-radius:20px}
+  #page-add .form-wrap h2{color:#1a1c1c;letter-spacing:0;font-size:26px;text-transform:none}
+  #page-add .field label{color:#5c403b}
+  #page-add .field input,#page-add .field select{height:44px;border-radius:12px;background:#fff}
+  .bar-container{height:260px}
+  @media(max-width:980px){
+    body{padding:92px 18px 88px}
+    .app-topbar{left:0;padding:14px 18px;height:72px}
+    .menu-tile::before{font-size:24px}
+    .top-search{width:min(52vw,360px)}
+    .tabs{
+      top:auto;left:0;right:0;bottom:0;width:auto;height:70px;display:flex;flex-direction:row;
+      padding:8px 10px;border-right:0;border-top:1px solid rgba(229,189,183,.65);
+      overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;align-items:center;border-radius:0;box-shadow:0 -10px 30px rgba(213,43,30,.08);
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar{display:none}
+    .tabs::before,.tabs::after{display:none}
+    .tab{min-width:max-content;border-radius:16px;padding:8px 12px;font-size:13px;justify-content:center}
+    .tab.active{transform:none}
+    #sync-bar{margin-top:0}
+    .metrics,.fuel-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .metric:nth-child(5){grid-column:span 2}
+    .charts-row,.charts-row2,.charts-row3,.fuel-chart-row{grid-template-columns:1fr}
+    .hero-kicker{font-size:36px}.hero-kicker span{font-size:44px}
+  }
+  @media(max-width:620px){
+    body{padding-left:14px;padding-right:14px}
+    .top-search{display:none}
+    .adventure-hero{min-height:260px;border-radius:20px}
+    .hero-copy{padding:36px 24px}
+    .hero-kicker{font-size:30px}.hero-kicker span{font-size:36px}
+    .hero-copy p{font-size:15px}
+    .metrics,.fuel-metrics{grid-template-columns:1fr}
+    .metric:nth-child(5){grid-column:auto}
   }
 </style>
 </head>

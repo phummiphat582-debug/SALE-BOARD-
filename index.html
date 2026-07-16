@@ -560,6 +560,22 @@
     color:#f40009;font-size:20px;line-height:1.14;font-weight:800;letter-spacing:0;max-width:220px;white-space:pre-wrap;overflow-wrap:anywhere;overflow:hidden;
   }
   .app-logo{width:38px;height:38px;flex:none;border-radius:11px;object-fit:cover;box-shadow:0 8px 18px rgba(213,43,30,.16)}
+  .notification-center{position:relative;flex:none}
+  .notification-center-btn{width:42px;height:42px;border:1px solid rgba(229,189,183,.7);border-radius:50%;background:#fff;color:#d52b1e;cursor:pointer;display:grid;place-items:center;font-size:21px;box-shadow:0 8px 18px rgba(213,43,30,.08)}
+  .notification-center-btn:hover{background:#fff7f5}
+  .notification-badge{position:absolute;top:-3px;right:-2px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#d52b1e;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid #fff}
+  .notification-center-panel{position:absolute;top:52px;right:0;width:min(360px,calc(100vw - 28px));padding:14px;background:rgba(255,255,255,.98);border:1px solid rgba(213,43,30,.18);border-radius:18px;box-shadow:0 20px 52px rgba(86,37,30,.18);opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+  .notification-center.open .notification-center-panel{opacity:1;transform:translateY(0);pointer-events:auto}
+  .notification-center-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 3px 10px;color:#1a1c1c;font-size:15px;font-weight:800}
+  .notification-center-heading span{color:#906f6a;font-size:11px;font-weight:500}
+  .notification-list{display:grid;gap:7px;max-height:320px;overflow:auto}
+  .notification-item{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:13px;background:#fff8f6;border:1px solid rgba(213,43,30,.08)}
+  .notification-item img{width:30px;height:30px;border-radius:9px;flex:none}
+  .notification-item-copy{min-width:0;flex:1}
+  .notification-item-title{color:#1a1c1c;font-size:13px;font-weight:800;line-height:1.3}
+  .notification-item-body{margin-top:2px;color:#5c403b;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+  .notification-item-time{margin-top:4px;color:#a17e77;font-size:10px}
+  .notification-empty{padding:24px 10px;text-align:center;color:#906f6a;font-size:12px}
   .tabs::after{display:none}
   .sidebar-logo{display:none}
   .tab{
@@ -720,6 +736,13 @@
 <div class="app-topbar">
   <img class="app-logo" src="icon-192.png" alt="Sales Dashboard logo">
   <div class="menu-tile">☰</div>
+  <div class="notification-center" id="notification-center">
+    <button class="notification-center-btn" id="notification-center-btn" type="button" aria-label="เปิดรายการแจ้งเตือน" aria-expanded="false">🔔<span class="notification-badge" id="notification-badge">0</span></button>
+    <div class="notification-center-panel" id="notification-center-panel" role="dialog" aria-label="รายการแจ้งเตือน">
+      <div class="notification-center-heading">การแจ้งเตือน <span id="notification-center-count">0 รายการ</span></div>
+      <div class="notification-list" id="notification-list"><div class="notification-empty">ยังไม่มีรายการแจ้งเตือน</div></div>
+    </div>
+  </div>
   <div class="top-search"><span>⌕</span><input type="search" id="global-search" placeholder="ค้นหาชื่อ, ลูกค้า, เบอร์รถ..."><button type="button" id="global-search-btn">ค้นหา</button></div>
 </div>
 <div class="atv-stage" aria-hidden="true"><div class="atv-caption">SC Adventure Sales Dashboard</div><div class="atv-track"></div><div class="atv-wrap"><div class="atv"><span class="atv-dust"></span><span class="atv-body"></span><span class="atv-seat"></span><span class="atv-front"></span><span class="atv-light"></span><span class="atv-handle"></span><span class="atv-rider-body"></span><span class="atv-rider-head"></span><span class="atv-rider-arm"></span><span class="atv-wheel back"></span><span class="atv-wheel front"></span></div></div></div>
@@ -1123,6 +1146,24 @@ function showLiveNotification(title,body){
   clearTimeout(liveNotificationTimer);
   liveNotificationTimer=setTimeout(()=>box.classList.remove('show'),6000);
 }
+function escapeNotificationText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function notificationTime(item){
+  if(item.createdAt?.toDate){return item.createdAt.toDate().toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
+  return item.date||'รายการก่อนหน้านี้';
+}
+function renderNotificationCenter(){
+  const list=document.getElementById('notification-list');
+  const badge=document.getElementById('notification-badge');
+  const count=document.getElementById('notification-center-count');
+  if(!list||!badge||!count)return;
+  const items=[
+    ...DATA.map(r=>({title:'มีรายการขาย',body:`${r.name||r.client||'ไม่ระบุชื่อ'} · ${fmt(Number(r.amt)||0)}`,date:r.date,createdAt:r.createdAt})),
+    ...FUEL_DATA.map(r=>({title:'มีรายการน้ำมัน',body:`${r.vehicleId||'ไม่ระบุรถ'} · ${fmt(Number(r.total)||0)}`,date:r.date,createdAt:r.createdAt}))
+  ].sort((a,b)=>sortKey(b.date||'1/1/2500')-sortKey(a.date||'1/1/2500')).slice(0,20);
+  badge.textContent=items.length>99?'99+':items.length;
+  count.textContent=`${items.length} รายการ`;
+  list.innerHTML=items.length?items.map(item=>`<div class="notification-item"><img src="icon-192.png" alt=""><div class="notification-item-copy"><div class="notification-item-title">${escapeNotificationText(item.title)}</div><div class="notification-item-body">${escapeNotificationText(item.body)}</div><div class="notification-item-time">${escapeNotificationText(notificationTime(item))}</div></div></div>`).join(''):'<div class="notification-empty">ยังไม่มีรายการแจ้งเตือน</div>';
+}
 async function requestBrowserNotifications(){
   if(!('Notification' in window))return false;
   try{
@@ -1204,6 +1245,7 @@ onSnapshot(query(collection(db,COL),orderBy('createdAt','asc')),snap=>{
   });
   salesSnapshotReady=true;
   DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
+  renderNotificationCenter();
   syncDot('ok','ซิงค์แล้ว · '+new Date().toLocaleTimeString('th-TH'));
   update();
   if(document.getElementById('page-vehicles').classList.contains('active'))renderVehicles();
@@ -1218,6 +1260,7 @@ onSnapshot(query(collection(db,FUEL_COL),orderBy('createdAt','asc')),snap=>{
   });
   fuelSnapshotReady=true;
   FUEL_DATA=snap.docs.map(d=>({...d.data(),_id:d.id}));
+  renderNotificationCenter();
   if(document.getElementById('page-fuel').classList.contains('active'))renderFuel();
 },()=>{});
 
@@ -2025,6 +2068,19 @@ document.getElementById('global-search-btn')?.addEventListener('click',applyGlob
 document.getElementById('global-search')?.addEventListener('input',e=>{
   const activeRecords=document.getElementById('page-records')?.classList.contains('active');
   if(activeRecords){document.getElementById('search-input').value=e.target.value;renderRecords();}
+});
+document.getElementById('notification-center-btn')?.addEventListener('click',()=>{
+  const center=document.getElementById('notification-center');
+  const button=document.getElementById('notification-center-btn');
+  const open=center.classList.toggle('open');
+  button.setAttribute('aria-expanded',String(open));
+});
+document.addEventListener('click',event=>{
+  const center=document.getElementById('notification-center');
+  if(center&&!center.contains(event.target)){
+    center.classList.remove('open');
+    document.getElementById('notification-center-btn')?.setAttribute('aria-expanded','false');
+  }
 });
 document.getElementById('notification-enable-btn')?.addEventListener('click',enableNotificationsFromPrompt);
 document.getElementById('notification-dismiss-btn')?.addEventListener('click',hideNotificationPrompt);

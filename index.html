@@ -559,6 +559,7 @@
     content:'SC Adventure\A Real Magic Dashboard';white-space:pre;position:absolute;left:24px;top:24px;right:24px;
     color:#f40009;font-size:20px;line-height:1.14;font-weight:800;letter-spacing:0;max-width:220px;white-space:pre-wrap;overflow-wrap:anywhere;overflow:hidden;
   }
+  .app-logo{width:38px;height:38px;flex:none;border-radius:11px;object-fit:cover;box-shadow:0 8px 18px rgba(213,43,30,.16)}
   .tabs::after{display:none}
   .sidebar-logo{display:none}
   .tab{
@@ -652,6 +653,21 @@
     border-radius:18px;box-shadow:0 18px 46px rgba(213,43,30,.18);backdrop-filter:blur(20px);
     opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .22s ease,transform .22s ease;
   }
+  .live-notification{
+    position:fixed;top:92px;right:24px;z-index:1100;width:min(420px,calc(100vw - 32px));padding:15px 16px;
+    display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,.97);border:1px solid rgba(213,43,30,.24);
+    border-radius:20px;box-shadow:0 20px 54px rgba(213,43,30,.22);backdrop-filter:blur(22px);
+    opacity:0;transform:translateY(-14px) scale(.98);pointer-events:none;transition:opacity .24s ease,transform .24s ease;
+  }
+  .live-notification.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+  .live-notification-logo{width:46px;height:46px;flex:none;border-radius:13px;object-fit:cover;box-shadow:0 8px 18px rgba(213,43,30,.14)}
+  .live-notification-copy{min-width:0;flex:1}
+  .live-notification-kicker{color:#d52b1e;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  .live-notification-title{margin-top:2px;color:#1a1c1c;font-size:15px;font-weight:800;line-height:1.25}
+  .live-notification-body{margin-top:4px;color:#5c403b;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+  .live-notification-close{width:28px;height:28px;border:0;border-radius:50%;background:transparent;color:#906f6a;font-size:20px;line-height:1;cursor:pointer}
+  .live-notification-close:hover{background:rgba(213,43,30,.08);color:#d52b1e}
+  @media(max-width:620px){.live-notification{top:82px;right:14px;width:calc(100vw - 28px)}}
   .notification-prompt.show{opacity:1;transform:translateY(0);pointer-events:auto}
   .notification-prompt-icon{width:38px;height:38px;display:grid;place-items:center;flex:none;border-radius:12px;background:rgba(213,43,30,.10);font-size:21px}
   .notification-prompt-copy{min-width:0;flex:1}
@@ -702,6 +718,7 @@
 </head>
 <body>
 <div class="app-topbar">
+  <img class="app-logo" src="icon-192.png" alt="Sales Dashboard logo">
   <div class="menu-tile">☰</div>
   <div class="top-search"><span>⌕</span><input type="search" id="global-search" placeholder="ค้นหาชื่อ, ลูกค้า, เบอร์รถ..."><button type="button" id="global-search-btn">ค้นหา</button></div>
 </div>
@@ -1060,6 +1077,15 @@
   </div>
   <button type="button" id="notification-dismiss-btn" aria-label="ปิด">×</button>
 </div>
+<div class="live-notification" id="live-notification" role="status" aria-live="polite">
+  <img class="live-notification-logo" src="icon-192.png" alt="">
+  <div class="live-notification-copy">
+    <div class="live-notification-kicker">Sales Dashboard</div>
+    <div class="live-notification-title" id="live-notification-title">มีข้อมูลใหม่</div>
+    <div class="live-notification-body" id="live-notification-body"></div>
+  </div>
+  <button class="live-notification-close" id="live-notification-close" type="button" aria-label="ปิด">×</button>
+</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -1086,6 +1112,17 @@ function syncDot(s,msg){document.getElementById('sync-dot').className='sync-dot 
 const UIAudio=(()=>{let ctx;const ensure=()=>{if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx;};const tone=(freq=520,dur=0.08,type='sine',gain=0.045,delay=0)=>{try{const c=ensure(),now=c.currentTime+delay,osc=c.createOscillator(),vol=c.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,now);vol.gain.setValueAtTime(0.0001,now);vol.gain.exponentialRampToValueAtTime(gain,now+0.012);vol.gain.exponentialRampToValueAtTime(0.0001,now+dur);osc.connect(vol);vol.connect(c.destination);osc.start(now);osc.stop(now+dur+0.02);}catch(e){}};return{click(){tone(380,0.045,'triangle',0.026);tone(620,0.052,'sine',0.018,0.035);},success(){tone(520,0.07,'sine',0.04);tone(760,0.10,'sine',0.045,0.07);},warn(){tone(210,0.10,'sawtooth',0.026);tone(150,0.08,'triangle',0.018,0.08);},engine(){tone(92,0.12,'sawtooth',0.025);tone(138,0.12,'square',0.012,0.025);}};})();
 function playUISound(kind='click'){if(UIAudio[kind])UIAudio[kind]();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');playUISound(String(msg).includes('❌')||String(msg).includes('⚠')?'warn':'success');setTimeout(()=>t.classList.remove('show'),2400);}
+let liveNotificationTimer;
+function showLiveNotification(title,body){
+  const box=document.getElementById('live-notification');
+  if(!box)return;
+  document.getElementById('live-notification-title').textContent=title;
+  document.getElementById('live-notification-body').textContent=body;
+  box.classList.add('show');
+  playUISound('success');
+  clearTimeout(liveNotificationTimer);
+  liveNotificationTimer=setTimeout(()=>box.classList.remove('show'),6000);
+}
 async function requestBrowserNotifications(){
   if(!('Notification' in window))return false;
   try{
@@ -1991,6 +2028,10 @@ document.getElementById('global-search')?.addEventListener('input',e=>{
 });
 document.getElementById('notification-enable-btn')?.addEventListener('click',enableNotificationsFromPrompt);
 document.getElementById('notification-dismiss-btn')?.addEventListener('click',hideNotificationPrompt);
+document.getElementById('live-notification-close')?.addEventListener('click',()=>document.getElementById('live-notification')?.classList.remove('show'));
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',event=>{
+  if(event.data?.type==='push-notification')showLiveNotification(event.data.title,event.data.body);
+});
 document.addEventListener('pointerdown',e=>{if(e.target.closest('button,[role="button"],input,select'))playUISound('click');},{capture:true});
 document.querySelectorAll('.ripple-btn').forEach(b=>b.addEventListener('click',function(){addRipple(this);}));
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];

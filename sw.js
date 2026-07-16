@@ -1,4 +1,4 @@
-const CACHE_NAME = "dashboard-cache-v6";
+const CACHE_NAME = "dashboard-cache-v7";
 const urlsToCache = [
   "./",
   "./index.html"
@@ -32,6 +32,9 @@ self.addEventListener("push", event => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || "Sales Dashboard";
   const body = data.body || "มีข้อมูลใหม่";
+  event.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    list.forEach(client => client.postMessage({ type: "push-notification", title, body }));
+  }));
   event.waitUntil(self.registration.showNotification(title, {
     body,
     icon: "icon-192.png",

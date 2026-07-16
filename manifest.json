@@ -1,6 +1,6 @@
 {
-  "name": "Sales Dashboard",
-  "short_name": "Dashboard",
+  "name": "SC Adventure Sales Dashboard",
+  "short_name": "SC Adventure",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0b0b0c",
@@ -14,7 +14,8 @@
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

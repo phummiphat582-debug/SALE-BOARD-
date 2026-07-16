@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sales Dashboard</title>
+<meta name="theme-color" content="#d52b1e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1411,7 +1414,9 @@ window.saveFuel=async()=>{
     await requestBrowserNotifications();
     await addDoc(collection(db,FUEL_COL),{date:thDate,vehicleId:vehicleId||'',liters,pricePerLiter,total,note,createdAt:serverTimestamp()});
     showToast('⛽ บันทึกน้ำมันแล้ว');
-    await broadcastPushNotification('มีรายการน้ำมันใหม่',`${vehicleId||'ไม่ระบุรถ'} · ฿${total.toLocaleString()}`);
+    await broadcastPushNotification('⛽ มีรายการน้ำมันใหม่',`รถ: ${vehicleId||'ไม่ระบุรถ'}
+วันที่: ${thDate} · ${liters.toLocaleString()} ลิตร
+ราคา/ลิตร: ฿${pricePerLiter.toLocaleString()} · รวม: ฿${total.toLocaleString()}${note?`\nหมายเหตุ: ${note}`:''}`);
     ['fuel-f-veh','fuel-f-liters','fuel-f-ppl','fuel-f-total','fuel-f-note'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
     renderFuel();
@@ -1967,7 +1972,11 @@ window.saveRecord=async()=>{
   btn.disabled=true;btn.textContent='กำลังบันทึก...';
   try{
     if(editId){await updateDoc(doc(db,COL,editId),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||''});showToast('✓ แก้ไขรายการแล้ว');}
-    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');await broadcastPushNotification('มีรายการขายใหม่',`${name} · ฿${amt.toLocaleString()}`);}
+    else{await requestBrowserNotifications();await addDoc(collection(db,COL),{date:thDate,client,name,time:time||'—',amt,cars,source,channel,vehicleIds:vehicleIds||'',createdAt:serverTimestamp()});showToast('✓ บันทึกรายการแล้ว');await broadcastPushNotification('🧾 มีรายการขายใหม่',`ลูกค้า: ${client}
+รายการ: ${name}
+วันที่: ${thDate} · เวลา: ${time||'ไม่ระบุ'}
+รถ: ${vehicleIds||'ไม่ระบุ'} · จำนวน: ${cars} คัน
+ยอดรวม: ฿${amt.toLocaleString()} · ${source} · ${channel}`);}
     resetForm();showPage('dashboard',document.querySelectorAll('.tab')[0]);
   }catch(e){showToast('❌ บันทึกไม่สำเร็จ: '+e.message);}
   finally{btn.disabled=false;btn.textContent='บันทึกรายการ';}

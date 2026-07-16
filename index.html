@@ -1194,7 +1194,29 @@ async function registerWebPush(reg){
   }catch(e){console.warn('Web Push registration failed',e);showToast('ไม่สามารถเปิดแจ้งเตือนบนเครื่องนี้ได้');}
 }
 async function broadcastPushNotification(title,body){
-  try{await fetch(`${PUSH_WORKER_URL}/notify`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title,body})});}catch(e){console.warn('Web Push send failed',e);}
+  const payload={title,body};
+  try{
+    const response=await fetch(`${PUSH_WORKER_URL}/notify`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+    if(!response.ok)throw new Error(`Push request failed: ${response.status}`);
+  }catch(e){
+    const pending=JSON.parse(localStorage.getItem('sale-board-push-queue')||'[]');
+    pending.push({...payload,queuedAt:Date.now()});
+    localStorage.setItem('sale-board-push-queue',JSON.stringify(pending.slice(-50)));
+    console.warn('Web Push queued until online',e);
+  }
+}
+async function flushQueuedPushNotifications(){
+  const pending=JSON.parse(localStorage.getItem('sale-board-push-queue')||'[]');
+  if(!pending.length||!navigator.onLine)return;
+  const remaining=[];
+  for(const payload of pending){
+    try{
+      const response=await fetch(`${PUSH_WORKER_URL}/notify`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+      if(!response.ok)throw new Error(`Push request failed: ${response.status}`);
+    }catch(e){remaining.push(payload);}
+  }
+  if(remaining.length)localStorage.setItem('sale-board-push-queue',JSON.stringify(remaining));
+  else localStorage.removeItem('sale-board-push-queue');
 }
 function hideNotificationPrompt(){document.getElementById('notification-prompt')?.classList.remove('show');}
 function showNotificationPrompt(){
@@ -2093,6 +2115,8 @@ document.addEventListener('click',event=>{
 });
 document.getElementById('notification-enable-btn')?.addEventListener('click',enableNotificationsFromPrompt);
 document.getElementById('notification-dismiss-btn')?.addEventListener('click',hideNotificationPrompt);
+window.addEventListener('online',flushQueuedPushNotifications);
+setInterval(flushQueuedPushNotifications,30000);
 document.getElementById('live-notification-close')?.addEventListener('click',()=>document.getElementById('live-notification')?.classList.remove('show'));
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',event=>{
   if(event.data?.type==='push-notification')showLiveNotification(event.data.title,event.data.body);
@@ -2103,6 +2127,7 @@ document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
 document.getElementById('fuel-f-date').value=new Date().toISOString().split('T')[0];
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').then(reg=>{
   if('Notification' in window&&Notification.permission==='granted')registerWebPush(reg);
+  flushQueuedPushNotifications();
 }).catch(()=>{});
 setTimeout(showNotificationPrompt,700);
 </script>

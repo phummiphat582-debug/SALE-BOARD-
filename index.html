@@ -6,6 +6,9 @@
 <title>SC ADVENTURE | Sales & Fleet Cockpit</title>
 <meta name="description" content="ระบบบริหารจัดการยอดขาย รอบรถ ATV และค่าน้ำมัน SC Adventure">
 <meta name="theme-color" content="#090a10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SC Adventure">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -31,12 +34,11 @@
 }
 
 :root {
-  /* Dynamic Theme Variables (Default: Cyber Red) */
   --bg-base: #08090d;
   --bg-deep: #0e1017;
   --bg-surface: #141722;
   --bg-surface-elevated: #1a1e2d;
-  --bg-surface-glass: rgba(20, 23, 34, 0.75);
+  --bg-surface-glass: rgba(20, 23, 34, 0.78);
   
   --border-subtle: rgba(255, 255, 255, 0.07);
   --border-medium: rgba(255, 255, 255, 0.14);
@@ -57,7 +59,6 @@
   --text-muted: #94a3b8;
   --text-dim: #64748b;
   
-  /* Category Colors */
   --src-walk: #00e5ff;
   --src-house: #ffb703;
   --src-land: #00f59b;
@@ -65,7 +66,6 @@
   --src-door: #c084fc;
   --src-vip: #ff2a4b;
   
-  /* Channel Colors */
   --ch-fb: #3b82f6;
   --ch-tt: #ec4899;
   --ch-line: #22c55e;
@@ -91,7 +91,6 @@
   --header-h: 72px;
 }
 
-/* Theme Presets */
 html[data-theme="neon-cyan"] {
   --bg-base: #060a12;
   --bg-deep: #0a101d;
@@ -128,7 +127,6 @@ html[data-theme="emerald-matrix"] {
   --primary-text: #060d09;
 }
 
-/* Base Setup */
 html, body {
   min-height: 100vh;
   background-color: var(--bg-base);
@@ -151,7 +149,6 @@ body {
   position: relative;
 }
 
-/* Cyber Matrix Background Grid */
 body::before {
   content: '';
   position: fixed;
@@ -165,25 +162,7 @@ body::before {
   mask-image: radial-gradient(circle at 50% 30%, black 60%, transparent 95%);
 }
 
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-deep);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
-}
-
-/* ==========================================================================
-   TOP HUD BAR
-   ========================================================================== */
+/* TOP HUD BAR */
 .top-hud {
   position: fixed;
   top: 0;
@@ -252,7 +231,7 @@ body::before {
 
 .hud-search {
   position: relative;
-  width: min(340px, 28vw);
+  width: min(300px, 24vw);
 }
 
 .hud-search input {
@@ -347,6 +326,28 @@ body::before {
   box-shadow: 0 0 28px rgba(255, 42, 75, 0.65);
 }
 
+/* PWA Install Button with Glowing Neon Pulse */
+.pwa-install-btn {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(0, 245, 155, 0.18));
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-weight: 700;
+  animation: pwa-pulse 2s infinite ease-in-out;
+  display: none;
+}
+
+@keyframes pwa-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 229, 255, 0.3); border-color: var(--accent-cyan); }
+  50% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.6), 0 0 30px rgba(0, 245, 155, 0.3); border-color: var(--accent-green); }
+}
+
+.pwa-install-btn:hover {
+  background: linear-gradient(135deg, #00e5ff, #00f59b);
+  color: #060a12;
+  border-color: transparent;
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.8);
+}
+
 .icon-btn {
   width: 38px;
   height: 38px;
@@ -355,9 +356,7 @@ body::before {
   border-radius: var(--radius-md);
 }
 
-/* ==========================================================================
-   SIDEBAR NAVIGATION
-   ========================================================================== */
+/* SIDEBAR NAVIGATION */
 .sidebar {
   position: fixed;
   top: 0;
@@ -525,9 +524,7 @@ body::before {
   color: var(--accent-cyan);
 }
 
-/* ==========================================================================
-   PAGES & CONTAINERS
-   ========================================================================== */
+/* PAGES CONTAINER */
 .page-view {
   display: none;
   animation: page-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -544,9 +541,7 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ==========================================================================
-   ANIMATED ATV HERO HUD
-   ========================================================================== */
+/* ANIMATED ATV HERO HUD */
 .atv-cockpit-hero {
   position: relative;
   background: linear-gradient(135deg, rgba(26, 30, 45, 0.95), rgba(14, 16, 23, 0.98));
@@ -737,9 +732,7 @@ body::before {
   z-index: 2;
 }
 
-/* ==========================================================================
-   DATE FILTER TOOLBAR
-   ========================================================================== */
+/* DATE FILTER TOOLBAR */
 .controls-toolbar {
   display: flex;
   align-items: center;
@@ -836,9 +829,7 @@ body::before {
   margin-left: auto;
 }
 
-/* ==========================================================================
-   METRIC CARDS (KPIs)
-   ========================================================================== */
+/* METRIC CARDS (KPIs) */
 .metrics-grid-5 {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -924,18 +915,6 @@ body::before {
   gap: 6px;
 }
 
-.trend-pill {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: var(--radius-full);
-}
-
-.trend-pill.up { background: rgba(0, 245, 155, 0.15); color: var(--accent-green); }
-.trend-pill.down { background: rgba(255, 42, 75, 0.15); color: var(--primary); }
-
-/* Bonus Financials Strip */
 .financials-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -965,9 +944,7 @@ body::before {
   color: var(--accent-gold);
 }
 
-/* ==========================================================================
-   FLEET STATUS HUB (MINI REALTIME ATV GRID)
-   ========================================================================== */
+/* FLEET HUB */
 .fleet-hub-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -1046,9 +1023,7 @@ body::before {
 .fleet-pill-status.active { color: var(--accent-green); }
 .fleet-pill-status.idle { color: var(--text-dim); }
 
-/* ==========================================================================
-   CHARTS & GRAPHS
-   ========================================================================== */
+/* CHARTS & TABLES */
 .charts-grid-main {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
@@ -1122,9 +1097,6 @@ body::before {
   text-align: right;
 }
 
-/* ==========================================================================
-   SOURCE BREAKDOWN CARDS
-   ========================================================================== */
 .src-breakdown-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -1186,9 +1158,6 @@ body::before {
   transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ==========================================================================
-   TABLES (CYBER STYLED)
-   ========================================================================== */
 .cyber-table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -1228,7 +1197,6 @@ table.cyber-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Table Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -1284,7 +1252,6 @@ table.cyber-table tbody tr:last-child td {
   color: var(--accent-cyan);
 }
 
-/* Action Buttons inside Table */
 .tbl-btn {
   width: 28px;
   height: 28px;
@@ -1313,9 +1280,6 @@ table.cyber-table tbody tr:last-child td {
   color: #f87171;
 }
 
-/* ==========================================================================
-   FORMS & INPUTS (ADD BOOKING & FUEL)
-   ========================================================================== */
 .form-container-card {
   max-width: 820px;
   margin: 0 auto;
@@ -1415,9 +1379,7 @@ table.cyber-table tbody tr:last-child td {
   color: #fff;
 }
 
-/* ==========================================================================
-   MODALS (GLASSMORPHISM DIALOGS)
-   ========================================================================== */
+/* MODALS */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -1459,7 +1421,6 @@ table.cyber-table tbody tr:last-child td {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Digital Slip Design inside Modal */
 .receipt-ticket {
   background: #0f1118;
   border: 1px dashed var(--border-medium);
@@ -1484,7 +1445,6 @@ table.cyber-table tbody tr:last-child td {
 .receipt-ticket::before { left: -9px; }
 .receipt-ticket::after { right: -9px; }
 
-/* Notification Drawer */
 .notification-center-panel {
   display: none;
   position: absolute;
@@ -1506,7 +1466,6 @@ table.cyber-table tbody tr:last-child td {
   animation: modal-fade-in 0.2s ease;
 }
 
-/* Toast */
 .toast {
   position: fixed;
   bottom: 24px;
@@ -1531,9 +1490,6 @@ table.cyber-table tbody tr:last-child td {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ==========================================================================
-   MOBILE & RESPONSIVE DOCK
-   ========================================================================== */
 @media (max-width: 1024px) {
   :root {
     --sidebar-w: 0px;
@@ -1644,10 +1600,16 @@ table.cyber-table tbody tr:last-child td {
   </div>
 
   <div class="hud-actions">
+    <!-- PWA Install Button (Auto-hides if already installed or after installing) -->
+    <button class="hud-btn pwa-install-btn" id="pwa-install-btn" onclick="triggerPWAInstall()" title="ติดตั้งแอป PWA">
+      <span class="material-symbols-outlined">install_mobile</span>
+      <span>📲 ติดตั้งแอป</span>
+    </button>
+
     <!-- Quick Mini Fare Calculator -->
     <button class="hud-btn" onclick="openFareCalcModal()" title="เครื่องคิดเลขจองด่วน">
       <span class="material-symbols-outlined" style="color:var(--accent-gold)">calculate</span>
-      <span style="display:inline-block">คำนวณราคา</span>
+      <span>คำนวณราคา</span>
     </button>
 
     <!-- Theme Switcher Menu -->
@@ -1751,6 +1713,11 @@ table.cyber-table tbody tr:last-child td {
           <span class="material-symbols-outlined">add_task</span>
           <span>เพิ่มรายการใหม่</span>
         </button>
+        <!-- Hero PWA Install Button -->
+        <button class="hud-btn pwa-install-btn" id="hero-pwa-install-btn" onclick="triggerPWAInstall()">
+          <span class="material-symbols-outlined">install_mobile</span>
+          <span>📲 ติดตั้งแอปลงเครื่อง</span>
+        </button>
         <button class="hud-btn" onclick="openFareCalcModal()">
           <span class="material-symbols-outlined" style="color:var(--accent-gold)">calculate</span>
           <span>คำนวณแพ็กเกจ</span>
@@ -1794,7 +1761,6 @@ table.cyber-table tbody tr:last-child td {
       <button class="filter-pill" onclick="setQuickFilter('all', this)">🌐 ทั้งหมด</button>
     </div>
 
-    <!-- Month Picker Stepper -->
     <div class="month-stepper" id="month-nav-wrap" style="display:none">
       <button class="stepper-btn" onclick="shiftMonth(-1)">‹</button>
       <div class="stepper-label" id="mnav-label">—</div>
@@ -1819,7 +1785,6 @@ table.cyber-table tbody tr:last-child td {
 
   <!-- 5 MAIN KPI CARDS -->
   <div class="metrics-grid-5">
-    <!-- Revenue -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">ยอดขายรวม</span>
@@ -1829,7 +1794,6 @@ table.cyber-table tbody tr:last-child td {
       <div class="kpi-footer" id="m-rev-sub">0 รายการ</div>
     </div>
 
-    <!-- Avg / Bill -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">เฉลี่ย / กรุ๊ป</span>
@@ -1839,7 +1803,6 @@ table.cyber-table tbody tr:last-child td {
       <div class="kpi-footer">ยอดต่อบิลเฉลี่ย</div>
     </div>
 
-    <!-- Groups -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">จำนวนกรุ๊ป</span>
@@ -1849,7 +1812,6 @@ table.cyber-table tbody tr:last-child td {
       <div class="kpi-footer" id="m-clients-sub">การจอง = 1 กรุ๊ป</div>
     </div>
 
-    <!-- Rounds / Cars -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">จำนวนรอบรถ</span>
@@ -1859,7 +1821,6 @@ table.cyber-table tbody tr:last-child td {
       <div class="kpi-footer" id="m-cars-sub">รอบการวิ่ง</div>
     </div>
 
-    <!-- Top Source -->
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-title">ช่องทางยอดนิยม</span>
@@ -1870,7 +1831,7 @@ table.cyber-table tbody tr:last-child td {
     </div>
   </div>
 
-  <!-- FINANCIAL STRIP (Revenue vs Fuel vs Net Margin) -->
+  <!-- FINANCIAL STRIP -->
   <div class="financials-strip">
     <div class="financial-mini-card">
       <div>
@@ -1904,12 +1865,10 @@ table.cyber-table tbody tr:last-child td {
       </h3>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim)" id="fleet-hub-active-count">0 คันกำลังวิ่ง</span>
     </div>
-    <div class="fleet-pills-container" id="fleet-pills-wrap">
-      <!-- Generated Dynamically -->
-    </div>
+    <div class="fleet-pills-container" id="fleet-pills-wrap"></div>
   </div>
 
-  <!-- CHARTS ROW 1 (Stacked Daily Bar & Source Doughnut) -->
+  <!-- CHARTS ROW 1 -->
   <div class="charts-grid-main">
     <div class="chart-card">
       <div class="card-top-title">
@@ -1937,7 +1896,7 @@ table.cyber-table tbody tr:last-child td {
   </div>
   <div class="src-breakdown-grid" id="src-breakdown-grid"></div>
 
-  <!-- CHARTS ROW 2 (Channel Doughnut & Top Vehicles Leaderboard) -->
+  <!-- CHARTS ROW 2 -->
   <div class="charts-grid-secondary">
     <div class="chart-card">
       <div class="card-top-title">
@@ -2036,9 +1995,7 @@ table.cyber-table tbody tr:last-child td {
     </div>
   </div>
 
-  <div class="src-breakdown-grid" id="veh-summary-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
-    <!-- Vehicle Cards injected here -->
-  </div>
+  <div class="src-breakdown-grid" id="veh-summary-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
 </main>
 
 <!-- ========================================================================
@@ -2081,7 +2038,6 @@ table.cyber-table tbody tr:last-child td {
     </div>
   </div>
 
-  <!-- FUEL ENTRY FORM -->
   <div class="form-container-card" style="max-width:100%;margin-bottom:22px;padding:24px">
     <div class="form-header-bar">
       <h3 class="section-h3"><span class="material-symbols-outlined">local_gas_station</span> บันทึกการเติมน้ำมัน</h3>
@@ -2120,7 +2076,6 @@ table.cyber-table tbody tr:last-child td {
     </div>
   </div>
 
-  <!-- FUEL CHARTS & TABLE -->
   <div class="charts-grid-secondary">
     <div class="chart-card">
       <div class="card-top-title">
@@ -2183,25 +2138,21 @@ table.cyber-table tbody tr:last-child td {
     <input type="hidden" id="f-edit-id">
 
     <div class="form-grid-layout">
-      <!-- Date -->
       <div class="field-group">
         <label class="field-label">วันที่</label>
         <input type="date" id="f-date" class="field-input">
       </div>
 
-      <!-- Client / Ref -->
       <div class="field-group">
         <label class="field-label">รหัสอ้างอิง / Voucher</label>
         <input type="text" id="f-client" class="field-input" placeholder="เช่น SC-001 หรือ รหัส Voucher">
       </div>
 
-      <!-- Customer Name -->
       <div class="field-group">
         <label class="field-label">ชื่อลูกค้า / กรุ๊ป</label>
         <input type="text" id="f-name" class="field-input" placeholder="เช่น คุณสมชาย (กรุ๊ป 4 ท่าน)">
       </div>
 
-      <!-- Time slot / Duration -->
       <div class="field-group">
         <label class="field-label">ระยะเวลา / รอบเวลา</label>
         <input type="text" id="f-time" class="field-input" placeholder="เช่น 1 ชม. หรือ 10:30 (1 ชม.)">
@@ -2213,7 +2164,6 @@ table.cyber-table tbody tr:last-child td {
         </div>
       </div>
 
-      <!-- Amount -->
       <div class="field-group">
         <label class="field-label">ยอดเงินรวม (฿)</label>
         <input type="number" id="f-amt" class="field-input" placeholder="เช่น 1200" min="0">
@@ -2226,13 +2176,11 @@ table.cyber-table tbody tr:last-child td {
         </div>
       </div>
 
-      <!-- Number of ATVs -->
       <div class="field-group">
         <label class="field-label">จำนวนคัน</label>
         <input type="number" id="f-cars" class="field-input" placeholder="1" min="1" value="1">
       </div>
 
-      <!-- Source -->
       <div class="field-group">
         <label class="field-label">ประเภทลูกค้า (Source)</label>
         <select id="f-source" class="field-select">
@@ -2245,7 +2193,6 @@ table.cyber-table tbody tr:last-child td {
         </select>
       </div>
 
-      <!-- Channel -->
       <div class="field-group">
         <label class="field-label">ช่องทางที่มา (Channel)</label>
         <select id="f-channel" class="field-select">
@@ -2259,13 +2206,10 @@ table.cyber-table tbody tr:last-child td {
         </select>
       </div>
 
-      <!-- Vehicle IDs -->
       <div class="field-group full-width">
         <label class="field-label">🚗 เบอร์รถที่ออก (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
         <input type="text" id="f-veh-ids" class="field-input" placeholder="เช่น C01, C02 หรือ B01">
-        <div class="quick-presets-row" id="quick-veh-selector-chips">
-          <!-- Dynamic ATV quick pick chips -->
-        </div>
+        <div class="quick-presets-row" id="quick-veh-selector-chips"></div>
       </div>
     </div>
 
@@ -2335,9 +2279,7 @@ table.cyber-table tbody tr:last-child td {
   </div>
 </main>
 
-<!-- ========================================================================
-     MODALS & MINI-TOOLS
-     ======================================================================== -->
+<!-- MODALS -->
 
 <!-- MINI FARE CALCULATOR MODAL -->
 <div class="modal-overlay" id="calc-modal">
@@ -2408,9 +2350,7 @@ table.cyber-table tbody tr:last-child td {
       <button class="tbl-btn" onclick="closeReceiptModal()">✕</button>
     </div>
 
-    <div id="receipt-ticket-area" class="receipt-ticket">
-      <!-- Dynamic Receipt Slip Injected Here -->
-    </div>
+    <div id="receipt-ticket-area" class="receipt-ticket"></div>
 
     <div style="display:flex;gap:10px;margin-top:18px">
       <button class="hud-btn hud-btn-primary" onclick="downloadReceiptPNG()" style="flex:1;justify-content:center">
@@ -2434,14 +2374,12 @@ table.cyber-table tbody tr:last-child td {
       <button class="tbl-btn" onclick="closeAIModal()">✕</button>
     </div>
 
-    <!-- Provider Selection -->
     <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
       <button class="filter-pill active" id="btn-prov-gemini" onclick="setProvider('gemini',this)">✨ Gemini (ฟรี)</button>
       <button class="filter-pill" id="btn-prov-openrouter" onclick="setProvider('openrouter',this)">🔀 OpenRouter</button>
       <button class="filter-pill" id="btn-prov-anthropic" onclick="setProvider('anthropic',this)">⚡ Claude</button>
     </div>
 
-    <!-- API Key Input -->
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
       <input type="password" id="ai-api-key" class="field-input" placeholder="ใส่ API Key..." style="flex:1;font-size:12px">
       <button class="hud-btn icon-btn" onclick="toggleKeyVis()"><span class="material-symbols-outlined">visibility</span></button>
@@ -2453,14 +2391,12 @@ table.cyber-table tbody tr:last-child td {
       <span id="ai-key-msg">กำลังตรวจสอบ Key...</span>
     </div>
 
-    <!-- Mode Selector -->
     <div style="display:flex;gap:6px;margin-bottom:14px">
       <button class="filter-pill active" id="ai-tab-single" onclick="setAIMode('single',this)">📅 เดือนที่เลือก</button>
       <button class="filter-pill" id="ai-tab-compare" onclick="setAIMode('compare',this)">⚖️ เปรียบเทียบ 2 เดือน</button>
       <button class="filter-pill" id="ai-tab-all" onclick="setAIMode('all',this)">🗂 ภาพรวมทั้งหมด</button>
     </div>
 
-    <!-- Month Pickers for AI -->
     <div id="ai-month-pickers" style="margin-bottom:14px">
       <div id="ai-picker-single" style="display:flex;align-items:center;gap:8px">
         <span style="font-size:12px;color:var(--text-muted)">เดือนที่วิเคราะห์:</span>
@@ -2478,7 +2414,6 @@ table.cyber-table tbody tr:last-child td {
       </div>
     </div>
 
-    <!-- AI Output Content -->
     <div id="ai-content" style="background:rgba(0,0,0,0.4);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:16px;min-height:100px;max-height:45vh;overflow-y:auto;font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:16px">
       <div id="ai-placeholder" style="color:var(--text-dim)">เลือกโหมดและเดือน แล้วกด "เริ่มวิเคราะห์ AI"</div>
     </div>
@@ -2542,9 +2477,7 @@ table.cyber-table tbody tr:last-child td {
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ========================================================================
-     APPLICATION LOGIC (FIRESTORE & INTERACTION SYSTEM)
-     ======================================================================== -->
+<!-- APPLICATION LOGIC -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
@@ -2751,6 +2684,73 @@ window.toggleThemeModal = () => {
 const savedTheme = localStorage.getItem('sc_theme');
 if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
 
+// ============================================================================
+// PWA INSTALL BUTTON & LIFECYCLE MANAGEMENT
+// ============================================================================
+let deferredPrompt = null;
+const installBtn = document.getElementById('pwa-install-btn');
+const heroInstallBtn = document.getElementById('hero-pwa-install-btn');
+
+function isPWAInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true ||
+         document.referrer.includes('android-app://') ||
+         localStorage.getItem('pwa_installed') === 'true';
+}
+
+function hidePWAButtons() {
+  if (installBtn) installBtn.style.display = 'none';
+  if (heroInstallBtn) heroInstallBtn.style.display = 'none';
+}
+
+function showPWAButtons() {
+  if (isPWAInstalled()) {
+    hidePWAButtons();
+    return;
+  }
+  if (installBtn) installBtn.style.display = 'inline-flex';
+  if (heroInstallBtn) heroInstallBtn.style.display = 'inline-flex';
+}
+
+if (isPWAInstalled()) {
+  hidePWAButtons();
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showPWAButtons();
+});
+
+window.triggerPWAInstall = async () => {
+  if (!deferredPrompt) {
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      showToast('📱 บน iPhone/iPad: กดปุ่ม Share (แชร์) แล้วเลือก "Add to Home Screen (เพิ่มไปยังหน้าจอโฮม)"');
+    } else {
+      showToast('ℹ️ พร้อมใช้งานเป็นแอป หรือกดเมนู ⋮ ของเบราว์เซอร์เลือก "ติดตั้งแอป"');
+    }
+    return;
+  }
+  playUISound('click');
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    localStorage.setItem('pwa_installed', 'true');
+    hidePWAButtons();
+    showToast('🎉 ติดตั้งแอป SC Adventure สำเร็จแล้ว!');
+    playUISound('success');
+  }
+  deferredPrompt = null;
+};
+
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('pwa_installed', 'true');
+  hidePWAButtons();
+  showToast('🎉 ติดตั้งแอป SC Adventure สำเร็จแล้ว!');
+  playUISound('success');
+  deferredPrompt = null;
+});
+
 // Animate Numbers Counter
 function animateCount(el, from, to, dur = 500, pre = '', suf = '') {
   if (!el) return;
@@ -2812,7 +2812,6 @@ onSnapshot(query(collection(db, FUEL_COL), orderBy('createdAt', 'asc')), snap =>
   updateFinancialStrip();
 });
 
-// Sidebar Quick Stats
 function renderSidebarMini() {
   const today = new Date();
   const td = today.getDate(), tm = today.getMonth() + 1, ty = today.getFullYear();
@@ -2829,7 +2828,6 @@ function renderSidebarMini() {
   if (rndEl) rndEl.textContent = `${todayRounds} รอบ`;
 }
 
-// Fuel Total Calculator Helper
 document.getElementById('fuel-f-liters')?.addEventListener('input', calcFuelTotal);
 document.getElementById('fuel-f-ppl')?.addEventListener('input', calcFuelTotal);
 
@@ -2840,7 +2838,6 @@ function calcFuelTotal() {
   if (tot && l && p) tot.value = Math.round(l * p);
 }
 
-// Month Navigation Steppers
 window.shiftMonth = d => {
   pickedM += d;
   if (pickedM > 12) { pickedM = 1; pickedY++; }
@@ -2880,7 +2877,6 @@ function updateFuelNavLabel() {
   if (el) el.textContent = `${TH_MONTHS_FULL[fuelM - 1]} ${fuelY + 543}`;
 }
 
-// Duration & Vehicle Parsers
 function parseTimeMins(timeStr) {
   if (!timeStr || timeStr === '—') return 0;
   const hm = timeStr.match(/(\d+)\s*(?:ชม\.?|ชั่วโมง|h)/i);
@@ -2906,7 +2902,6 @@ function parseVehIds(str) {
   return str.split(',').map(s => s.trim().replace(/^รถ\s*/i, '').toUpperCase()).filter(Boolean);
 }
 
-// Quick Filter System
 window.setQuickFilter = (key, el) => {
   playUISound('click');
   filterKey = key;
@@ -2965,7 +2960,6 @@ function getFiltered() {
   return DATA;
 }
 
-// Master Dashboard Update Routine
 function update() {
   const rows = getFiltered();
   const total = rows.reduce((s, r) => s + r.amt, 0);
@@ -2999,13 +2993,11 @@ function update() {
   updateRecentTxnTable(rows);
 }
 
-// Financial Strip Update
 function updateFinancialStrip() {
   const rows = getFiltered();
   const totalRev = rows.reduce((s, r) => s + r.amt, 0);
   const totalRounds = rows.length || 1;
   
-  // Calculate fuel for matching period
   const t = new Date();
   let fuelFiltered = FUEL_DATA;
   if (filterKey === 'month') {
@@ -3033,7 +3025,6 @@ function updateFinancialStrip() {
   if (fRndEl) fRndEl.textContent = fmt(fuelPerRound) + '/รอบ';
 }
 
-// Realtime Fleet Hub (Live ATV Status Badges)
 function renderFleetHub() {
   const wrap = document.getElementById('fleet-pills-wrap');
   const activeCountEl = document.getElementById('fleet-hub-active-count');
@@ -3053,7 +3044,6 @@ function renderFleetHub() {
     });
   });
 
-  // Extract all known vehicles from all data
   const allKnownVehs = new Set(['C01','C02','C03','C04','C05','C06','C07','C08','B01','B02','B03']);
   DATA.forEach(r => parseVehIds(r.vehicleIds).forEach(id => allKnownVehs.add(id)));
   const sortedVehs = [...allKnownVehs].sort();
@@ -3074,7 +3064,6 @@ function renderFleetHub() {
 
   if (activeCountEl) activeCountEl.textContent = `${activeCount} คันวิ่งแล้ววันนี้`;
 
-  // Quick vehicle chip selector in Add Form
   const chipWrap = document.getElementById('quick-veh-selector-chips');
   if (chipWrap) {
     chipWrap.innerHTML = sortedVehs.slice(0, 14).map(id => 
@@ -3098,7 +3087,6 @@ window.appendVehicleId = id => {
   playUISound('click');
 };
 
-// Charts Renderers
 function updateBar(rows) {
   const dates = [...new Set(rows.map(r => r.date))].sort((a, b) => sortKey(a) - sortKey(b));
   const srcs = ['Walk in', 'House', 'Land of Us', 'MRD', 'Door of Life', 'รับรอง34'];
@@ -3220,7 +3208,6 @@ function updateChannel(rows) {
   }
 }
 
-// Source Breakdown Grid
 function updateSourceBreakdown(rows) {
   const ALL_SRC = ['Walk in', 'House', 'Land of Us', 'MRD', 'Door of Life', 'รับรอง34'];
   const bySrc = {}, bySrcAmt = {};
@@ -3253,7 +3240,6 @@ function updateSourceBreakdown(rows) {
   }).join('');
 }
 
-// Vehicle Round Ranking Table
 function updateVehRoundTable(rows) {
   const vehMap = new Map();
   rows.forEach(r => {
@@ -3300,7 +3286,6 @@ function updateVehRoundTable(rows) {
   }).join('') : `<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:24px">ไม่มีข้อมูลรอบรถในช่วงนี้</td></tr>`;
 }
 
-// Recent Transactions Table (Top 12)
 function updateRecentTxnTable(rows) {
   const sorted = [...rows].sort((a, b) => sortKey(b.date) - sortKey(a.date)).slice(0, 12);
   const tbody = document.getElementById('txn-tbody');
@@ -3349,7 +3334,6 @@ function chBadgeClass(c) {
   return map[c] || 'ch-other';
 }
 
-// Vehicle Page Renderer
 window.renderVehicles = () => {
   updateVehNavLabel();
   const searchQ = (document.getElementById('veh-search-box')?.value || '').toLowerCase().trim();
@@ -3420,7 +3404,6 @@ window.renderVehicles = () => {
   }).join('') : `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-dim)">ไม่มีข้อมูลรอบรถในเดือนนี้</div>`;
 };
 
-// Fuel Page Renderer
 window.renderFuel = () => {
   updateFuelNavLabel();
   const monthFuel = FUEL_DATA.filter(f => {
@@ -3438,7 +3421,6 @@ window.renderFuel = () => {
   document.getElementById('fuel-total-count').textContent = monthFuel.length + ' ครั้ง';
   document.getElementById('fuel-list-count').textContent = monthFuel.length + ' รายการ';
 
-  // Fuel Table
   const tbody = document.getElementById('fuel-tbody');
   if (tbody) {
     tbody.innerHTML = monthFuel.length ? monthFuel.map(f => `
@@ -3463,7 +3445,6 @@ window.renderFuel = () => {
     `).join('') : `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:24px">ไม่มีรายการน้ำมันในเดือนนี้</td></tr>`;
   }
 
-  // Fuel Charts
   updateFuelCharts(monthFuel);
 };
 
@@ -3519,7 +3500,6 @@ function updateFuelCharts(rows) {
   }
 }
 
-// Fuel Save & Delete
 window.saveFuel = async () => {
   const dateVal = document.getElementById('fuel-f-date').value;
   const vehVal = document.getElementById('fuel-f-veh').value.trim();
@@ -3610,7 +3590,6 @@ window.deleteFuel = async id => {
   }
 };
 
-// All Records Page Renderer
 window.renderRecords = () => {
   populateRecordMonthFilter();
   const searchQ = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
@@ -3678,7 +3657,6 @@ function populateRecordMonthFilter() {
   if (currentVal && [...monthMap.keys()].includes(currentVal)) sel.value = currentVal;
 }
 
-// Booking Form CRUD & Presets
 window.setTimePreset = val => {
   document.getElementById('f-time').value = val;
   playUISound('click');
@@ -3796,7 +3774,6 @@ window.deleteRecord = async id => {
   }
 };
 
-// Navigation Tab Switcher
 window.handleTabClick = (pageId, el) => {
   playUISound('click');
   document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
@@ -3815,7 +3792,6 @@ window.handleTabClick = (pageId, el) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-// MINI FARE CALCULATOR MODAL LOGIC
 window.openFareCalcModal = () => {
   document.getElementById('calc-modal').classList.add('show');
   runFareCalc();
@@ -3879,7 +3855,6 @@ window.copyCalcSummary = () => {
   });
 };
 
-// DIGITAL SLIP MODAL LOGIC
 let currentReceiptRecord = null;
 window.openReceiptModal = id => {
   const r = DATA.find(d => d._id === id);
@@ -3968,7 +3943,6 @@ window.copyReceiptText = () => {
   });
 };
 
-// CSV EXPORT ENGINE (EXCEL COMPATIBLE WITH UTF-8 BOM)
 window.exportSalesCSV = () => {
   const rows = getFiltered();
   if (!rows.length) { showToast('❌ ไม่มีข้อมูลให้ส่งออก'); return; }
@@ -4018,7 +3992,6 @@ window.exportFuelCSV = () => {
   showToast('📥 ดาวน์โหลดไฟล์ Fuel CSV เรียบร้อย');
 };
 
-// SNAPSHOT EXPORT ENGINE
 window.exportSnapshot = () => {
   const rows = getFiltered();
   const total = rows.reduce((s, r) => s + r.amt, 0);
@@ -4087,7 +4060,6 @@ window.closeSnapshot = () => {
   document.getElementById('snapshot-modal').classList.remove('show');
 };
 
-// AI INTEGRATION ENGINE (GEMINI, OPENROUTER, CLAUDE)
 window.openAIModal = () => {
   populateAIMonthSelects();
   loadApiKey();
@@ -4207,7 +4179,6 @@ ${promptData}`;
   }
 };
 
-// Global Search Keyboard Shortcut (Press / to focus)
 document.addEventListener('keydown', e => {
   if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
     e.preventDefault();
@@ -4223,7 +4194,6 @@ document.getElementById('global-search')?.addEventListener('input', e => {
   renderRecords();
 });
 
-// Notifications Drawer Toggle
 document.getElementById('notification-center-btn')?.addEventListener('click', () => {
   document.getElementById('notification-center').classList.toggle('open');
   playUISound('click');
@@ -4258,16 +4228,27 @@ function renderNotificationCenter() {
   `).join('') : '<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:12px 0">ไม่มีรายการแจ้งเตือน</div>';
 }
 
-// Initialize Defaults
 document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 document.getElementById('fuel-f-date').value = new Date().toISOString().split('T')[0];
 updateNavLabel();
 updateVehNavLabel();
 updateFuelNavLabel();
 
-// Register Service Worker
+// Service Worker with auto-update listener
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.update();
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('[SW] New version installed');
+          }
+        });
+      }
+    });
+  }).catch(() => {});
 }
 </script>
 </body>

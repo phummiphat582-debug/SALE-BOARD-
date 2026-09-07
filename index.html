@@ -3250,7 +3250,7 @@ function updateVehRoundTable(rows) {
       const item = vehMap.get(vid);
       item.rounds += 1;
       item.totalMins += mins;
-      item.totalAmt += (ids.length ? Math.round(r.amt / ids.length) : r.amt);
+      item.totalAmt += r.amt;
     });
   });
 
@@ -3351,7 +3351,7 @@ window.renderVehicles = () => {
       const item = vehMap.get(vid);
       item.rounds += 1;
       item.totalMins += mins;
-      item.totalAmt += (ids.length ? Math.round(r.amt / ids.length) : r.amt);
+      item.totalAmt += r.amt;
       item.trips.push({ date: r.date, name: r.name || r.client, time: r.time, amt: r.amt });
     });
   });
@@ -3362,7 +3362,8 @@ window.renderVehicles = () => {
   const totalActive = vehs.length;
   const totalRounds = vehs.reduce((s, v) => s + v.rounds, 0);
   const totalMins = vehs.reduce((s, v) => s + v.totalMins, 0);
-  const totalRev = vehs.reduce((s, v) => s + v.totalAmt, 0);
+  const vehRows = monthRows.filter(r => parseVehIds(r.vehicleIds).length > 0);
+  const totalRev = vehRows.reduce((s, r) => s + r.amt, 0);
 
   document.getElementById('veh-kpi-active').textContent = `${totalActive} คัน`;
   document.getElementById('veh-kpi-rounds').textContent = `${totalRounds} รอบ`;
@@ -3386,7 +3387,7 @@ window.renderVehicles = () => {
             <div style="font-family:var(--font-mono);font-size:13px;font-weight:600">${minsToHrs(v.totalMins)}</div>
           </div>
           <div>
-            <div style="font-size:10px;color:var(--text-dim)">รายได้ประมาณการ</div>
+            <div style="font-size:10px;color:var(--text-dim)">รายได้จริง</div>
             <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:${color}">${fmt(v.totalAmt)}</div>
           </div>
         </div>
